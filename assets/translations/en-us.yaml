@@ -6035,3 +6035,24 @@ legacy:
 serverUpgrade:
   title: "{vendor} Server Changed"
   message: "The page reloaded because the version of {vendor} running on your server changed."
+##############################
+### Opni
+##############################
+
+opni:
+  chart:
+    labels:
+      anomaly: Anomalous
+      normal: Normal
+      suspicious: Suspicious
+      controlPlaneAnomaly: |-
+        {count, plural,
+        one  {Control Plane Anomaly}
+        other {Control Plane Anomalies}
+        }
+      workloadAnomaly: |-
+        {count, plural,
+        one  {Workload Anomaly}
+        other {Workload Anomalies}
+        }
+    resetZoom: Reset Zoom
