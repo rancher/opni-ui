@@ -2,9 +2,12 @@
 import bb, { area, zoom, selection } from 'billboard.js';
 import { randomStr } from '@/utils/string';
 import { getAbsoluteValue } from '@/components/form/SuperDatePicker/util';
+<<<<<<< HEAD
 
 const SELECTED_RADIUS = 7;
 
+=======
+>>>>>>> Adding a more suitable datepicker
 export default {
   name:       'TimeSeries',
   components: { },
@@ -64,10 +67,25 @@ export default {
   computed: {
     minTime() {
       return getAbsoluteValue(this.from).valueOf();
+<<<<<<< HEAD
+=======
+      // return ((this.latestTime / 1000) - (this.timeRange * 60)) * 1000;
+>>>>>>> Adding a more suitable datepicker
     },
 
     maxTime() {
       return getAbsoluteValue(this.to).valueOf();
+<<<<<<< HEAD
+=======
+      // return this.latestTime;
+    },
+
+    // TODO remove when done with mocks
+    latestTime() {
+      const { timestamp = [] } = this.dataSeries;
+
+      return timestamp[timestamp.length - 1];
+>>>>>>> Adding a more suitable datepicker
     },
 
     // TODO decide if/when we want to show log y axes
@@ -91,8 +109,12 @@ export default {
     },
     maxTime() {
       this.createChart();
+<<<<<<< HEAD
     },
 
+=======
+    }
+>>>>>>> Adding a more suitable datepicker
   },
   mounted() {
     this.createChart();
@@ -278,10 +300,18 @@ export default {
 
 <template>
   <div>
+<<<<<<< HEAD
     <div class=" mb-20 input-controls">
       <span />
       <div class="reset">
         <button v-if="showReset" class="btn role-secondary" type="button" @click="resetZoom">
+=======
+    <div class="row mb-20 input-controls">
+      <div class="col span-4">
+      </div>
+      <div :style="{'align-self':'center'}" class="col span-4 ">
+        <button v-if="showReset" class="btn role-secondary pull-right" type="button" @click="chart.unzoom(); showReset=false">
+>>>>>>> Adding a more suitable datepicker
           {{ t('opni.chart.resetZoom') }}
         </button>
       </div>
