@@ -104,33 +104,3 @@ export const RELATIVE_TYPES = [ALL_TYPES.SECONDS_AGO, ALL_TYPES.MINUTES_AGO, ALL
 export function getAbsoluteValue(time) {
   return ALL_TYPES[time.type].computeAbsolute(time.value);
 }
-
-export const LOG_HEADERS = [
-  {
-    name:      'date',
-    labelKey:  'tableHeaders.date',
-    formatter: 'Date',
-    value:     'timestamp',
-    sort:      ['timestamp'],
-    width:     '300px'
-  },
-  {
-    name:     'level',
-    labelKey: 'tableHeaders.level',
-    value:    'level',
-    sort:     ['level']
-  },
-  {
-    name:     'component',
-    labelKey: 'tableHeaders.component',
-    value:    'component',
-    sort:     ['component']
-  },
-  {
-    name:      'feedback',
-    labelKey:  'tableHeaders.feedback',
-    formatter: 'Feedback',
-    width:     '80px',
-    align:     'right'
-  },
-];

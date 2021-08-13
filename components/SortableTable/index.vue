@@ -631,7 +631,7 @@ export default {
           </tr>
         </slot>
         <template v-for="(row, i) in group.rows">
-          <slot name="main-row" :row="row">
+          <slot name="main-row" :row="row" :i="i">
             <slot :name="'main-row:' + (row.mainRowKey || i)" :full-colspan="fullColspan">
               <!-- The data-cant-run-bulk-action-of-interest attribute is being used instead of :class because
               because our selection.js invokes toggleClass and :class clobbers what was added by toggleClass if
@@ -694,6 +694,7 @@ export default {
             :full-colspan="fullColspan"
             :row="row"
             :sub-matches="subMatches"
+            :i="i"
           >
             <tr v-if="row.stateDescription" :key="get(row,keyField) + '-description'" class="state-description sub-row">
               <td v-if="tableActions" class="row-check" align="middle">

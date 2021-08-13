@@ -24,8 +24,8 @@ export default {
 
 <template>
   <span>
-    <button class="btn btn-sm role-primary role-error" @click="remove">
-      <img :src="thumbsDown" />
+    <button class="btn btn-sm role-link" @click="remove">
+      <img :src="thumbsDown" @click="remove" />
     </button>
   </span>
 </template>
@@ -37,7 +37,7 @@ export default {
 }
 
 img {
-  $size: 15px;
+  $size: 20px;
   width: $size;
   height: $size;
 }
