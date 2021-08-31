@@ -1,0 +1,573 @@
+{
+    "isPartial": false,
+    "isRunning": false,
+    "rawResponse": {
+        "took": 337,
+        "timed_out": false,
+        "_shards": {
+            "total": 2,
+            "successful": 2,
+            "skipped": 0,
+            "failed": 0
+        },
+        "hits": {
+            "total": 1939,
+            "max_score": null,
+            "hits": []
+        },
+        "aggregations": {
+            "2": {
+                "buckets": [
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 38
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:45:00.000-07:00",
+                        "key": 1626795900000,
+                        "doc_count": 38
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 66
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 6
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:45:30.000-07:00",
+                        "key": 1626795930000,
+                        "doc_count": 72
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 61
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 4
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:46:00.000-07:00",
+                        "key": 1626795960000,
+                        "doc_count": 65
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 69
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 4
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:46:30.000-07:00",
+                        "key": 1626795990000,
+                        "doc_count": 73
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 57
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 5
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:47:00.000-07:00",
+                        "key": 1626796020000,
+                        "doc_count": 62
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 36
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 3
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:47:30.000-07:00",
+                        "key": 1626796050000,
+                        "doc_count": 39
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 7
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:48:00.000-07:00",
+                        "key": 1626796080000,
+                        "doc_count": 7
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 26
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 2
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:48:30.000-07:00",
+                        "key": 1626796110000,
+                        "doc_count": 28
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 9
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:49:00.000-07:00",
+                        "key": 1626796140000,
+                        "doc_count": 9
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 6
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:49:30.000-07:00",
+                        "key": 1626796170000,
+                        "doc_count": 6
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 98
+                                },
+                                {
+                                    "key": "Anomaly",
+                                    "doc_count": 5
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 8
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:50:00.000-07:00",
+                        "key": 1626796200000,
+                        "doc_count": 100
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 59
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 5
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:50:30.000-07:00",
+                        "key": 1626796230000,
+                        "doc_count": 64
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 27
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 2
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:51:00.000-07:00",
+                        "key": 1626796260000,
+                        "doc_count": 29
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 73
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 5
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:51:30.000-07:00",
+                        "key": 1626796290000,
+                        "doc_count": 78
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 83
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 6
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:52:00.000-07:00",
+                        "key": 1626796320000,
+                        "doc_count": 89
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 89
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 3
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:52:30.000-07:00",
+                        "key": 1626796350000,
+                        "doc_count": 92
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 17
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 1
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:53:00.000-07:00",
+                        "key": 1626796380000,
+                        "doc_count": 18
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 27
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 3
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:53:30.000-07:00",
+                        "key": 1626796410000,
+                        "doc_count": 30
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 6
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:54:00.000-07:00",
+                        "key": 1626796440000,
+                        "doc_count": 6
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 6
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:54:30.000-07:00",
+                        "key": 1626796470000,
+                        "doc_count": 6
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 85
+                                },
+                                {
+                                    "key": "Anomaly",
+                                    "doc_count": 1
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:55:00.000-07:00",
+                        "key": 1626796500000,
+                        "doc_count": 86
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 26
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 2
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:55:30.000-07:00",
+                        "key": 1626796530000,
+                        "doc_count": 28
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 58
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 5
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:56:00.000-07:00",
+                        "key": 1626796560000,
+                        "doc_count": 63
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 16
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 1
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:56:30.000-07:00",
+                        "key": 1626796590000,
+                        "doc_count": 17
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 54
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 5
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:57:00.000-07:00",
+                        "key": 1626796620000,
+                        "doc_count": 59
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 626
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 23
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:57:30.000-07:00",
+                        "key": 1626796650000,
+                        "doc_count": 649
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 84
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 3
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:58:00.000-07:00",
+                        "key": 1626796680000,
+                        "doc_count": 87
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 16
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 1
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:58:30.000-07:00",
+                        "key": 1626796710000,
+                        "doc_count": 17
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 19
+                                },
+                                {
+                                    "key": "Suspicious",
+                                    "doc_count": 1
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:59:00.000-07:00",
+                        "key": 1626796740000,
+                        "doc_count": 20
+                    },
+                    {
+                        "3": {
+                            "doc_count_error_upper_bound": 0,
+                            "sum_other_doc_count": 0,
+                            "buckets": [
+                                {
+                                    "key": "Normal",
+                                    "doc_count": 3
+                                }
+                            ]
+                        },
+                        "key_as_string": "2021-07-20T08:59:30.000-07:00",
+                        "key": 1626796770000,
+                        "doc_count": 3
+                    }
+                ]
+            }
+        }
+    },
+    "total": 2,
+    "loaded": 2
+}

@@ -1,0 +1,169 @@
+<script>
+import SortableTable from '@/components/SortableTable';
+import List from '@/components/formatter/List';
+import { uniq } from '@/utils/array';
+
+export const POINT_OF_INTEREST_HEADERS = [
+  {
+    name:      'daterange',
+    labelKey:  'tableHeaders.dateRange',
+    formatter: 'DateRange',
+    value:     'fromTo',
+    sort:      ['timestamp'],
+    width:     '300px',
+  },
+  {
+    name:      'levels',
+    labelKey:  'tableHeaders.levels',
+    value:     'levels',
+    sort:      ['levels'],
+    formatter: 'List',
+  },
+  {
+    name:      'components',
+    labelKey:  'tableHeaders.components',
+    value:     'components',
+    sort:      ['components'],
+    formatter: 'List',
+  },
+  {
+    name:     'count',
+    labelKey: 'tableHeaders.count',
+    value:    'count',
+    sort:     ['count'],
+  },
+];
+
+const POINT_OF_INTEREST_HOVER = 'pointOfInterestHover';
+const POINT_OF_INTEREST_SELECT = 'pointOfInterestSelect';
+
+export default {
+  components: {
+    List,
+    SortableTable,
+  },
+
+  props: {
+    pointsOfInterest: {
+      type:    Array,
+      default: () => [],
+    },
+
+    pointOfInterestHighlight: {
+      type:    Object,
+      default: null
+    }
+  },
+
+  data() {
+    return { POINT_OF_INTEREST_HEADERS };
+  },
+
+  computed: {
+    buckets() {
+      const from = 1626795900000;
+      const to = 1626796770000;
+      const step = 30000;
+
+      const bucketCount = Math.floor((to - from) / step);
+
+      return [...Array(bucketCount)].map((_, i) => ({
+        from: from + i * step,
+        to:   from + (i + 1) * step - 1,
+      }));
+    },
+    aggregatedPointsOfInterest() {
+      return this.buckets
+        .map(this.aggregatePointsOfInterest)
+        .filter(agg => agg.count > 0);
+    },
+  },
+
+  methods: {
+    aggregatePointsOfInterest(bucket) {
+      const pointsInBucket = this.pointsOfInterest.filter((point) => {
+        return point.timestamp >= bucket.from && point.timestamp <= bucket.to;
+      });
+
+      const aggregate = {
+        fromTo:              bucket,
+        count:               0,
+        levels:              [],
+        components:          [],
+        highlightGraphIndex:
+          this.pointsOfInterest.indexOf(pointsInBucket[0]) ===
+          this.pointsOfInterest.length - 1 ? 20 : 10,
+      };
+
+      pointsInBucket.forEach((point) => {
+        aggregate.count += 1;
+        aggregate.levels.push(point.level);
+        aggregate.components.push(point.component);
+      });
+
+      aggregate.levels = uniq(aggregate.levels);
+      aggregate.components = uniq(aggregate.components);
+
+      return aggregate;
+    },
+    highlightRow(row) {
+      return this.pointOfInterestHighlight === row;
+    },
+    onMouseEnter(pointOfInterest) {
+      this.$emit(POINT_OF_INTEREST_HOVER, pointOfInterest);
+    },
+    onMouseLeave() {
+      this.$emit(POINT_OF_INTEREST_HOVER, null);
+    },
+    onClick(pointOfInterest) {
+      this.$emit(POINT_OF_INTEREST_SELECT, pointOfInterest);
+    }
+  },
+};
+</script>
+<template>
+  <SortableTable
+    class="mt-20"
+    :rows="aggregatedPointsOfInterest"
+    :headers="POINT_OF_INTEREST_HEADERS"
+    :search="false"
+    :table-actions="false"
+    :row-actions="false"
+    :paging="true"
+    default-sort-by="name"
+    key-field="id"
+  >
+    <template #main-row="{ row }">
+      <tr
+        class="main-row has-sub-row point-of-interest"
+        :class="{ highlight: highlightRow(row) }"
+        @click="onClick(row)"
+        @mouseenter="onMouseEnter(row)"
+        @mouseleave="onMouseLeave(row)"
+      >
+        <td>
+          <DateRange :value="row.fromTo" />
+        </td>
+        <td>
+          <List :value="row.levels" />
+        </td>
+        <td>
+          <List :value="row.components" />
+        </td>
+        <td>
+          {{ row.count }}
+        </td>
+      </tr>
+    </template>
+  </SortableTable>
+</template>
+
+<style lang="scss" scoped>
+.point-of-interest {
+  cursor: pointer;
+
+  &.highlight {
+    background-color: var(--sortable-table-hover-bg);
+  }
+}
+</style>

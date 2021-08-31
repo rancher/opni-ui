@@ -3,6 +3,7 @@ import SortableTable from '@/components/SortableTable';
 import Checkbox from '@/components/form/Checkbox';
 import Drawer from '@/components/Drawer';
 import DateRange from '@/components/formatter/DateRange';
+import Banner from '@/components/Banner';
 
 export const LOG_HEADERS = [
   {
@@ -36,7 +37,7 @@ export const LOG_HEADERS = [
 
 export default {
   components: {
-    DateRange, Drawer, SortableTable, Checkbox,
+    Banner, DateRange, Drawer, SortableTable, Checkbox,
   },
 
   props: {
@@ -61,9 +62,9 @@ export default {
       LOG_HEADERS,
       showSuspicious: true,
       showAnomaly:    true,
-      showEtcd:         true,
-      showWorkloads:          true,
-      showPods:               true,
+      showEtcd:       true,
+      showWorkloads:  true,
+      showPods:       true,
       img:            require(`~/assets/images/mock-stack.png`)
     };
   },
@@ -131,61 +132,88 @@ export default {
       return this.pointOfInterestLogs.filter(log => log.component === 'pod').length;
     },
   },
+  methods: {
+    getColor(message) {
+      return message.level === 'Anomaly' ? 'error' : 'warning';
+    }
+  }
 };
 </script>
 <template>
   <Drawer :open="open" @close="$emit('close')">
     <template #title>
-      <div>
+      <div class="p-5 pb-0">
         <h1>Point of Interest Detail</h1> &nbsp;
         <h3 v-if="pointOfInterest">
           (<DateRange :value="pointOfInterest.fromTo" />)
         </h3>
       </div>
     </template>
-    <div class="row detail">
-      <div class="col span-7">
-        <div class="mb-5">
-          <label>Level: </label>
-          <Checkbox v-model="showSuspicious" :label="`Suspicious (${suspiciousLogCount})`" />
-          <Checkbox v-model="showAnomaly" :label="`Anomaly (${anomalyLogCount})`" />
+    <div class="contents">
+      <div class="row detail mb-10">
+        <div class="col span-7 p-5 pr-20">
+          <div class="filters">
+            <div class="mb-5">
+              <label>Level: </label>
+              <Checkbox v-model="showSuspicious" :label="`Suspicious (${suspiciousLogCount})`" />
+              <Checkbox v-model="showAnomaly" :label="`Anomaly (${anomalyLogCount})`" />
+            </div>
+            <div class="mb-5">
+              <label>Component: </label>
+              <Checkbox v-model="showEtcd" :label="`Etcd (${etcdLogCount})`" />
+              <Checkbox v-model="showWorkloads" :label="`Workloads (${workloadLogCount})`" />
+              <Checkbox v-model="showPods" :label="`Pods (${podLogCount})`" />
+            </div>
+          </div>
+          <SortableTable
+            :rows="filteredLogs"
+            :headers="LOG_HEADERS"
+            :search="false"
+            :table-actions="false"
+            :row-actions="false"
+            :paging="true"
+            default-sort-by="name"
+            key-field="id"
+          >
+            <template #sub-row="{row, fullColspan}">
+              <tr class="opni sub-row">
+                <td :colspan="fullColspan" :class="{[row.level.toLowerCase()]: true}" class="pt-0">
+                  <Banner
+                    class="m-0"
+                    :color="getColor(row)"
+                  >
+                    {{ row.message }}
+                  </Banner>
+                </td>
+              </tr>
+            </template>
+          </SortableTable>
         </div>
-        <div class="mb-5">
-          <label>Component: </label>
-          <Checkbox v-model="showEtcd" :label="`Etcd (${etcdLogCount})`" />
-          <Checkbox v-model="showWorkloads" :label="`Workloads (${workloadLogCount})`" />
-          <Checkbox v-model="showPods" :label="`Pods (${podLogCount})`" />
+        <div class="col span-5 p-5 pb-0">
+          <img :src="img" />
         </div>
-        <SortableTable
-          class="mt-20"
-          :rows="filteredLogs"
-          :headers="LOG_HEADERS"
-          :search="false"
-          :table-actions="false"
-          :row-actions="false"
-          :paging="true"
-          default-sort-by="name"
-          key-field="id"
-        >
-          <template #sub-row="{row, fullColspan}">
-            <tr class="opni sub-row">
-              <td :colspan="fullColspan" :class="{[row.level.toLowerCase()]: true}">
-                {{ row.message }}
-              </td>
-            </tr>
-          </template>
-        </SortableTable>
       </div>
-      <div class="col span-5">
-        <img :src="img" />
+    </div>
+  </drawer>
+</template>
+          </sortabletable>
+        </div>
       </div>
     </div>
   </Drawer>
 </template>
 
 <style lang="scss" scoped>
+.contents {
+  display: flex;
+  flex-direction: column;
+  height: 380px;
+  overflow: hidden;
+}
+
 .detail {
   height: 100%;
+
   .col:nth-of-type(2) {
     border-left: 1px solid var(--border);
     display: flex;

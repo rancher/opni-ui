@@ -1,13 +1,11 @@
 <script>
 import Card from '@/components/Card';
 import { getInsights, getLogs, getPointsOfInterest } from '@/utils/opni';
-import SortableTable from '@/components/SortableTable';
 import { ALL_TYPES, getAbsoluteValue } from '@/components/form/SuperDatePicker/util';
 import TimeSeries from '@/components/graph/TimeSeries';
 import Checkbox from '@/components/form/Checkbox';
-import List from '@/components/formatter/List';
-import { uniq } from '@/utils/array';
-import PointOfInterstDetail from '@/components/PointOfInterestDetail';
+import PointOfInterstDetail from '@/components/opni/PointOfInterestDetail';
+import PointOfInterstTable from '@/components/opni/PointOfInterestTable';
 
 import day from 'dayjs';
 import { formatForTimeseries, findBucket, showTooltip } from './util';
@@ -45,7 +43,7 @@ export const POINT_OF_INTEREST_HEADERS = [
 
 export default {
   components: {
-    Card, List, PointOfInterstDetail, SortableTable, TimeSeries, Checkbox,
+    Card, PointOfInterstDetail, PointOfInterstTable, TimeSeries, Checkbox,
   },
 
   async fetch() {
@@ -98,45 +96,6 @@ export default {
 
       return out;
     },
-    highlightIndices() {
-      if (!this.highlightRange) {
-        return [];
-      }
-
-      return this.logs
-        .map((log, index) => ({ index, log }))
-        .filter((pair) => {
-          const index = this.highlightRange.index;
-
-          if (index === 10 && pair.index === 1) {
-            return true;
-          }
-
-          if (index === 20 && pair.index === 0) {
-            return true;
-          }
-
-          return false;
-        })
-        .map(pair => 1 - pair.index);
-    },
-    buckets() {
-      const from = 1626795900000;
-      const to = 1626796770000;
-      const step = 30000;
-
-      const bucketCount = Math.floor((to - from) / step);
-
-      return [...Array(bucketCount)].map((_, i) => ({
-        from: from + (i * step),
-        to:   from + ((i + 1) * step) - 1
-      }));
-    },
-    aggregatedPointsOfInterest() {
-      return this.buckets
-        .map(this.aggregatePointsOfInterest)
-        .filter(agg => agg.count > 0);
-    }
   },
 
   mounted() {
@@ -147,30 +106,6 @@ export default {
   },
 
   methods: {
-    aggregatePointsOfInterest(bucket) {
-      const pointsInBucket = this.pointsOfInterest.filter((point) => {
-        return point.timestamp >= bucket.from && point.timestamp <= bucket.to;
-      });
-
-      const aggregate = {
-        fromTo:              bucket,
-        count:               0,
-        levels:              [],
-        components:          [],
-        highlightGraphIndex: this.pointsOfInterest.indexOf(pointsInBucket[0]) === this.pointsOfInterest.length - 1 ? 20 : 10
-      };
-
-      pointsInBucket.forEach((point) => {
-        aggregate.count += 1;
-        aggregate.levels.push(point.level);
-        aggregate.components.push(point.component);
-      });
-
-      aggregate.levels = uniq(aggregate.levels);
-      aggregate.components = uniq(aggregate.components);
-
-      return aggregate;
-    },
     async loadData() {
       this.loading = true;
       const { from, to } = this.requestFromTo;
@@ -182,7 +117,10 @@ export default {
         stateDescription: true,
         stateObj:         {},
         remove:           () => {
-          this.logs.splice(i, 1);
+          this.logs.splice(i, 1, { ...this.logs[i], removed: true });
+        },
+        undo: () => {
+          this.logs.splice(i, 1, { ...this.logs[i], removed: false });
         }
       }));
       this.loadedFromTo.from = { ...this.fromTo.from };
@@ -216,20 +154,16 @@ export default {
     onOut() {
       this.$set(this, 'highlightRange', null);
     },
-    onSelected(d, columns) {
-    },
     highlightRow(row) {
       return this.highlightIndices.includes(row);
     },
-    openDetail(pointOfInterest) {
-      this.pointOfInterest = pointOfInterest;
-    },
-    onMouseEnterPointOfInterest(pointOfInterest) {
-      this.highlightGraphIndex = pointOfInterest.highlightGraphIndex;
+
+    onPointOfInterestHover(pointOfInterest) {
+      this.highlightGraphIndex = pointOfInterest?.highlightGraphIndex;
     },
 
-    onMouseLeavePointOfInterest(pointOfInterest) {
-      this.highlightGraphIndex = null;
+    onPointOfInterestSelected(pointOfInterest) {
+      this.pointOfInterest = pointOfInterest;
     }
   }
 };
@@ -259,7 +193,6 @@ export default {
           :highlight-index="pointOfInterest ? pointOfInterest.highlightGraphIndex : highlightGraphIndex"
           @over="onOver"
           @out="onOut"
-          @selected="onSelected"
         >
           <template v-slot:inputs="{highlightData, unHighlightData}">
             <Checkbox v-model="highlightAnomalies" class="pull-right" label="Highlight Anomalies" @input="e=>e?highlightData('Anomalous', d=>d>0):unHighlightData()" />
@@ -267,34 +200,7 @@ export default {
         </TimeSeries>
       </template>
     </Card>
-    <SortableTable
-      class="mt-20"
-      :rows="aggregatedPointsOfInterest"
-      :headers="POINT_OF_INTEREST_HEADERS"
-      :search="false"
-      :table-actions="false"
-      :row-actions="false"
-      :paging="true"
-      default-sort-by="name"
-      key-field="id"
-    >
-      <template #main-row="{row, i}">
-        <tr class="main-row has-sub-row point-of-interest" :class="{highlight: highlightRow(i)}" @click="openDetail(row)" @mouseenter="onMouseEnterPointOfInterest(row)" @mouseleave="onMouseLeavePointOfInterest(row)">
-          <td>
-            <DateRange :value="row.fromTo" />
-          </td>
-          <td>
-            <List :value="row.levels" />
-          </td>
-          <td>
-            <List :value="row.components" />
-          </td>
-          <td>
-            {{ row.count }}
-          </td>
-        </tr>
-      </template>
-    </SortableTable>
+    <PointOfInterstTable :points-of-interest="pointsOfInterest" :point-of-interest-highlight="pointOfInterest" @pointOfInterestHover="onPointOfInterestHover" @pointOfInterestSelect="onPointOfInterestSelected" />
     <PointOfInterstDetail :open="!!pointOfInterest" :point-of-interest="pointOfInterest" :logs="logs" @close="pointOfInterest=null" />
   </div>
 </template>
@@ -312,13 +218,6 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: center;
-}
-
-.toolbar {
-  display: inline-flex;
-  flex-direction: row;
-  justify-content: flex-end;
   align-items: center;
 }
 
@@ -356,21 +255,6 @@ export default {
   }
 }
 
-::v-deep {
-  .sub-row td {
-    padding-top: 0;
-  }
-
-  .main-row td {
-    padding-bottom: 0;
-    height: 35px;
-  }
-
-  .highlight td {
-    background-color: rgba(246, 71, 71, 0.15);
-  }
-}
-
 .feedback {
   margin-right: 15px;
   padding-right: 0;
@@ -385,12 +269,5 @@ img {
 
 .point-of-interest {
   cursor: pointer;
-}
-
-.detail {
-  height: 100%;
-  .col:nth-of-type(2) {
-    border-left: 1px solid var(--border);
-  }
 }
 </style>
