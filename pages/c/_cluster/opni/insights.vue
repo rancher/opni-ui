@@ -172,7 +172,7 @@ export default {
   <div>
     <div class="bar">
       <h1>
-        Opni Dashboard
+        {{ t('opni.dashboard.title') }}
       </h1>
     </div>
     <Card class="card mt-20" :show-actions="false" :show-highlight-border="false">

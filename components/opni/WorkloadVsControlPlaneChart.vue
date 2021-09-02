@@ -15,7 +15,11 @@ export default {
     }
   },
   data() {
-    return { chart: null };
+    return {
+      chart:        null,
+      workload:     this.t('opni.workloadVsControlPlaneChart.workload'),
+      controlPlane: this.t('opni.workloadVsControlPlaneChart.controlPlane')
+    };
   },
 
   mounted() {
@@ -38,17 +42,13 @@ export default {
           data: {
             type:    bar(),
             colors:  {
-              Workload:        '#614EA2',
-              'Control Plane': '#3D98D3'
+              [this.controlPlane]: '#3D98D3',
+              [this.workload]:     '#614EA2'
             },
             columns: [
-              ['Control Plane', this.controlPlaneCount || 0.01],
-              ['Workload', this.workloadCount || 0.01],
+              [this.controlPlane, this.controlPlaneCount || 0.01],
+              [this.workload, this.workloadCount || 0.01],
             ],
-            axes: {
-              Workload:        'y',
-              'Control Plane': 'y'
-            }
           },
           axis: {
             rotated: true,

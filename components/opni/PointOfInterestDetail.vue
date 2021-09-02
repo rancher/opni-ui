@@ -66,7 +66,6 @@ export default {
       showEtcd:       true,
       showWorkloads:  true,
       showPods:       true,
-      img:            require(`~/assets/images/mock-stack.png`)
     };
   },
 
@@ -144,7 +143,7 @@ export default {
   <Drawer :open="open" @close="$emit('close')">
     <template #title>
       <div class="p-5 pb-0">
-        <h1>Point of Interest Detail</h1> &nbsp;
+        <h1>{{ t('opni.pointOfInterestDetail.title') }}</h1> &nbsp;
         <h3 v-if="pointOfInterest">
           (<DateRange :value="pointOfInterest.fromTo" />)
         </h3>
@@ -155,15 +154,15 @@ export default {
         <div class="col span-7 p-5 pr-20">
           <div class="filters">
             <div class="mb-5">
-              <label>Level: </label>
-              <Checkbox v-model="showSuspicious" :label="`Suspicious (${suspiciousLogCount})`" />
-              <Checkbox v-model="showAnomaly" :label="`Anomaly (${anomalyLogCount})`" />
+              <label>{{ t('opni.pointOfInterestDetail.level.label') }}:</label>
+              <Checkbox v-model="showSuspicious" :label="t('opni.pointOfInterestDetail.level.suspicious', { count: suspiciousLogCount})" />
+              <Checkbox v-model="showAnomaly" :label="t('opni.pointOfInterestDetail.level.anomaly', { count: anomalyLogCount})" />
             </div>
             <div class="mb-5">
-              <label>Component: </label>
-              <Checkbox v-model="showEtcd" :label="`Etcd (${etcdLogCount})`" />
-              <Checkbox v-model="showWorkloads" :label="`Workloads (${workloadLogCount})`" />
-              <Checkbox v-model="showPods" :label="`Pods (${podLogCount})`" />
+              <label>{{ t('opni.pointOfInterestDetail.component.label') }} </label>
+              <Checkbox v-model="showEtcd" :label="t('opni.pointOfInterestDetail.component.etcd', { count: etcdLogCount})" />
+              <Checkbox v-model="showWorkloads" :label="t('opni.pointOfInterestDetail.component.workloads', { count: workloadLogCount})" />
+              <Checkbox v-model="showPods" :label="t('opni.pointOfInterestDetail.component.pods', { count: podLogCount})" />
             </div>
           </div>
           <SortableTable

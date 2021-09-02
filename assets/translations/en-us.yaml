@@ -6081,3 +6081,20 @@ opni:
         other {Workload Anomalies}
         }
     resetZoom: Reset Zoom
+  dashboard:
+    title: Opni Dashboard
+  pointOfInterestDetail:
+    title: Point of Interest Detail
+    level: 
+      label: Level
+      suspicious: Suspicious ({count})
+      anomaly: Anomaly ({count})
+    component: 
+      label: Component
+      etcd: Etcd ({count})
+      pods: Pods ({count})
+      workloads: Workloads ({count})
+  workloadVsControlPlaneChart:
+    workload: Workload
+    controlPlane: Control Plane
+
