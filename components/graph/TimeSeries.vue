@@ -293,7 +293,7 @@ export default {
 </script>
 
 <template>
-  <div>
+  <div class="timeseries">
     <div class=" mb-20 input-controls">
       <span />
       <div class="reset">
@@ -312,87 +312,88 @@ export default {
 </template>
 
 <style lang="scss">
-.input-controls{
-  display:grid;
-  grid-template-columns: 33% 34% 33%;
-  align-items:center;
+.timeseries {
+  .input-controls{
+    display:grid;
+    grid-template-columns: 33% 34% 33%;
+    align-items:center;
 
-  .reset{
-    text-align: center;
-  }
-  div:last-of-type{
-    text-align:end
-  }
-
-}
-
-.bb>svg{
-  overflow: inherit !important;
-}
-.bb-main {
-  fill: var(--input-label);
-
-  .domain {
-    fill: none;
-    stroke: var(--default-text);
-    stroke-width: 1px;
-  }
-
-  .bb-grid{
-    stroke: var(--input-border);
-    stroke-width: 1px;
-  }
-
-  .bb-axis-y>g:last-of-type {
-    transform: translate(0,5px);
-  }
-
-  .bb-chart-lines .bb-lines .bb-line {
-    fill: none;
-  }
-
-  .bb-area {
-    opacity: 0.25 !important
-  }
-
-  .highlight-rect {
-    fill: var(--error);
-    fill-opacity: 0.25;
-
-    -webkit-animation: fadeIn ease-in 1;
-    -moz-animation: fadeIn ease-in 1;
-    animation: fadeIn ease-in 1;
-    -webkit-animation-fill-mode: forwards;
-    -moz-animation-fill-mode: forwards;
-    animation-fill-mode: forwards;
-    -webkit-animation-duration: 0.25s;
-    -moz-animation-duration: 0.25s;
-    animation-duration: 0.25s;
-  }
-
-    @-webkit-keyframes fadeIn {
-      from { fill-opacity: 0; }
-      to { fill-opacity: 0.25; }
+    .reset{
+      text-align: center;
     }
-    @-moz-keyframes fadeIn {
-      from { fill-opacity: 0; }
-      to { fill-opacity: 0.25; }
-    }
-    @keyframes fadeIn {
-      from { fill-opacity: 0; }
-      to { fill-opacity: 0.25; }
+    div:last-of-type{
+      text-align:end
     }
 
-  .bb-selected-circles circle{
-    fill:none;
   }
 
-  .bb-zoom-brush{
-    fill: var(--primary-banner-bg)
+  .bb>svg{
+    overflow: inherit !important;
   }
-}
+  .bb-main {
+    fill: var(--input-label);
 
-g.bb-legend  {
+    .domain {
+      fill: none;
+      stroke: var(--default-text);
+      stroke-width: 1px;
+    }
+
+    .bb-grid{
+      stroke: var(--input-border);
+      stroke-width: 1px;
+    }
+
+    .bb-axis-y>g:last-of-type {
+      transform: translate(0,5px);
+    }
+
+    .bb-chart-lines .bb-lines .bb-line {
+      fill: none;
+    }
+
+    .bb-area {
+      opacity: 0.25 !important
+    }
+
+    .highlight-rect {
+      fill: var(--error);
+      fill-opacity: 0.25;
+
+      -webkit-animation: fadeIn ease-in 1;
+      -moz-animation: fadeIn ease-in 1;
+      animation: fadeIn ease-in 1;
+      -webkit-animation-fill-mode: forwards;
+      -moz-animation-fill-mode: forwards;
+      animation-fill-mode: forwards;
+      -webkit-animation-duration: 0.25s;
+      -moz-animation-duration: 0.25s;
+      animation-duration: 0.25s;
+    }
+
+      @-webkit-keyframes fadeIn {
+        from { fill-opacity: 0; }
+        to { fill-opacity: 0.25; }
+      }
+      @-moz-keyframes fadeIn {
+        from { fill-opacity: 0; }
+        to { fill-opacity: 0.25; }
+      }
+      @keyframes fadeIn {
+        from { fill-opacity: 0; }
+        to { fill-opacity: 0.25; }
+      }
+
+    .bb-selected-circles circle{
+      fill:none;
+    }
+
+    .bb-zoom-brush{
+      fill: var(--primary-banner-bg)
+    }
+  }
+
+  g.bb-legend  {
     fill: var(--input-label);
     > g.bb-legend-background > rect {
       fill: none;
@@ -434,5 +435,5 @@ g.bb-legend  {
       }
     }
   }
-
+}
 </style>

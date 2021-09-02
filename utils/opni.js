@@ -43,73 +43,7 @@ export async function getInsights(from, to) {
 }
 
 export function getPointsOfInterest() {
-  return Promise.resolve([
-    {
-      timestamp: 1626796200000,
-      level:     'Anomoly',
-      component: 'etcd',
-    },
-    {
-      timestamp: 1626796200000,
-      level:     'Anomoly',
-      component: 'etcd',
-    },
-    {
-      timestamp: 1626796200000,
-      level:     'Anomoly',
-      component: 'etcd',
-    },
-    {
-      timestamp: 1626796200000,
-      level:     'Anomoly',
-      component: 'pod',
-    },
-    {
-      timestamp: 1626796200000,
-      level:     'Anomoly',
-      component: 'pod',
-    },
-    {
-      timestamp: 1626796201000,
-      level:     'Suspicious',
-      component: 'pod',
-    },
-    {
-      timestamp: 1626796201000,
-      level:     'Suspicious',
-      component: 'pod',
-    },
-    {
-      timestamp: 1626796201000,
-      level:     'Suspicious',
-      component: 'pod',
-    },
-    {
-      timestamp: 1626796201000,
-      level:     'Suspicious',
-      component: 'pod',
-    },
-    {
-      timestamp: 1626796201000,
-      level:     'Suspicious',
-      component: 'pod',
-    },
-    {
-      timestamp: 1626796201000,
-      level:     'Suspicious',
-      component: 'pod',
-    },
-    {
-      timestamp: 1626796201000,
-      level:     'Suspicious',
-      component: 'pod',
-    },
-    {
-      timestamp: 1626796500000,
-      level:     'Anomoly',
-      component: 'workload',
-    },
-  ]);
+  return Promise.resolve(require('./opni-data/points-of-interest.json'));
 }
 
 export async function getAnomalies(from, to) {

@@ -4,6 +4,7 @@ import Checkbox from '@/components/form/Checkbox';
 import Drawer from '@/components/Drawer';
 import DateRange from '@/components/formatter/DateRange';
 import Banner from '@/components/Banner';
+import WorkloadVsControlPlaneChart from '@/components/opni/WorkloadVsControlPlaneChart';
 
 export const LOG_HEADERS = [
   {
@@ -37,7 +38,7 @@ export const LOG_HEADERS = [
 
 export default {
   components: {
-    Banner, DateRange, Drawer, SortableTable, Checkbox,
+    Banner, DateRange, Drawer, SortableTable, Checkbox, WorkloadVsControlPlaneChart
   },
 
   props: {
@@ -189,18 +190,12 @@ export default {
             </template>
           </SortableTable>
         </div>
-        <div class="col span-5 p-5 pb-0">
-          <img :src="img" />
+        <div class="col span-5">
+          <WorkloadVsControlPlaneChart v-if="pointOfInterest" class="chart" :workload-count="pointOfInterest.workloadCount" :control-plane-count="pointOfInterest.controlPlaneCount" />
         </div>
       </div>
     </div>
   </drawer>
-</template>
-          </sortabletable>
-        </div>
-      </div>
-    </div>
-  </Drawer>
 </template>
 
 <style lang="scss" scoped>
@@ -209,6 +204,10 @@ export default {
   flex-direction: column;
   height: 380px;
   overflow: hidden;
+}
+
+.chart {
+  width: calc(100% - 30px - 1.75%);
 }
 
 .detail {
@@ -220,6 +219,7 @@ export default {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding-left: calc(20px + 1.75%);
   }
 
   .col {

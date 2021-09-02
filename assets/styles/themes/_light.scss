@@ -497,6 +497,9 @@ BODY, .theme-light {
   --app-partner-accent         : #{$partner};
   --app-partner-accent-text    : black;
 
+  --app-other-accent           : #{$other};
+  --app-other-accent-text      : black;
+
   --app-color1-accent          : rgba(var(--sizzle-1), 1);
   --app-color1-accent-text     : white;
 

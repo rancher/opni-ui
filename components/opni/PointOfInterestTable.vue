@@ -27,6 +27,18 @@ export const POINT_OF_INTEREST_HEADERS = [
     formatter: 'List',
   },
   {
+    name:     'workloadCount',
+    labelKey: 'tableHeaders.workloadCount',
+    value:    'workloadCount',
+    sort:     ['workloadCount'],
+  },
+  {
+    name:     'controlPlaneCount',
+    labelKey: 'tableHeaders.controlPlaneCount',
+    value:    'controlPlaneCount',
+    sort:     ['controlPlaneCount'],
+  },
+  {
     name:     'count',
     labelKey: 'tableHeaders.count',
     value:    'count',
@@ -90,6 +102,8 @@ export default {
         count:               0,
         levels:              [],
         components:          [],
+        workloadCount:       0,
+        controlPlaneCount:   0,
         highlightGraphIndex:
           this.pointsOfInterest.indexOf(pointsInBucket[0]) ===
           this.pointsOfInterest.length - 1 ? 20 : 10,
@@ -99,6 +113,8 @@ export default {
         aggregate.count += 1;
         aggregate.levels.push(point.level);
         aggregate.components.push(point.component);
+        aggregate.workloadCount += point.target === 'workload' ? 1 : 0;
+        aggregate.controlPlaneCount += point.target === 'control' ? 1 : 0;
       });
 
       aggregate.levels = uniq(aggregate.levels);
@@ -123,7 +139,7 @@ export default {
 </script>
 <template>
   <SortableTable
-    class="mt-20"
+    class="point-of-interest-table mt-20"
     :rows="aggregatedPointsOfInterest"
     :headers="POINT_OF_INTEREST_HEADERS"
     :search="false"
@@ -151,6 +167,12 @@ export default {
           <List :value="row.components" />
         </td>
         <td>
+          <span class="bubble" :class="{workload: row.workloadCount > row.controlPlaneCount}">{{ row.workloadCount }}</span>
+        </td>
+        <td>
+          <span class="bubble" :class="{'control-plane': row.controlPlaneCount > row.workloadCount }">{{ row.controlPlaneCount }}</span>
+        </td>
+        <td>
           {{ row.count }}
         </td>
       </tr>
@@ -159,11 +181,46 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-.point-of-interest {
+.point-of-interest-table {
   cursor: pointer;
 
   &.highlight {
     background-color: var(--sortable-table-hover-bg);
+  }
+
+  .bubble {
+    position: relative;
+    padding: 1px 4px;
+
+    border: 1px solid rgba(0, 0, 0, 0);
+    border-radius: var(--border-radius);
+
+    &::before {
+      content: "";
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+
+      opacity: 0.3;
+    }
+
+    &.workload {
+      border-color: var(--app-other-accent);
+
+      &::before {
+        background-color: var(--app-other-accent);
+      }
+    }
+
+    &.control-plane {
+      border-color: var(--app-rancher-accent);
+
+      &::before {
+        background-color: var(--app-rancher-accent);
+      }
+    }
   }
 }
 </style>
