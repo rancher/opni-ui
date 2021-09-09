@@ -2,6 +2,7 @@
 import SortableTable from '@/components/SortableTable';
 import List from '@/components/formatter/List';
 import { uniq } from '@/utils/array';
+import day from 'dayjs';
 
 export const POINT_OF_INTEREST_HEADERS = [
   {
@@ -61,7 +62,7 @@ export default {
       default: () => [],
     },
 
-    pointOfInterestHighlight: {
+    hightlightTime: {
       type:    Object,
       default: null
     }
@@ -123,7 +124,15 @@ export default {
       return aggregate;
     },
     highlightRow(row) {
-      return this.pointOfInterestHighlight === row;
+      if (!this.hightlightTime) {
+        return false;
+      }
+
+      const hightlightTimeMs = this.hightlightTime.valueOf();
+
+      console.log('fffffff', hightlightTimeMs, row.fromTo.from, row.fromTo.to);
+
+      return hightlightTimeMs >= row.fromTo.from && hightlightTimeMs < row.fromTo.to;
     },
     onMouseEnter(pointOfInterest) {
       this.$emit(POINT_OF_INTEREST_HOVER, pointOfInterest);
@@ -184,43 +193,8 @@ export default {
 .point-of-interest-table {
   cursor: pointer;
 
-  &.highlight {
+  & .highlight {
     background-color: var(--sortable-table-hover-bg);
-  }
-
-  .bubble {
-    position: relative;
-    padding: 1px 4px;
-
-    border: 1px solid rgba(0, 0, 0, 0);
-    border-radius: var(--border-radius);
-
-    &::before {
-      content: "";
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      left: 0;
-      top: 0;
-
-      opacity: 0.3;
-    }
-
-    &.workload {
-      border-color: var(--app-other-accent);
-
-      &::before {
-        background-color: var(--app-other-accent);
-      }
-    }
-
-    &.control-plane {
-      border-color: var(--app-rancher-accent);
-
-      &::before {
-        background-color: var(--app-rancher-accent);
-      }
-    }
   }
 }
 </style>

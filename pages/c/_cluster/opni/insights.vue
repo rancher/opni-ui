@@ -64,6 +64,7 @@ export default {
 
     return {
       highlightGraphIndex: null,
+      highlightTime:       null,
       pointOfInterest:        null,
       insights:               [],
       logs:                   [],
@@ -147,12 +148,10 @@ export default {
       };
     },
     onOver(data, columns) {
-      const usefulData = this.mapTimeSeries(data, columns);
-
-      this.$set(this, 'highlightRange', usefulData);
+      this.$set(this, 'highlightTime', day(data.x));
     },
     onOut() {
-      this.$set(this, 'highlightRange', null);
+      this.$set(this, 'highlightTime', null);
     },
     highlightRow(row) {
       return this.highlightIndices.includes(row);
@@ -200,16 +199,37 @@ export default {
         </TimeSeries>
       </template>
     </Card>
-    <PointOfInterstTable :points-of-interest="pointsOfInterest" :point-of-interest-highlight="pointOfInterest" @pointOfInterestHover="onPointOfInterestHover" @pointOfInterestSelect="onPointOfInterestSelected" />
+    <PointOfInterstTable :points-of-interest="pointsOfInterest" :hightlight-time="highlightTime" @pointOfInterestHover="onPointOfInterestHover" @pointOfInterestSelect="onPointOfInterestSelected" />
     <PointOfInterstDetail :open="!!pointOfInterest" :point-of-interest="pointOfInterest" :logs="logs" @close="pointOfInterest=null" />
   </div>
 </template>
 
 <style lang="scss" scoped>
-::v-deep .card-body {
-  height: 380px;
-  position: relative;
+::v-deep {
+  .card-body {
+    height: 380px;
+    position: relative;
+  }
+
+  .bubble {
+    &.workload {
+      border-color: var(--app-other-accent);
+
+      &::before {
+        background-color: var(--app-other-accent);
+      }
+    }
+
+    &.control-plane {
+      border-color: var(--app-rancher-accent);
+
+      &::before {
+        background-color: var(--app-rancher-accent);
+      }
+    }
+  }
 }
+
 .card {
   margin: 0;
 }

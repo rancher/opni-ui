@@ -86,10 +86,12 @@ export async function getLogs(from, to) {
 
   return response.rawResponse.hits.hits.map((hit) => {
     return {
-      timestamp:  hit._source.timestamp,
-      message:   hit._source.message,
-      level:     hit._source.anomaly_level,
-      component: hit._source.kubernetes_component
+      timestamp:      hit._source.timestamp,
+      message:        hit._source.message,
+      level:          hit._source.anomaly_level,
+      component:      hit._source.kubernetes_component,
+      isControlPlane: hit._source.is_control_plane_log,
+      area:           hit._source.is_control_plane_log ? 'Control Plane' : 'Workload',
     };
   });
 }

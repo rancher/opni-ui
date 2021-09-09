@@ -10,9 +10,9 @@ export function init(store) {
   product({ icon: 'longhorn' });
 
   virtualType({
-    label:      'Insights',
+    label:      'Logging',
     namespaced: false,
-    name:       'opni-insights',
+    name:       'opni-logging',
     weight:     2,
     route:      { name: 'c-cluster-opni-insights' },
     exact:      true,
@@ -27,5 +27,5 @@ export function init(store) {
     exact:      true,
   });
 
-  basicType(['opni-insights', 'opni-anomalies']);
+  basicType(['opni-logging', 'opni-anomalies']);
 }

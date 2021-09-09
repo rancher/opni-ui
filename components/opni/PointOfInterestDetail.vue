@@ -22,10 +22,24 @@ export const LOG_HEADERS = [
     sort:     ['level']
   },
   {
-    name:     'component',
-    labelKey: 'tableHeaders.component',
-    value:    'component',
-    sort:     ['component']
+    name:          'component',
+    labelKey:      'tableHeaders.component',
+    value:         'component',
+    sort:          ['component']
+  },
+  {
+    name:          'area',
+    labelKey:      'tableHeaders.area',
+    value:         'area',
+    sort:          'area',
+    formatter:     'TextWithClass',
+    formatterOpts: {
+      getClass(row) {
+        const level = row.isControlPlane ? 'control-plane' : 'workload';
+
+        return `bubble ${ level }`;
+      }
+    }
   },
   {
     name:      'feedback',

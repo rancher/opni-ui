@@ -4067,6 +4067,7 @@ tableHeaders:
   address: Address
   age: Age
   apiGroup: API Groups
+  area: Area
   authRoles:
     globalDefault: New User Default
     clusterDefault: Cluster Creator Default
@@ -6082,9 +6083,9 @@ opni:
         }
     resetZoom: Reset Zoom
   dashboard:
-    title: Opni Dashboard
+    title: Opni Logging
   pointOfInterestDetail:
-    title: Point of Interest Detail
+    title: Point of Interest
     level: 
       label: Level
       suspicious: Suspicious ({count})
