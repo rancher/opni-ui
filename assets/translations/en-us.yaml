@@ -6083,7 +6083,10 @@ opni:
         }
     resetZoom: Reset Zoom
   dashboard:
-    title: Opni Logging
+    title: Logging
+  nav:
+    logging: Logging
+    metrics: Metrics
   pointOfInterestDetail:
     title: Point of Interest
     level: 

@@ -4,7 +4,7 @@ import Checkbox from '@/components/form/Checkbox';
 import Drawer from '@/components/Drawer';
 import DateRange from '@/components/formatter/DateRange';
 import Banner from '@/components/Banner';
-import WorkloadVsControlPlaneChart from '@/components/opni/WorkloadVsControlPlaneChart';
+import WorkloadVsControlPlaneChart from './WorkloadVsControlPlaneChart';
 
 export const LOG_HEADERS = [
   {

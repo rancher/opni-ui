@@ -2,7 +2,6 @@
 import SortableTable from '@/components/SortableTable';
 import List from '@/components/formatter/List';
 import { uniq } from '@/utils/array';
-import day from 'dayjs';
 
 export const POINT_OF_INTEREST_HEADERS = [
   {
@@ -129,8 +128,6 @@ export default {
       }
 
       const hightlightTimeMs = this.hightlightTime.valueOf();
-
-      console.log('fffffff', hightlightTimeMs, row.fromTo.from, row.fromTo.to);
 
       return hightlightTimeMs >= row.fromTo.from && hightlightTimeMs < row.fromTo.to;
     },

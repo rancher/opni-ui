@@ -4,11 +4,10 @@ import { getInsights, getLogs, getPointsOfInterest } from '@/utils/opni';
 import { ALL_TYPES, getAbsoluteValue } from '@/components/form/SuperDatePicker/util';
 import TimeSeries from '@/components/graph/TimeSeries';
 import Checkbox from '@/components/form/Checkbox';
-import PointOfInterstDetail from '@/components/opni/PointOfInterestDetail';
-import PointOfInterstTable from '@/components/opni/PointOfInterestTable';
-
 import day from 'dayjs';
-import { formatForTimeseries, findBucket, showTooltip } from './util';
+import { formatForTimeseries, findBucket, showTooltip } from '../util';
+import PointOfInterstDetail from './PointOfInterestDetail';
+import PointOfInterstTable from './PointOfInterestTable';
 
 export const POINT_OF_INTEREST_HEADERS = [
   {
@@ -171,7 +170,7 @@ export default {
   <div>
     <div class="bar">
       <h1>
-        {{ t('opni.dashboard.title') }}
+        {{ t('opni.dashboard.title') }} Hello
       </h1>
     </div>
     <Card class="card mt-20" :show-actions="false" :show-highlight-border="false">
