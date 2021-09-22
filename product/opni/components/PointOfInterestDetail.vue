@@ -4,7 +4,6 @@ import Checkbox from '@/components/form/Checkbox';
 import Drawer from '@/components/Drawer';
 import DateRange from '@/components/formatter/DateRange';
 import Banner from '@/components/Banner';
-import WorkloadVsControlPlaneChart from './WorkloadVsControlPlaneChart';
 
 export const LOG_HEADERS = [
   {
@@ -52,7 +51,7 @@ export const LOG_HEADERS = [
 
 export default {
   components: {
-    Banner, DateRange, Drawer, SortableTable, Checkbox, WorkloadVsControlPlaneChart
+    Banner, DateRange, Drawer, SortableTable, Checkbox
   },
 
   props: {
@@ -165,7 +164,7 @@ export default {
     </template>
     <div class="contents">
       <div class="row detail mb-10">
-        <div class="col span-7 p-5 pr-20">
+        <div class="col span-12 p-5 pr-20">
           <div class="filters">
             <div class="mb-5">
               <label>{{ t('opni.pointOfInterestDetail.level.label') }}:</label>
@@ -202,9 +201,6 @@ export default {
               </tr>
             </template>
           </SortableTable>
-        </div>
-        <div class="col span-5">
-          <WorkloadVsControlPlaneChart v-if="pointOfInterest" class="chart" :workload-count="pointOfInterest.workloadCount" :control-plane-count="pointOfInterest.controlPlaneCount" />
         </div>
       </div>
     </div>
