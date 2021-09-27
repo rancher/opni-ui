@@ -4066,6 +4066,7 @@ tableHeaders:
   accessKey: Access Key
   address: Address
   age: Age
+  anomaly: Anomaly
   apiGroup: API Groups
   area: Area
   authRoles:
@@ -4142,6 +4143,7 @@ tableHeaders:
   nodeName: Name
   nodesReady: Nodes Ready
   nodePort: Node Port
+  normal: Normal
   object: Object
   operatingSystem: OS
   output: Output
@@ -4190,6 +4192,7 @@ tableHeaders:
   subType: Kind
   success: Success
   summary: Summary
+  suspicious: Suspicious
   taints: Taints
   target: Target
   targetKind: Target Type

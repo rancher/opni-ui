@@ -39,6 +39,34 @@ export const NAME = {
   canBeVariable: true,
 };
 
+export const ANOMALY = {
+  name:          'anomaly',
+  labelKey:      'tableHeaders.anomaly',
+  value:         'Insights.Anomaly',
+  sort:          ['Insights.Anomaly'],
+};
+
+export const NORMAL = {
+  name:          'normal',
+  labelKey:      'tableHeaders.normal',
+  value:         'Insights.Normal',
+  sort:          ['Insights.Normal'],
+};
+
+export const BREAKDOWN_RESOURCE = {
+  name:          'breakdownResource',
+  labelKey:      'tableHeaders.resource',
+  value:         'Resource',
+  sort:          ['Resource'],
+};
+
+export const SUSPICIOUS = {
+  name:          'suspicious',
+  labelKey:      'tableHeaders.suspicious',
+  value:         'Insights.Suspicious',
+  sort:          ['Insights.Suspicious'],
+};
+
 export const LOGGING_OUTPUT_PROVIDERS = {
   name:          'logging-output-providers',
   labelKey:      'tableHeaders.loggingOutputProviders',

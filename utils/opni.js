@@ -116,3 +116,15 @@ export async function getWorkloadLogs(from, to) {
     };
   });
 }
+
+export async function getPodBreakdown(from, to) {
+  return (await axios.get(`opni-api/pod?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`))?.data?.Pods;
+}
+
+export async function getNamespaceBreakdown(from, to) {
+  return (await axios.get(`opni-api/namespace?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`))?.data?.Namespaces;
+}
+
+export async function getWorkloadBreakdown(from, to) {
+  return (await axios.get(`opni-api/workload?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`)).data;
+}

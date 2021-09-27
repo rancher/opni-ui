@@ -16,22 +16,41 @@ export default {
 </script>
 
 <template>
-  <div class="drawer p-10" :class="{ open }">
-    <div class="title-bar">
-      <slot name="title">
-        <h1>{{ title }}</h1>
-      </slot>
-      <div class="closer mr-10" @click="$emit('close')">
-        <i class="icon icon-3x icon-close closer-icon" />
+  <div class="catch-all" :class="{ open }" @click="$emit('close')">
+    <div class="drawer p-10">
+      <div class="title-bar">
+        <slot name="title">
+          <h1>{{ title }}</h1>
+        </slot>
+        <div class="closer mr-10" @click="$emit('close')">
+          <i class="icon icon-3x icon-close closer-icon" />
+        </div>
       </div>
+      <slot />
     </div>
-    <slot />
   </div>
 </template>
 
 <style lang="scss">
-  .drawer {
+  .catch-all {
     position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    z-index: 1000;
+
+    transition: bottom 0.2s;
+
+    &:not(.open) {
+      bottom: -450px;
+      pointer-events: none;
+    }
+  }
+
+  .drawer {
+    position: absolute;
     left: 5px;
     right: 5px;
     bottom: 0;
@@ -41,11 +60,6 @@ export default {
     border-radius: var(--border-radius);
     box-shadow: 0 0 20px var(--shadow);
     background-color: #FFF;
-    transition: bottom 0.2s;
-
-    &:not(.open) {
-      bottom: -450px;
-    }
 
     .title-bar {
         display: flex;
