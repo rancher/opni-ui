@@ -128,3 +128,19 @@ export async function getNamespaceBreakdown(from, to) {
 export async function getWorkloadBreakdown(from, to) {
   return (await axios.get(`opni-api/workload?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`)).data;
 }
+
+export async function getOverallBreakdownSeries(from, to) {
+  const promises = [...Array(24)].map((_, i) => getOverallBreakdown(from.add(i, 'hours'), from.add(i + 1, 'hours')));
+  const responses = (await Promise.all(promises)).map(p => p.data);
+
+  return responses.map((r, i) => ({
+    timestamp:  from.add(i, 'hours').valueOf(),
+    normal:     r.Normal || 0,
+    suspicious: r.Suspicious || 0,
+    anomaly:    r.Anomaly || 0
+  }));
+}
+
+export async function getOverallBreakdown(from, to) {
+  return (await axios.get(`opni-api/overall_insights?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`));
+}

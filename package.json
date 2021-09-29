@@ -21,6 +21,7 @@
     "dev:opni": "./node_modules/.bin/nuxt dev --config-file product/opni/nuxt.config.js",
     "analyze": "./node_modules/.bin/nuxt build --analyze",
     "start": "./node_modules/.bin/nuxt start",
+    "start:opni": "./node_modules/.bin/nuxt start --config-file product/opni/nuxt.config.js",
     "generate": "./node_modules/.bin/nuxt generate",
     "dev-debug": "node --inspect ./node_modules/.bin/nuxt",
     "cy:run": "cypress run",

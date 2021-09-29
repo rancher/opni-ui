@@ -1,7 +1,7 @@
 <script>
 import Card from '@/components/Card';
 import {
-  getInsights, getLogs, getPointsOfInterest, getPodBreakdown, getNamespaceBreakdown, getWorkloadBreakdown
+  getLogs, getPointsOfInterest, getPodBreakdown, getNamespaceBreakdown, getWorkloadBreakdown, getOverallBreakdownSeries
 } from '@/utils/opni';
 import { ALL_TYPES, getAbsoluteValue } from '@/components/form/SuperDatePicker/util';
 import TimeSeries from '@/components/graph/TimeSeries';
@@ -25,11 +25,11 @@ export default {
   data() {
     const fromTo = {
       from: {
-        value: day('2021-07-20T08:45:00.000-07:00'),
+        value: day().subtract(1, 'day'),
         type:  ALL_TYPES.ABSOLUTE.key
       },
       to: {
-        value: day('2021-07-21T08:45:00.000-07:00'),
+        value: day(),
         type:  ALL_TYPES.ABSOLUTE.key
       }
     };
@@ -85,12 +85,12 @@ export default {
       this.loading = true;
       const { from, to } = this.requestFromTo;
       const responses = await Promise.all([
-        getInsights(from, to),
+        getOverallBreakdownSeries(from, to),
         getLogs(from, to),
         getPointsOfInterest(from, to),
         getPodBreakdown(from, to),
         getNamespaceBreakdown(from, to),
-        getWorkloadBreakdown(from, to)
+        getWorkloadBreakdown(from, to),
       ]);
 
       [
@@ -99,7 +99,7 @@ export default {
         this.pointsOfInterest,
         this.podBreakdown,
         this.namespaceBreakdown,
-        this.workloadBreakdown
+        this.workloadBreakdown,
       ] = responses;
 
       this.logs = this.logs.map((log, i) => ({

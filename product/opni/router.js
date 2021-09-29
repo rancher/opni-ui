@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
-import Test from './pages/test';
 import Logging from './pages/Logging';
 import Metrics from './pages/Metrics';
 
@@ -13,9 +12,10 @@ export function createRouter() {
     routes: [
       {
         path:      '/',
-        component: Test
+        redirect: { name: 'logging' }
       },
       {
+        name:      'logging',
         path:      '/logging',
         component: Logging
       },
