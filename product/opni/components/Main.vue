@@ -2,12 +2,11 @@
 import HeaderBar from '@/components/nav/HeaderBar';
 import SideNavColumn from '@/components/nav/SideNavColumn';
 import SideNavColumnItems from '@/components/nav/SideNavColumn/Items';
-import BrandImage from '@/components/BrandImage';
 
 export default {
 
   components: {
-    BrandImage, HeaderBar, SideNavColumn, SideNavColumnItems
+    HeaderBar, SideNavColumn, SideNavColumnItems
   },
 
   data() {
@@ -37,7 +36,7 @@ export default {
     <div class="dashboard-content">
       <HeaderBar :simple="true">
         <div class="simple-title">
-          <BrandImage class="side-menu-logo-img" file-name="opni.svg" />
+          <img :src="require('~/product/opni/assets/images/opni.svg')" />
         </div>
       </HeaderBar>
       <SideNavColumn>
@@ -72,9 +71,9 @@ export default {
     }
   }
 
-  .side-menu-logo-img {
+  img {
       object-fit: contain;
-      height: 30px;
+      height: 35px;
       max-width: 200px;
   }
 
