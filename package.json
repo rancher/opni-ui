@@ -17,18 +17,19 @@
     "mem-dev": "node --max-old-space-size=8192 ./node_modules/.bin/nuxt dev",
     "docker-dev": "docker run --rm --name dashboard-dev -p 8005:8005 -e API=$API -v $(pwd):/src -v dashboard_node:/src/node_modules rancher/dashboard:dev",
     "build": "./node_modules/.bin/nuxt build --devtools",
-    "build:opni": "./node_modules/.bin/nuxt build --devtool --config-file product/opni/nuxt.config.js",
-    "dev:opni": "./node_modules/.bin/nuxt dev --config-file product/opni/nuxt.config.js",
     "analyze": "./node_modules/.bin/nuxt build --analyze",
     "start": "./node_modules/.bin/nuxt start",
-    "start:opni": "./node_modules/.bin/nuxt start --config-file product/opni/nuxt.config.js",
     "generate": "./node_modules/.bin/nuxt generate",
     "dev-debug": "node --inspect ./node_modules/.bin/nuxt",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
     "e2e:pre": "NODE_ENV=dev yarn build",
     "e2e:run": "NODE_ENV=dev START_SERVER_AND_TEST_INSECURE=1 start-server-and-test start  https://localhost:8005/ cy:run",
-    "e2e:dev": "start-server-and-test dev https://localhost:8005 cy:open"
+    "e2e:dev": "start-server-and-test dev https://localhost:8005 cy:open",
+    "opni:docker": "docker build -t opni-ui -f ./product/opni/Dockerfile .",
+    "opni:build": "./node_modules/.bin/nuxt build --devtool --config-file product/opni/nuxt.config.js",
+    "opni:dev": "./node_modules/.bin/nuxt dev --config-file product/opni/nuxt.config.js",
+    "opni:start": "./node_modules/.bin/nuxt start --config-file product/opni/nuxt.config.js"
   },
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.1.0",
