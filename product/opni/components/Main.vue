@@ -37,7 +37,7 @@ export default {
     <div class="dashboard-content">
       <HeaderBar :simple="true">
         <div class="simple-title">
-          <BrandImage class="side-menu-logo-img" file-name="opni.png" />
+          <BrandImage class="side-menu-logo-img" file-name="opni.svg" />
         </div>
       </HeaderBar>
       <SideNavColumn>
@@ -74,7 +74,7 @@ export default {
 
   .side-menu-logo-img {
       object-fit: contain;
-      height: 21px;
+      height: 30px;
       max-width: 200px;
   }
 
