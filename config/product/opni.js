@@ -1,5 +1,8 @@
 import { DSL } from '@/store/type-map';
 
+import { traverseNavigation } from '@/utils/navigation';
+import { NAVIGATION } from '@/product/opni/router';
+
 export const NAME = 'opni';
 export const CHART_NAME = 'opni';
 
@@ -8,14 +11,23 @@ export function init(store) {
 
   product({});
 
-  virtualType({
-    label:      'Logging',
-    namespaced: false,
-    name:       'opni-logging',
-    weight:     2,
-    route:      { name: 'c-cluster-opni-logging' },
-    exact:      true,
-  });
+  traverseNavigation(NAVIGATION, (path, route) => {
+    if (route.display === false) {
+      return;
+    }
 
-  basicType(['opni-logging']);
+    const name = `opni-${ route.name }`;
+    const routeName = path.replace('/', '-');
+    const fullRoute = `c-cluster-opni${ routeName }`;
+    const type = {
+      label:      store.getters['i18n/t'](route.labelKey),
+      namespaced: false,
+      name,
+      route:      { name: fullRoute },
+      exact:      true,
+    };
+
+    virtualType(type);
+    basicType([name]);
+  });
 }

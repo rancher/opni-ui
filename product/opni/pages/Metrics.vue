@@ -1,13 +1,14 @@
 <script>
 import Main from '../components/Main';
+import Metrics from '../components/Metrics';
 
 export default {
-  components: { Main },
+  components: { Metrics, Main },
   layout:     'standalone'
 };
 </script>
 <template>
   <Main>
-    <div>Metrics</div>
+    <Metrics />
   </Main>
 </template>

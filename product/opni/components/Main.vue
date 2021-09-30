@@ -2,6 +2,8 @@
 import HeaderBar from '@/components/nav/HeaderBar';
 import SideNavColumn from '@/components/nav/SideNavColumn';
 import SideNavColumnItems from '@/components/nav/SideNavColumn/Items';
+import { createNavItemsFromNavigation } from '@/utils/navigation';
+import { NAVIGATION } from '../router';
 
 export default {
 
@@ -10,21 +12,12 @@ export default {
   },
 
   data() {
+    const navItems = createNavItemsFromNavigation(NAVIGATION, this.t.bind(this));
+
     return {
       // Assume home pages have routes where the name is the key to use for string lookup
-      name:     this.$route.name,
-      navItems: [
-        {
-          label: this.t('opni.nav.logging'),
-          route:        'logging',
-          icon:         'globe'
-        },
-        {
-          label: this.t('opni.nav.metrics'),
-          route:        'metrics',
-          icon:         'globe'
-        }
-      ]
+      name: this.$route.name,
+      navItems
     };
   },
 
