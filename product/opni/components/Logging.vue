@@ -1,15 +1,15 @@
 <script>
 import Card from '@/components/Card';
 import { formatForTimeseries, findBucket, showTooltip } from '@/product/opni/utils/munging';
-import {
-  getLogs, getPointsOfInterest, getPodBreakdown, getNamespaceBreakdown, getWorkloadBreakdown, getOverallBreakdownSeries
-} from '@/product/opni/utils/requests';
 import { ALL_TYPES, getAbsoluteValue } from '@/components/form/SuperDatePicker/util';
 import TimeSeries from '@/components/graph/TimeSeries';
 import Checkbox from '@/components/form/Checkbox';
 import day from 'dayjs';
 import Loading from '@/components/Loading';
 
+import {
+  getLogs, getPointsOfInterest, getPodBreakdown, getNamespaceBreakdown, getWorkloadBreakdown, getOverallBreakdownSeries
+} from '@/product/opni/utils/requests';
 import PointOfInterstDetail from './PointOfInterestDetail';
 import PointOfInterstTable from './PointOfInterestTable';
 import Breakdown from './Breakdown';
