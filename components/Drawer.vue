@@ -17,7 +17,7 @@ export default {
 
 <template>
   <div class="catch-all" :class="{ open }" @click="$emit('close')">
-    <div class="drawer p-10">
+    <div class="drawer p-10" @click.stop>
       <div class="title-bar">
         <slot name="title">
           <h1>{{ title }}</h1>

@@ -125,6 +125,13 @@ export default {
       });
     },
 
+    mappedLogs() {
+      return this.filteredLogs.map(log => ({
+        ...log,
+        area: log.isControlPlane ? 'Control Plane' : 'Workload'
+      }));
+    },
+
     anomalyLogCount() {
       return this.pointOfInterestLogs.filter(log => log.level === 'Anomaly').length;
     },
@@ -179,7 +186,7 @@ export default {
             </div>
           </div>
           <SortableTable
-            :rows="filteredLogs"
+            :rows="mappedLogs"
             :headers="LOG_HEADERS"
             :search="false"
             :table-actions="false"

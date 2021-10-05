@@ -1,80 +1,17 @@
 [
     {
-        "timestamp": 1626796200000,
-        "level": "Anomoly",
-        "component": "etcd",
-        "target": "workload"
-    },
-    {
-        "timestamp": 1626796200000,
-        "level": "Anomoly",
-        "component": "etcd",
-        "target": "workload"
-    },
-    {
-        "timestamp": 1626796200000,
-        "level": "Anomoly",
-        "component": "etcd",
-        "target": "control"
-    },
-    {
-        "timestamp": 1626796200000,
-        "level": "Anomoly",
-        "component": "pod",
-        "target": "control"
-    },
-    {
-        "timestamp": 1626796200000,
-        "level": "Anomoly",
-        "component": "pod",
-        "target": "control"
-    },
-    {
-        "timestamp": 1626796201000,
-        "level": "Suspicious",
-        "component": "pod",
-        "target": "control"
-    },
-    {
-        "timestamp": 1626796201000,
-        "level": "Suspicious",
-        "component": "pod",
-        "target": "control"
-    },
-    {
-        "timestamp": 1626796201000,
-        "level": "Suspicious",
-        "component": "pod",
-        "target": "workload"
-    },
-    {
-        "timestamp": 1626796201000,
-        "level": "Suspicious",
-        "component": "pod",
-        "target": "control"
-    },
-    {
-        "timestamp": 1626796201000,
-        "level": "Suspicious",
-        "component": "pod",
-        "target": "control"
-    },
-    {
-        "timestamp": 1626796201000,
-        "level": "Suspicious",
-        "component": "pod",
-        "target": "control"
-    },
-    {
-        "timestamp": 1626796201000,
-        "level": "Suspicious",
-        "component": "pod",
-        "target": "control"
-    },
-    {
-        "timestamp": 1626796500000,
-        "level": "Anomoly",
-        "component": "workload",
-        "target": "workload"
+        "fromTo": {
+            "from": 0,
+            "to": 0
+        },
+        "levels": [
+            "Anomaly",
+            "Suspicious"
+        ],
+        "components": [],
+        "workloadCount": 1,
+        "controlPlaneCount": 2,
+        "count": 3,
+        "highlightGraphIndex": 20
     }
 ]

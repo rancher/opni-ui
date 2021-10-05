@@ -1,7 +1,6 @@
 <script>
 import SortableTable from '@/components/SortableTable';
 import List from '@/components/formatter/List';
-import { uniq } from '@/utils/array';
 
 export const POINT_OF_INTEREST_HEADERS = [
   {
@@ -71,57 +70,7 @@ export default {
     return { POINT_OF_INTEREST_HEADERS };
   },
 
-  computed: {
-    buckets() {
-      const from = 1626795900000;
-      const to = 1626796770000;
-      const step = 30000;
-
-      const bucketCount = Math.floor((to - from) / step);
-
-      return [...Array(bucketCount)].map((_, i) => ({
-        from: from + i * step,
-        to:   from + (i + 1) * step - 1,
-      }));
-    },
-    aggregatedPointsOfInterest() {
-      return this.buckets
-        .map(this.aggregatePointsOfInterest)
-        .filter(agg => agg.count > 0);
-    },
-  },
-
   methods: {
-    aggregatePointsOfInterest(bucket) {
-      const pointsInBucket = this.pointsOfInterest.filter((point) => {
-        return point.timestamp >= bucket.from && point.timestamp <= bucket.to;
-      });
-
-      const aggregate = {
-        fromTo:              bucket,
-        count:               0,
-        levels:              [],
-        components:          [],
-        workloadCount:       0,
-        controlPlaneCount:   0,
-        highlightGraphIndex:
-          this.pointsOfInterest.indexOf(pointsInBucket[0]) ===
-          this.pointsOfInterest.length - 1 ? 20 : 10,
-      };
-
-      pointsInBucket.forEach((point) => {
-        aggregate.count += 1;
-        aggregate.levels.push(point.level);
-        aggregate.components.push(point.component);
-        aggregate.workloadCount += point.target === 'workload' ? 1 : 0;
-        aggregate.controlPlaneCount += point.target === 'control' ? 1 : 0;
-      });
-
-      aggregate.levels = uniq(aggregate.levels);
-      aggregate.components = uniq(aggregate.components);
-
-      return aggregate;
-    },
     highlightRow(row) {
       if (!this.hightlightTime) {
         return false;
@@ -146,7 +95,7 @@ export default {
 <template>
   <SortableTable
     class="point-of-interest-table mt-20"
-    :rows="aggregatedPointsOfInterest"
+    :rows="pointsOfInterest"
     :headers="POINT_OF_INTEREST_HEADERS"
     :search="false"
     :table-actions="false"
