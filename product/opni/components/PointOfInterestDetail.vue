@@ -73,11 +73,10 @@ export default {
   data() {
     return {
       LOG_HEADERS,
-      showSuspicious: true,
-      showAnomaly:    true,
-      showEtcd:       true,
-      showWorkloads:  true,
-      showPods:       true,
+      showSuspicious:    true,
+      showAnomaly:       true,
+      showWorkloads:     true,
+      showControlPlanes: true,
     };
   },
 
@@ -108,15 +107,11 @@ export default {
           return false;
         }
 
-        if (!this.showEtcd && log.component === 'etcd') {
+        if (!this.showWorkloads && !log.isControlPlane) {
           return false;
         }
 
-        if (!this.showWorkloads && log.component === 'workload') {
-          return false;
-        }
-
-        if (!this.showPods && log.component === 'pod') {
+        if (!this.showControlPlanes && log.isControlPlane) {
           return false;
         }
 
@@ -139,16 +134,12 @@ export default {
       return this.pointOfInterestLogs.filter(log => log.level === 'Suspicious').length;
     },
 
-    etcdLogCount() {
-      return this.pointOfInterestLogs.filter(log => log.component === 'etcd').length;
+    controlPlaneLogCount() {
+      return this.pointOfInterestLogs.filter(log => log.isControlPlane).length;
     },
 
     workloadLogCount() {
-      return this.pointOfInterestLogs.filter(log => log.component === 'workload').length;
-    },
-
-    podLogCount() {
-      return this.pointOfInterestLogs.filter(log => log.component === 'pod').length;
+      return this.pointOfInterestLogs.filter(log => !log.isControlPlane).length;
     },
   },
   methods: {
@@ -178,10 +169,9 @@ export default {
               <Checkbox v-model="showAnomaly" :label="t('opni.pointOfInterestDetail.level.anomaly', { count: anomalyLogCount})" />
             </div>
             <div class="mb-5">
-              <label>{{ t('opni.pointOfInterestDetail.component.label') }} </label>
-              <Checkbox v-model="showEtcd" :label="t('opni.pointOfInterestDetail.component.etcd', { count: etcdLogCount})" />
-              <Checkbox v-model="showWorkloads" :label="t('opni.pointOfInterestDetail.component.workloads', { count: workloadLogCount})" />
-              <Checkbox v-model="showPods" :label="t('opni.pointOfInterestDetail.component.pods', { count: podLogCount})" />
+              <label>{{ t('opni.pointOfInterestDetail.area.label') }}:</label>
+              <Checkbox v-model="showWorkloads" :label="t('opni.pointOfInterestDetail.area.workload', { count: workloadLogCount})" />
+              <Checkbox v-model="showControlPlanes" :label="t('opni.pointOfInterestDetail.area.controlPlane', { count: controlPlaneLogCount})" />
             </div>
           </div>
           <SortableTable

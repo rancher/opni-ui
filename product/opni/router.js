@@ -25,6 +25,7 @@ export const NAVIGATION = {
       path:      '/metrics',
       labelKey:  'opni.nav.metrics',
       icon:      'globe',
+      display:   false,
       component: Metrics
     }
   ]

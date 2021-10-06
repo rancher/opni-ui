@@ -6097,11 +6097,10 @@ opni:
       label: Level
       suspicious: Suspicious ({count})
       anomaly: Anomaly ({count})
-    component: 
-      label: Component
-      etcd: Etcd ({count})
-      pods: Pods ({count})
-      workloads: Workloads ({count})
+    area: 
+      label: Area
+      controlPlane: Control Plane ({count})
+      workload: Workload ({count})
   workloadVsControlPlaneChart:
     workload: Workload
     controlPlane: Control Plane
