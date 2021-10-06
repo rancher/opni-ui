@@ -8,7 +8,7 @@ import day from 'dayjs';
 import Loading from '@/components/Loading';
 
 import {
-  getLogs, getPointsOfInterest, getPodBreakdown, getNamespaceBreakdown, getWorkloadBreakdown, getOverallBreakdownSeries
+  getLogs, getPointsOfInterest, getBreakdowns, getPodBreakdown, getNamespaceBreakdown, getWorkloadBreakdown, getOverallBreakdownSeries
 } from '@/product/opni/utils/requests';
 import PointOfInterstDetail from './PointOfInterestDetail';
 import PointOfInterstTable from './PointOfInterestTable';
@@ -85,22 +85,23 @@ export default {
     async loadData() {
       this.loading = true;
       const { from, to } = this.requestFromTo;
+
       const responses = await Promise.all([
         getOverallBreakdownSeries(from, to),
         getLogs(from, to),
         getPointsOfInterest(from, to),
-        getPodBreakdown(from, to),
-        getNamespaceBreakdown(from, to),
-        getWorkloadBreakdown(from, to),
+        getBreakdowns(from, to)
       ]);
 
       [
         this.insights,
         this.logs,
         this.pointsOfInterest,
-        this.podBreakdown,
-        this.namespaceBreakdown,
-        this.workloadBreakdown,
+        {
+          Pods: this.podBreakdown,
+          Namespaces: this.namespaceBreakdown,
+          Workloads: this.workloadBreakdown,
+        }
       ] = responses;
 
       this.logs = this.logs.map((log, i) => ({
