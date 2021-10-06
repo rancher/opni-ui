@@ -21,10 +21,16 @@ export const LOG_HEADERS = [
     sort:     ['level']
   },
   {
-    name:          'component',
-    labelKey:      'tableHeaders.component',
-    value:         'component',
-    sort:          ['component']
+    name:          'namespace',
+    labelKey:      'tableHeaders.namespace',
+    value:         'namespace',
+    sort:          ['namespace']
+  },
+  {
+    name:          'podName',
+    labelKey:      'tableHeaders.podName',
+    value:         'podName',
+    sort:          ['podName']
   },
   {
     name:          'area',
@@ -39,13 +45,6 @@ export const LOG_HEADERS = [
         return `bubble ${ level }`;
       }
     }
-  },
-  {
-    name:      'feedback',
-    labelKey:  'tableHeaders.feedback',
-    formatter: 'Feedback',
-    width:     '80px',
-    align:     'right'
   },
 ];
 
@@ -186,6 +185,7 @@ export default {
             </div>
           </div>
           <SortableTable
+            class="table"
             :rows="mappedLogs"
             :headers="LOG_HEADERS"
             :search="false"
@@ -250,6 +250,10 @@ export default {
 
     .suspicious {
       color: var(--warning);
+    }
+
+    .sortable-table {
+      table-layout: fixed;
     }
   }
 }

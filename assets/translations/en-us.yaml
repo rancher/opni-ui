@@ -4151,6 +4151,7 @@ tableHeaders:
   persistentVolumeClaim: Persistent Volume Claim
   persistentVolumeSource: Source
   podImages: Image
+  podName: Pod Name
   pods: Pods
   port: Port
   protocol: Protocol

@@ -9,10 +9,8 @@ interface LogResponse {
   timestamp: Number,
   log: String,
   anomaly_level: String,
-  kubernetes?: {
-    namespace_name: String,
-    pod_name: String
-  },
+  'kubernetes.namespace_name': String;
+  'kubernetes.pod_name': String
   is_control_plane_log: Boolean,
 }
 
@@ -85,8 +83,8 @@ export async function getPointsOfInterest(from: Dayjs):Promise<PointsOfInterestR
   const points = await Promise.resolve<PointsOfInterestResponse[]>(require('./mock-data/points-of-interest.json'));
 
   points[0].fromTo = {
-    from: from.valueOf() + (20 * MS_IN_HOUR),
-    to:   from.valueOf() + (21 * MS_IN_HOUR)
+    from: from.valueOf() + (2 * MS_IN_HOUR),
+    to:   from.valueOf() + (3 * MS_IN_HOUR)
   };
 
   return points;
@@ -128,8 +126,8 @@ export async function getLogs(from: Dayjs, to: Dayjs): Promise<Log[]> {
       timestamp:      log.timestamp,
       message:        log.log,
       level:          log.anomaly_level,
-      namespace:      log.kubernetes?.namespace_name,
-      podName:        log.kubernetes?.pod_name,
+      namespace:      log['kubernetes.namespace_name'],
+      podName:        log['kubernetes.pod_name'],
       isControlPlane: log.is_control_plane_log,
     };
   });
