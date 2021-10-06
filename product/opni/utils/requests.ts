@@ -50,6 +50,13 @@ interface Insights {
   Suspicious: Number;
 }
 
+interface BreakdownNested {
+  Insights: {
+    Insights: Insights
+  };
+  Name: String;
+}
+
 interface Breakdown {
   Insights: Insights;
   Name: String;
@@ -59,12 +66,26 @@ interface WorkloadBreakdown extends Breakdown {
   Namespace: String;
 }
 
+interface WorkloadBreakdownNested extends BreakdownNested {
+  Namespace: String;
+}
+
 interface PodBreakdownResponse {
-  Pods: Breakdown[];
+  Pods: BreakdownNested[];
 }
 
 interface NamespaceBreakdownReponse {
-  Namespaces: Breakdown[];
+  Namespaces: BreakdownNested[];
+}
+
+interface WorkloadBreakdownNestedResponse {
+  CustomResource: WorkloadBreakdownNested[];
+  DaemonSet: WorkloadBreakdownNested[];
+  Deployment: WorkloadBreakdownNested[];
+  Independent: WorkloadBreakdownNested[];
+  Job: WorkloadBreakdownNested[];
+  ReplicaSet: WorkloadBreakdownNested[];
+  StatefulSet: WorkloadBreakdownNested[];
 }
 
 interface WorkloadBreakdownResponse {
@@ -91,15 +112,29 @@ export async function getPointsOfInterest(from: Dayjs):Promise<PointsOfInterestR
 }
 
 export async function getPodBreakdown(from: Dayjs, to: Dayjs): Promise<Breakdown[]> {
-  return (await axios.get<PodBreakdownResponse>(`opni-api/pod?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`))?.data?.Pods;
+  const response = (await axios.get<PodBreakdownResponse>(`opni-api/pod?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`))?.data?.Pods;
+
+  return deNest<Breakdown>(response);
 }
 
 export async function getNamespaceBreakdown(from: Dayjs, to: Dayjs): Promise<Breakdown[]> {
-  return (await axios.get<NamespaceBreakdownReponse>(`opni-api/namespace?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`))?.data?.Namespaces;
+  const response = (await axios.get<NamespaceBreakdownReponse>(`opni-api/namespace?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`))?.data?.Namespaces;
+
+  return deNest<Breakdown>(response);
 }
 
 export async function getWorkloadBreakdown(from: Dayjs, to: Dayjs): Promise<WorkloadBreakdownResponse> {
-  return (await axios.get<WorkloadBreakdownResponse>(`opni-api/workload?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`)).data;
+  const response = (await axios.get<WorkloadBreakdownNestedResponse>(`opni-api/workload?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`)).data;
+
+  return {
+    CustomResource: deNest<WorkloadBreakdown>(Array.isArray(response.CustomResource) ? response.CustomResource : []),
+    DaemonSet:      deNest<WorkloadBreakdown>(Array.isArray(response.DaemonSet) ? response.DaemonSet : []),
+    Deployment:     deNest<WorkloadBreakdown>(Array.isArray(response.Deployment) ? response.Deployment : []),
+    Independent:    deNest<WorkloadBreakdown>(Array.isArray(response.Independent) ? response.Independent : []),
+    Job:            deNest<WorkloadBreakdown>(Array.isArray(response.Job) ? response.Job : []),
+    ReplicaSet:     deNest<WorkloadBreakdown>(Array.isArray(response.ReplicaSet) ? response.ReplicaSet : []),
+    StatefulSet:    deNest<WorkloadBreakdown>(Array.isArray(response.StatefulSet) ? response.StatefulSet : []),
+  };
 }
 
 export async function getOverallBreakdownSeries(from: Dayjs, to: Dayjs) {
@@ -131,4 +166,11 @@ export async function getLogs(from: Dayjs, to: Dayjs): Promise<Log[]> {
       isControlPlane: log.is_control_plane_log,
     };
   });
+}
+
+function deNest<T>(nested: BreakdownNested[]):T[] {
+  return nested.map(row => ({
+    ...row,
+    Insights: row.Insights.Insights
+  })) as any as T[];
 }

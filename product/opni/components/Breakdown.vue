@@ -45,7 +45,7 @@ export default {
     workloadCount() {
       const breakdown = Object.values(this.workloadBreakdown).flat();
 
-      return sumBy(breakdown, breakdown => breakdown.Insights.Anomaly);
+      return sumBy(breakdown, breakdown => breakdown?.Insights?.Anomaly || 0);
     }
   },
 
