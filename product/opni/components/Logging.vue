@@ -1,20 +1,17 @@
 <script>
-import Card from '@/components/Card';
-import { formatForTimeseries, findBucket, showTooltip } from '@/product/opni/utils/munging';
 import { ALL_TYPES, getAbsoluteValue } from '@/components/form/SuperDatePicker/util';
-import TimeSeries from '@/components/graph/TimeSeries';
-import Checkbox from '@/components/form/Checkbox';
 import day from 'dayjs';
 import Loading from '@/components/Loading';
 
 import { getLogs, getBreakdowns, getOverallBreakdownSeries, getAreasOfInterest } from '@/product/opni/utils/requests';
+import InsightsChart from './InsightsChart';
 import PointOfInterstDetail from './AreaOfInterestDetail';
 import PointOfInterstTable from './AreaOfInterestTable';
 import Breakdown from './Breakdown';
 
 export default {
   components: {
-    Breakdown, Card, Loading, PointOfInterstDetail, PointOfInterstTable, TimeSeries, Checkbox
+    Breakdown, InsightsChart, Loading, PointOfInterstDetail, PointOfInterstTable
   },
 
   async fetch() {
@@ -42,11 +39,8 @@ export default {
       podBreakdown:           {},
       namespaceBreakdown:     {},
       workloadBreakdown:      {},
-      loading:                false,
       fromTo,
-      loadedFromTo:           { from: { ...fromTo.from }, to: { ...fromTo.to } },
       highlightAnomalies:     false,
-      thumbsDown:             require('~/assets/images/thumb_down.svg'),
       highlightRange:         null,
     };
   },
@@ -57,25 +51,7 @@ export default {
         from: getAbsoluteValue(this.fromTo.from),
         to:   getAbsoluteValue(this.fromTo.to)
       };
-    },
-    insightSeries() {
-      const out = this.formatForTimeseries(this.insights);
-
-      out['Anomalous'].shouldHighlight = true;
-
-      out['Anomalous'].color = 'var(--error)';
-      out['Normal'].color = 'var(--primary)';
-      out['Suspicious'].color = 'var(--warning)';
-
-      return out;
-    },
-  },
-
-  mounted() {
-    this.$nextTick(() => {
-      this.fromTo.from = { ...this.loadedFromTo.from };
-      this.fromTo.to = { ...this.loadedFromTo.to };
-    });
+    }
   },
 
   methods: {
@@ -101,45 +77,11 @@ export default {
         }
       ] = responses;
 
-      this.logs = this.logs.map((log, i) => ({
+      this.logs = this.logs.map(log => ({
         ...log,
         stateDescription: true,
-        stateObj:         {},
-        remove:           () => {
-          this.logs.splice(i, 1, { ...this.logs[i], removed: true });
-        },
-        undo: () => {
-          this.logs.splice(i, 1, { ...this.logs[i], removed: false });
-        }
+        stateObj:         {}
       }));
-      this.loadedFromTo.from = { ...this.fromTo.from };
-      this.loadedFromTo.to = { ...this.fromTo.to };
-      this.loading = false;
-    },
-    formatForTimeseries,
-    findBucket,
-    showTooltip,
-    mapTimeSeries(data, columns) {
-      const index = data.index;
-      const fromIndex = index - 1;
-      const toIndex = index + 1;
-      const timestamps = columns[0];
-
-      return {
-        fromTo: {
-          from:  fromIndex >= 0 ? day(timestamps[fromIndex]) : null,
-          to:    toIndex < timestamps.length ? day(timestamps[toIndex]) : null,
-        },
-        value: data.value,
-        line:  data.id,
-        index
-      };
-    },
-    onOver(data, columns) {
-      // this.$set(this, 'highlightTime', day(data.x));
-    },
-    onOut() {
-      // this.$set(this, 'highlightTime', null);
     },
     highlightRow(row) {
       return this.highlightIndices.includes(row);
@@ -159,30 +101,7 @@ export default {
         {{ t('opni.dashboard.title') }}
       </h1>
     </div>
-    <Card class="card mt-20" :show-actions="false" :show-highlight-border="false">
-      <template #body>
-        <div v-if="loading" class="initial-load-spinner-container">
-          <i class="initial-load-spinner"></i>
-        </div>
-        <TimeSeries
-          v-else
-          ref="insights"
-          class="timeseries mt-20 mb-20"
-          chart-id="insights"
-          :from="loadedFromTo.from"
-          :to="loadedFromTo.to"
-          :colors="{'Anomalous':'var(--error)', 'Normal': 'var(--primary)', 'Suspicious': 'var(--warning)'}"
-          x-key="timestamp"
-          :data-series="insightSeries"
-          @over="onOver"
-          @out="onOut"
-        >
-          <template v-slot:inputs="{highlightData, unHighlightData}">
-            <Checkbox v-model="highlightAnomalies" class="pull-right" label="Highlight Anomalies" @input="e=>e?highlightData('Anomalous', d=>d>0):unHighlightData()" />
-          </template>
-        </TimeSeries>
-      </template>
-    </Card>
+    <InsightsChart :from-to="fromTo" :insights="insights" />
     <Breakdown :pod-breakdown="podBreakdown" :namespace-breakdown="namespaceBreakdown" :workload-breakdown="workloadBreakdown" />
     <PointOfInterstTable :logs="logs" :areas-of-interest="areasOfInterest" @areaOfInterestSelect="onAreaOfInterestSelected" />
     <PointOfInterstDetail :open="!!areaOfInterest" :area-of-interest="areaOfInterest" :logs="logs" @close="areaOfInterest=null" />
@@ -191,11 +110,6 @@ export default {
 
 <style lang="scss" scoped>
 ::v-deep {
-  .timesries .card-body {
-    height: 380px;
-    position: relative;
-  }
-
   .bubble {
     &.workload {
       border-color: var(--app-other-accent);
@@ -224,40 +138,6 @@ export default {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-}
-
-.initial-load-spinner-container {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  height: 100%;
-  left: 0;
-  position: absolute;
-  top: 0;
-  width: 100%;
-}
-
-.initial-load-spinner {
-  animation: initial-load-animate 1s infinite linear;
-  background-color: #fff;
-  box-sizing: border-box;
-  border: 5px solid #008ACF;
-  border-radius: 50%;
-  border-top-color: #00B2E2;
-  display: inline-block;
-  height: 80px;
-  margin: 0 auto;
-  width: 80px;
-}
-
-@keyframes initial-load-animate {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(359deg);
-  }
 }
 
 img {
