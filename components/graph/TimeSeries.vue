@@ -17,6 +17,10 @@ export default {
       type:     Object,
       required: true
     },
+    regions: {
+      type:    Array,
+      default: () => []
+    },
     /*
       {
         id1:{
@@ -97,6 +101,15 @@ export default {
     },
     maxTime() {
       this.createChart();
+    },
+    regions() {
+      const regions = this.createRegions();
+
+      if (regions.length === 0) {
+        this.chart.regions.remove();
+      } else {
+        this.chart.regions(this.createRegions());
+      }
     }
   },
   mounted() {
@@ -106,6 +119,12 @@ export default {
   },
 
   methods: {
+    createRegions() {
+      return this.regions.map(region => ({
+        start: region.from.valueOf(),
+        end:   region.to.valueOf()
+      }));
+    },
     createChart() {
       const columns = [];
       const colors = {};
@@ -147,7 +166,7 @@ export default {
             x: {
               type:   'timeseries',
               tick: {
-                format: this.xFormat, width: 75, count: 10, height: 200
+                format: this.xFormat, width: 50, count: 10, height: 200
               },
               height: 40,
               max:    { value: this.maxTime, fit: true },
@@ -167,6 +186,8 @@ export default {
             x: { show: true },
             y: { show: true }
           },
+          regions:    this.createRegions(),
+          transition:  { duration: 0 },
           // zoom: {
           //   enabled:     zoom(),
           //   type:        'drag',
@@ -175,7 +196,7 @@ export default {
           // },
           onrendered: () => {
             this.repositionHighlights();
-          }
+          },
         }
       );
     },
@@ -304,6 +325,10 @@ export default {
   .bb-main {
     fill: var(--input-label);
 
+    .bb-region {
+      opacity: 0.1;
+    }
+
     .domain {
       fill: none;
       stroke: var(--default-text);
@@ -331,29 +356,15 @@ export default {
       fill: var(--error);
       fill-opacity: 0.25;
 
-      -webkit-animation: fadeIn ease-in 1;
-      -moz-animation: fadeIn ease-in 1;
-      animation: fadeIn ease-in 1;
-      -webkit-animation-fill-mode: forwards;
-      -moz-animation-fill-mode: forwards;
-      animation-fill-mode: forwards;
-      -webkit-animation-duration: 0.25s;
-      -moz-animation-duration: 0.25s;
-      animation-duration: 0.25s;
+      // animation: fadeIn ease-in 1;
+      // animation-fill-mode: forwards;
+      // animation-duration: 0.25s;
     }
 
-      @-webkit-keyframes fadeIn {
-        from { fill-opacity: 0; }
-        to { fill-opacity: 0.25; }
-      }
-      @-moz-keyframes fadeIn {
-        from { fill-opacity: 0; }
-        to { fill-opacity: 0.25; }
-      }
-      @keyframes fadeIn {
-        from { fill-opacity: 0; }
-        to { fill-opacity: 0.25; }
-      }
+    @keyframes fadeIn {
+      from { fill-opacity: 0; }
+      to { fill-opacity: 0.25; }
+    }
 
     .bb-selected-circles circle{
       fill:none;
@@ -371,7 +382,7 @@ export default {
     }
   }
 
-  g.bb-legend-item-hidden {
+  g.bb-legend-item-hidden:not(.bb-legend-item-focused) {
     opacity: 0.3;
   }
 

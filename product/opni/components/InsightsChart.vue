@@ -2,15 +2,17 @@
 import Card from '@/components/Card';
 import { formatForTimeseries, findBucket, showTooltip } from '@/product/opni/utils/munging';
 import TimeSeries from '@/components/graph/TimeSeries';
-import Checkbox from '@/components/form/Checkbox';
 import day from 'dayjs';
 
 export default {
-  components: {
-    Card, TimeSeries, Checkbox
-  },
+  components: { Card, TimeSeries },
 
   props: {
+    areaOfInterest: {
+      type:    Object,
+      default: null,
+    },
+
     fromTo: {
       type:     Object,
       required: true
@@ -38,6 +40,14 @@ export default {
 
       return out;
     },
+
+    regions() {
+      if (!this.areaOfInterest) {
+        return [];
+      }
+
+      return [this.areaOfInterest.fromTo];
+    }
   },
 
   methods: {
@@ -87,6 +97,7 @@ export default {
         :colors="{'Anomalous':'var(--error)', 'Normal': 'var(--primary)', 'Suspicious': 'var(--warning)'}"
         x-key="timestamp"
         :data-series="insightSeries"
+        :regions="regions"
         @onDataShown="onDataShown"
         @onDataHidden="onDataHidden"
       />

@@ -5,13 +5,13 @@ import Loading from '@/components/Loading';
 
 import { getLogs, getBreakdowns, getOverallBreakdownSeries, getAreasOfInterest } from '@/product/opni/utils/requests';
 import InsightsChart from './InsightsChart';
-import PointOfInterstDetail from './AreaOfInterestDetail';
-import PointOfInterstTable from './AreaOfInterestTable';
+import AreaOfInterstDetail from './AreaOfInterestDetail';
+import AreaOfInterestTable from './AreaOfInterestTable';
 import Breakdown from './Breakdown';
 
 export default {
   components: {
-    Breakdown, InsightsChart, Loading, PointOfInterstDetail, PointOfInterstTable
+    Breakdown, InsightsChart, Loading, AreaOfInterstDetail, AreaOfInterestTable
   },
 
   async fetch() {
@@ -31,17 +31,17 @@ export default {
     };
 
     return {
-      highlightArea:          null,
-      areaOfInterest:         null,
-      insights:               [],
-      logs:                   [],
-      areasOfInterest:        [],
-      podBreakdown:           {},
-      namespaceBreakdown:     {},
-      workloadBreakdown:      {},
+      highlightAreaOfInterest: null,
+      areaOfInterest:          null,
+      insights:                [],
+      logs:                    [],
+      areasOfInterest:         [],
+      podBreakdown:            {},
+      namespaceBreakdown:      {},
+      workloadBreakdown:       {},
       fromTo,
-      highlightAnomalies:     false,
-      highlightRange:         null,
+      highlightAnomalies:      false,
+      highlightRange:          null,
     };
   },
 
@@ -83,12 +83,13 @@ export default {
         stateObj:         {}
       }));
     },
-    highlightRow(row) {
-      return this.highlightIndices.includes(row);
-    },
 
     onAreaOfInterestSelected(areaOfInterest) {
       this.areaOfInterest = areaOfInterest;
+    },
+
+    onAreaOfInterestHover(areaOfInterest) {
+      this.highlightAreaOfInterest = areaOfInterest;
     }
   }
 };
@@ -101,10 +102,10 @@ export default {
         {{ t('opni.dashboard.title') }}
       </h1>
     </div>
-    <InsightsChart :from-to="fromTo" :insights="insights" />
+    <InsightsChart :from-to="fromTo" :insights="insights" :area-of-interest="areaOfInterest || highlightAreaOfInterest" />
     <Breakdown :pod-breakdown="podBreakdown" :namespace-breakdown="namespaceBreakdown" :workload-breakdown="workloadBreakdown" />
-    <PointOfInterstTable :logs="logs" :areas-of-interest="areasOfInterest" @areaOfInterestSelect="onAreaOfInterestSelected" />
-    <PointOfInterstDetail :open="!!areaOfInterest" :area-of-interest="areaOfInterest" :logs="logs" @close="areaOfInterest=null" />
+    <AreaOfInterestTable :logs="logs" :areas-of-interest="areasOfInterest" @areaOfInterestSelect="onAreaOfInterestSelected" @areaOfInterestHover="onAreaOfInterestHover" />
+    <AreaOfInterstDetail :open="!!areaOfInterest" :area-of-interest="areaOfInterest" :logs="logs" @close="areaOfInterest=null" />
   </div>
 </template>
 
