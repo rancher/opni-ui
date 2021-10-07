@@ -8,8 +8,8 @@ import day from 'dayjs';
 import Loading from '@/components/Loading';
 
 import { getLogs, getBreakdowns, getOverallBreakdownSeries, getAreasOfInterest } from '@/product/opni/utils/requests';
-import PointOfInterstDetail from './PointOfInterestDetail';
-import PointOfInterstTable from './PointOfInterestTable';
+import PointOfInterstDetail from './AreaOfInterestDetail';
+import PointOfInterstTable from './AreaOfInterestTable';
 import Breakdown from './Breakdown';
 
 export default {

@@ -81,7 +81,7 @@ export default {
   },
 
   computed: {
-    pointOfInterestLogs() {
+    areaOfInterestLogs() {
       return this.logs
         .filter((log) => {
           if (!this.areaOfInterest) {
@@ -98,7 +98,7 @@ export default {
         });
     },
     filteredLogs() {
-      return this.pointOfInterestLogs.filter((log) => {
+      return this.areaOfInterestLogs.filter((log) => {
         if (!this.showAnomaly && log.level === 'Anomaly') {
           return false;
         }
@@ -127,19 +127,19 @@ export default {
     },
 
     anomalyLogCount() {
-      return this.pointOfInterestLogs.filter(log => log.level === 'Anomaly').length;
+      return this.areaOfInterestLogs.filter(log => log.level === 'Anomaly').length;
     },
 
     suspiciousLogCount() {
-      return this.pointOfInterestLogs.filter(log => log.level === 'Suspicious').length;
+      return this.areaOfInterestLogs.filter(log => log.level === 'Suspicious').length;
     },
 
     controlPlaneLogCount() {
-      return this.pointOfInterestLogs.filter(log => log.isControlPlane).length;
+      return this.areaOfInterestLogs.filter(log => log.isControlPlane).length;
     },
 
     workloadLogCount() {
-      return this.pointOfInterestLogs.filter(log => !log.isControlPlane).length;
+      return this.areaOfInterestLogs.filter(log => !log.isControlPlane).length;
     },
   },
   methods: {
@@ -153,7 +153,7 @@ export default {
   <Drawer :open="open" @close="$emit('close')">
     <template #title>
       <div class="p-5 pb-0">
-        <h1>{{ t('opni.pointOfInterestDetail.title') }}</h1> &nbsp;
+        <h1>{{ t('opni.areaOfInterestDetail.title') }}</h1> &nbsp;
         <h3 v-if="areaOfInterest">
           (<DateRange :value="areaOfInterest.fromTo" />)
         </h3>
@@ -164,14 +164,14 @@ export default {
         <div class="col span-12 p-5 pr-20">
           <div class="filters">
             <div class="mb-5">
-              <label>{{ t('opni.pointOfInterestDetail.level.label') }}:</label>
-              <Checkbox v-model="showSuspicious" :label="t('opni.pointOfInterestDetail.level.suspicious', { count: suspiciousLogCount})" />
-              <Checkbox v-model="showAnomaly" :label="t('opni.pointOfInterestDetail.level.anomaly', { count: anomalyLogCount})" />
+              <label>{{ t('opni.areaOfInterestDetail.level.label') }}:</label>
+              <Checkbox v-model="showSuspicious" :label="t('opni.areaOfInterestDetail.level.suspicious', { count: suspiciousLogCount})" />
+              <Checkbox v-model="showAnomaly" :label="t('opni.areaOfInterestDetail.level.anomaly', { count: anomalyLogCount})" />
             </div>
             <div class="mb-5">
-              <label>{{ t('opni.pointOfInterestDetail.area.label') }}:</label>
-              <Checkbox v-model="showWorkloads" :label="t('opni.pointOfInterestDetail.area.workload', { count: workloadLogCount})" />
-              <Checkbox v-model="showControlPlanes" :label="t('opni.pointOfInterestDetail.area.controlPlane', { count: controlPlaneLogCount})" />
+              <label>{{ t('opni.areaOfInterestDetail.area.label') }}:</label>
+              <Checkbox v-model="showWorkloads" :label="t('opni.areaOfInterestDetail.area.workload', { count: workloadLogCount})" />
+              <Checkbox v-model="showControlPlanes" :label="t('opni.areaOfInterestDetail.area.controlPlane', { count: controlPlaneLogCount})" />
             </div>
           </div>
           <SortableTable

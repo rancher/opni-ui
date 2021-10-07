@@ -2,7 +2,7 @@
 import SortableTable from '@/components/SortableTable';
 import List from '@/components/formatter/List';
 
-export const POINT_OF_INTEREST_HEADERS = [
+export const AREA_OF_INTEREST_HEADERS = [
   {
     name:      'daterange',
     labelKey:  'tableHeaders.dateRange',
@@ -38,8 +38,8 @@ export const POINT_OF_INTEREST_HEADERS = [
   },
 ];
 
-const POINT_OF_INTEREST_HOVER = 'pointOfInterestHover';
-const POINT_OF_INTEREST_SELECT = 'areaOfInterestSelect';
+const AREA_OF_INTEREST_HOVER = 'areaOfInterestHover';
+const AREA_OF_INTEREST_SELECT = 'areaOfInterestSelect';
 
 export default {
   components: {
@@ -64,7 +64,7 @@ export default {
   },
 
   data() {
-    return { POINT_OF_INTEREST_HEADERS };
+    return { AREA_OF_INTEREST_HEADERS };
   },
 
   methods: {
@@ -77,14 +77,14 @@ export default {
 
       return hightlightTimeMs >= row.fromTo.from && hightlightTimeMs < row.fromTo.to;
     },
-    onMouseEnter(pointOfInterest) {
-      this.$emit(POINT_OF_INTEREST_HOVER, pointOfInterest);
+    onMouseEnter(areaOfInterest) {
+      this.$emit(AREA_OF_INTEREST_HOVER, areaOfInterest);
     },
     onMouseLeave() {
-      this.$emit(POINT_OF_INTEREST_HOVER, null);
+      this.$emit(AREA_OF_INTEREST_HOVER, null);
     },
-    onClick(pointOfInterest) {
-      this.$emit(POINT_OF_INTEREST_SELECT, pointOfInterest);
+    onClick(areaOfInterest) {
+      this.$emit(AREA_OF_INTEREST_SELECT, areaOfInterest);
     },
   },
 
@@ -119,9 +119,9 @@ export default {
 </script>
 <template>
   <SortableTable
-    class="point-of-interest-table mt-20"
+    class="area-of-interest-table mt-20"
     :rows="rows"
-    :headers="POINT_OF_INTEREST_HEADERS"
+    :headers="AREA_OF_INTEREST_HEADERS"
     :search="false"
     :table-actions="false"
     :row-actions="false"
@@ -131,7 +131,7 @@ export default {
   >
     <template #main-row="{ row }">
       <tr
-        class="main-row has-sub-row point-of-interest"
+        class="main-row has-sub-row area-of-interest"
         :class="{ highlight: highlightRow(row) }"
         @click="onClick(row)"
         @mouseenter="onMouseEnter(row)"
@@ -158,7 +158,7 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-.point-of-interest-table {
+.area-of-interest-table {
   cursor: pointer;
 
   & .highlight {

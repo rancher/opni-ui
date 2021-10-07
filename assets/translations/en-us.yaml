@@ -6091,8 +6091,8 @@ opni:
   nav:
     logging: Logging
     metrics: Metrics
-  pointOfInterestDetail:
-    title: Point of Interest
+  areaOfInterestDetail:
+    title: Area of Interest
     level: 
       label: Level
       suspicious: Suspicious ({count})
