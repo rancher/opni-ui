@@ -59,7 +59,19 @@ export default {
         line:  data.id,
         index
       };
-    }
+    },
+
+    onDataShown(data, api) {
+      if (data.includes('Anomalous')) {
+        api.highlightData('Anomalous', d => d > 0);
+      }
+    },
+
+    onDataHidden(data, api) {
+      if (data.includes('Anomalous')) {
+        api.unHighlightData();
+      }
+    },
   }
 };
 </script>
@@ -75,11 +87,9 @@ export default {
         :colors="{'Anomalous':'var(--error)', 'Normal': 'var(--primary)', 'Suspicious': 'var(--warning)'}"
         x-key="timestamp"
         :data-series="insightSeries"
-      >
-        <template v-slot:inputs="{highlightData, unHighlightData}">
-          <Checkbox v-model="highlightAnomalies" class="pull-right" label="Highlight Anomalies" @input="e=>e?highlightData('Anomalous', d=>d>0):unHighlightData()" />
-        </template>
-      </TimeSeries>
+        @onDataShown="onDataShown"
+        @onDataHidden="onDataHidden"
+      />
     </template>
   </Card>
 </template>

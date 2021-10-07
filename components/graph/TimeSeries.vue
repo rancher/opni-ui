@@ -1,5 +1,5 @@
 <script>
-import bb, { area, zoom, selection } from 'billboard.js';
+import bb, { area, selection } from 'billboard.js';
 import { randomStr } from '@/utils/string';
 import { getAbsoluteValue } from '@/components/form/SuperDatePicker/util';
 
@@ -16,10 +16,6 @@ export default {
     to: {
       type:     Object,
       required: true
-    },
-    highlightIndex: {
-      type:    Number,
-      default: null
     },
     /*
       {
@@ -86,6 +82,12 @@ export default {
 
       // return range[1] > range[0] + 250;
       return false;
+    },
+    api() {
+      return {
+        highlightData:   this.highlightData,
+        unHighlightData: this.unHighlightData
+      };
     }
   },
 
@@ -95,23 +97,12 @@ export default {
     },
     maxTime() {
       this.createChart();
-    },
-    highlightIndex() {
-      if (this.highlightIndex === null) {
-        return this.unHighlightData();
-      }
-
-      const allRects = document.querySelectorAll('.highlight-rect');
-
-      allRects.forEach(rect => rect.remove());
-      this.chart.unselect();
-      this.highlightData();
-
-      this.chart.select('Anomalous', [this.highlightIndex], true);
-    },
+    }
   },
   mounted() {
     this.createChart();
+
+    this.$emit('onDataShown', this.chart.data.shown().map(s => s.id), this.api);
   },
 
   methods: {
@@ -138,6 +129,12 @@ export default {
         onout: (d) => {
           this.$emit('out', d, columns);
         },
+        onshown: (d) => {
+          this.$emit('onDataShown', d, this.api);
+        },
+        onhidden: (d) => {
+          this.$emit('onDataHidden', d, this.api);
+        },
         onselected:   this.onSelected,
         onunselected: this.onUnselected
       };
@@ -150,10 +147,11 @@ export default {
             x: {
               type:   'timeseries',
               tick: {
-                format: this.xFormat, width: 50, count: 10
+                format: this.xFormat, width: 75, count: 10, height: 200
               },
-              max:  { value: this.maxTime, fit: true },
-              min:  { value: this.minTime, fit: true },
+              height: 40,
+              max:    { value: this.maxTime, fit: true },
+              min:    { value: this.minTime, fit: true },
             },
             y: {
               min:     0,
@@ -163,18 +161,18 @@ export default {
 
           },
           point:   { focus: { expand: { enabled: false }, only: false }, select: { r: SELECTED_RADIUS } },
-          legend:  { position: 'inset', inset: { step: 3 } },
+          legend:  { position: 'inset', inset: { step: 4 } },
           tooltip: { contents: this.formatTooltip },
           grid:    {
             x: { show: true },
             y: { show: true }
           },
-          zoom: {
-            enabled:     zoom(),
-            type:        'drag',
-            onzoomstart: this.onZoomStart,
-            onzoomend:   this.onZoomEnd
-          },
+          // zoom: {
+          //   enabled:     zoom(),
+          //   type:        'drag',
+          //   onzoomstart: this.onZoomStart,
+          //   onzoomend:   this.onZoomEnd
+          // },
           onrendered: () => {
             this.repositionHighlights();
           }
@@ -293,40 +291,13 @@ export default {
 </script>
 
 <template>
-  <div class="timeseries">
-    <div class=" mb-20 input-controls">
-      <span />
-      <div class="reset">
-        <button v-if="showReset" class="btn role-secondary" type="button" @click="resetZoom">
-          {{ t('opni.chart.resetZoom') }}
-        </button>
-      </div>
-      <div class="inputs-slot">
-        <slot name="inputs" :chart="chart" :highlight-data="highlightData" :un-highlight-data="unHighlightData" />
-      </div>
-    </div>
-    <div :id="chartId">
-      ...
-    </div>
+  <div :id="chartId">
+    ...
   </div>
 </template>
 
 <style lang="scss">
 .timeseries {
-  .input-controls{
-    display:grid;
-    grid-template-columns: 33% 34% 33%;
-    align-items:center;
-
-    .reset{
-      text-align: center;
-    }
-    div:last-of-type{
-      text-align:end
-    }
-
-  }
-
   .bb>svg{
     overflow: inherit !important;
   }
@@ -398,6 +369,10 @@ export default {
     > g.bb-legend-background > rect {
       fill: none;
     }
+  }
+
+  g.bb-legend-item-hidden {
+    opacity: 0.3;
   }
 
   .bb-tooltip-container {
