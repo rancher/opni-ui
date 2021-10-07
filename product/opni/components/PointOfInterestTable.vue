@@ -19,13 +19,6 @@ export const POINT_OF_INTEREST_HEADERS = [
     formatter: 'List',
   },
   {
-    name:      'components',
-    labelKey:  'tableHeaders.components',
-    value:     'components',
-    sort:      ['components'],
-    formatter: 'List',
-  },
-  {
     name:     'workloadCount',
     labelKey: 'tableHeaders.workloadCount',
     value:    'workloadCount',
@@ -46,7 +39,7 @@ export const POINT_OF_INTEREST_HEADERS = [
 ];
 
 const POINT_OF_INTEREST_HOVER = 'pointOfInterestHover';
-const POINT_OF_INTEREST_SELECT = 'pointOfInterestSelect';
+const POINT_OF_INTEREST_SELECT = 'areaOfInterestSelect';
 
 export default {
   components: {
@@ -55,7 +48,11 @@ export default {
   },
 
   props: {
-    pointsOfInterest: {
+    logs: {
+      type:    Array,
+      default: () => [],
+    },
+    areasOfInterest: {
       type:    Array,
       default: () => [],
     },
@@ -88,14 +85,42 @@ export default {
     },
     onClick(pointOfInterest) {
       this.$emit(POINT_OF_INTEREST_SELECT, pointOfInterest);
-    }
+    },
   },
+
+  computed: {
+    rows() {
+      const buckets = this.areasOfInterest.map(aoi => ({
+        fromTo:            aoi,
+        levels:            [],
+        components:        [],
+        workloadCount:     0,
+        controlPlaneCount: 0,
+        count:             0
+      }));
+
+      this.logs.forEach((log) => {
+        buckets.find((bucket) => {
+          if (bucket.fromTo.from <= log.timestamp && bucket.fromTo.to > log.timestamp) {
+            bucket.workloadCount += log.isControlPlane ? 0 : 1;
+            bucket.controlPlaneCount += log.isControlPlane ? 1 : 0;
+            bucket.count += 1;
+            if (!bucket.levels.includes(log.level)) {
+              bucket.levels.push(log.level);
+            }
+          }
+        });
+      });
+
+      return buckets;
+    }
+  }
 };
 </script>
 <template>
   <SortableTable
     class="point-of-interest-table mt-20"
-    :rows="pointsOfInterest"
+    :rows="rows"
     :headers="POINT_OF_INTEREST_HEADERS"
     :search="false"
     :table-actions="false"
@@ -117,9 +142,6 @@ export default {
         </td>
         <td>
           <List :value="row.levels" />
-        </td>
-        <td>
-          <List :value="row.components" />
         </td>
         <td>
           <span class="bubble" :class="{workload: row.workloadCount > row.controlPlaneCount}">{{ row.workloadCount }}</span>

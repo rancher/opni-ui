@@ -7,9 +7,7 @@ import Checkbox from '@/components/form/Checkbox';
 import day from 'dayjs';
 import Loading from '@/components/Loading';
 
-import {
-  getLogs, getPointsOfInterest, getBreakdowns, getPodBreakdown, getNamespaceBreakdown, getWorkloadBreakdown, getOverallBreakdownSeries
-} from '@/product/opni/utils/requests';
+import { getLogs, getBreakdowns, getOverallBreakdownSeries, getAreasOfInterest } from '@/product/opni/utils/requests';
 import PointOfInterstDetail from './PointOfInterestDetail';
 import PointOfInterstTable from './PointOfInterestTable';
 import Breakdown from './Breakdown';
@@ -36,12 +34,11 @@ export default {
     };
 
     return {
-      highlightGraphIndex: null,
-      highlightTime:       null,
-      pointOfInterest:        null,
+      highlightArea:          null,
+      areaOfInterest:         null,
       insights:               [],
       logs:                   [],
-      pointsOfInterest:       [],
+      areasOfInterest:        [],
       podBreakdown:           {},
       namespaceBreakdown:     {},
       workloadBreakdown:      {},
@@ -89,14 +86,14 @@ export default {
       const responses = await Promise.all([
         getOverallBreakdownSeries(from, to),
         getLogs(from, to),
-        getPointsOfInterest(from, to),
+        getAreasOfInterest(from, to),
         getBreakdowns(from, to)
       ]);
 
       [
         this.insights,
         this.logs,
-        this.pointsOfInterest,
+        this.areasOfInterest,
         {
           Pods: this.podBreakdown,
           Namespaces: this.namespaceBreakdown,
@@ -139,21 +136,17 @@ export default {
       };
     },
     onOver(data, columns) {
-      this.$set(this, 'highlightTime', day(data.x));
+      // this.$set(this, 'highlightTime', day(data.x));
     },
     onOut() {
-      this.$set(this, 'highlightTime', null);
+      // this.$set(this, 'highlightTime', null);
     },
     highlightRow(row) {
       return this.highlightIndices.includes(row);
     },
 
-    onPointOfInterestHover(pointOfInterest) {
-      this.highlightGraphIndex = pointOfInterest?.highlightGraphIndex;
-    },
-
-    onPointOfInterestSelected(pointOfInterest) {
-      this.pointOfInterest = pointOfInterest;
+    onAreaOfInterestSelected(areaOfInterest) {
+      this.areaOfInterest = areaOfInterest;
     }
   }
 };
@@ -181,7 +174,6 @@ export default {
           :colors="{'Anomalous':'var(--error)', 'Normal': 'var(--primary)', 'Suspicious': 'var(--warning)'}"
           x-key="timestamp"
           :data-series="insightSeries"
-          :highlight-index="pointOfInterest ? pointOfInterest.highlightGraphIndex : highlightGraphIndex"
           @over="onOver"
           @out="onOut"
         >
@@ -192,8 +184,8 @@ export default {
       </template>
     </Card>
     <Breakdown :pod-breakdown="podBreakdown" :namespace-breakdown="namespaceBreakdown" :workload-breakdown="workloadBreakdown" />
-    <PointOfInterstTable :points-of-interest="pointsOfInterest" :hightlight-time="highlightTime" @pointOfInterestHover="onPointOfInterestHover" @pointOfInterestSelect="onPointOfInterestSelected" />
-    <PointOfInterstDetail :open="!!pointOfInterest" :point-of-interest="pointOfInterest" :logs="logs" @close="pointOfInterest=null" />
+    <PointOfInterstTable :logs="logs" :areas-of-interest="areasOfInterest" @areaOfInterestSelect="onAreaOfInterestSelected" />
+    <PointOfInterstDetail :open="!!areaOfInterest" :area-of-interest="areaOfInterest" :logs="logs" @close="areaOfInterest=null" />
   </div>
 </template>
 
@@ -268,19 +260,9 @@ export default {
   }
 }
 
-.feedback {
-  margin-right: 15px;
-  padding-right: 0;
-  padding-top: 5px;
-}
-
 img {
   $size: 20px;
   width: $size;
   height: $size;
-}
-
-.point-of-interest {
-  cursor: pointer;
 }
 </style>

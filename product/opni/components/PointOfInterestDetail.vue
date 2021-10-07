@@ -54,7 +54,7 @@ export default {
   },
 
   props: {
-    pointOfInterest: {
+    areaOfInterest: {
       type:    Object,
       default: null,
     },
@@ -84,11 +84,11 @@ export default {
     pointOfInterestLogs() {
       return this.logs
         .filter((log) => {
-          if (!this.pointOfInterest) {
+          if (!this.areaOfInterest) {
             return false;
           }
 
-          const { from, to } = this.pointOfInterest.fromTo;
+          const { from, to } = this.areaOfInterest.fromTo;
 
           if (log.timestamp < from || log.timestamp > to) {
             return false;
@@ -154,8 +154,8 @@ export default {
     <template #title>
       <div class="p-5 pb-0">
         <h1>{{ t('opni.pointOfInterestDetail.title') }}</h1> &nbsp;
-        <h3 v-if="pointOfInterest">
-          (<DateRange :value="pointOfInterest.fromTo" />)
+        <h3 v-if="areaOfInterest">
+          (<DateRange :value="areaOfInterest.fromTo" />)
         </h3>
       </div>
     </template>

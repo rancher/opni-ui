@@ -2,7 +2,6 @@ import axios from 'axios';
 import { Dayjs } from 'dayjs';
 
 const POINTS = 24;
-const MS_IN_HOUR = 3600000;
 
 /* eslint-disable camelcase */
 interface LogResponse {
@@ -31,19 +30,6 @@ interface FromTo {
     from: Number,
     to: Number
 }
-
-type Level = 'Anomaly' | 'Suspicious';
-
-interface PointsOfInterestResponse {
-    fromTo: FromTo;
-    levels: Level[];
-    components: String[];
-    workloadCount: Number;
-    controlPlaneCount: Number;
-    count: Number;
-    highlightGraphIndex: Number
-}
-
 interface Insights {
   Anomaly: Number;
   Normal: Number;
@@ -73,17 +59,21 @@ interface BreakdownsResponse {
   Workloads: WorkloadBreakdownAggregation;
 }
 
+interface AreaOfInterestResponse {
+  start_ts: number;
+  end_ts: number;
+}
+
 /* eslint-enable camelcase */
 
-export async function getPointsOfInterest(from: Dayjs):Promise<PointsOfInterestResponse[]> {
-  const points = await Promise.resolve<PointsOfInterestResponse[]>(require('./mock-data/points-of-interest.json'));
+export async function getAreasOfInterest(from: Dayjs, to: Dayjs): Promise<FromTo[]> {
+  const response = (await axios.get<AreaOfInterestResponse[]>(`opni-api/areas_of_interest?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`))?.data;
+  const fakeReponse = await Promise.resolve([{ start_ts: from.valueOf(), end_ts: from.add(2, 'hour').valueOf() }, { start_ts: to.subtract(5, 'hour').valueOf(), end_ts: to.valueOf() }]);
 
-  points[0].fromTo = {
-    from: from.valueOf() + (2 * MS_IN_HOUR),
-    to:   from.valueOf() + (3 * MS_IN_HOUR)
-  };
-
-  return points;
+  return (fakeReponse || response).map(r => ({
+    from: r.start_ts,
+    to:   r.end_ts
+  }));
 }
 
 export async function getBreakdowns(from: Dayjs, to: Dayjs): Promise<BreakdownsResponse> {
