@@ -68,12 +68,13 @@ interface AreaOfInterestResponse {
 
 export async function getAreasOfInterest(from: Dayjs, to: Dayjs): Promise<FromTo[]> {
   const response = (await axios.get<AreaOfInterestResponse[]>(`opni-api/areas_of_interest?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`))?.data;
-  const fakeReponse = await Promise.resolve([{ start_ts: from.valueOf(), end_ts: from.add(2, 'hour').valueOf() }, { start_ts: to.subtract(5, 'hour').valueOf(), end_ts: to.valueOf() }]);
 
-  return (fakeReponse || response).map(r => ({
-    from: r.start_ts,
-    to:   r.end_ts
-  }));
+  return (response)
+    .filter(r => r.start_ts > 0 && r.end_ts > 0)
+    .map(r => ({
+      from: r.start_ts,
+      to:   r.end_ts
+    }));
 }
 
 export async function getBreakdowns(from: Dayjs, to: Dayjs): Promise<BreakdownsResponse> {
