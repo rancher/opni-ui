@@ -9,7 +9,7 @@ export const AREA_OF_INTEREST_HEADERS = [
     formatter: 'DateRange',
     value:     'fromTo',
     sort:      ['timestamp'],
-    width:     '300px',
+    width:     '320px',
   },
   {
     name:      'levels',
