@@ -1,7 +1,5 @@
 import axios from 'axios';
-import { Dayjs } from 'dayjs';
-
-const POINTS = 24;
+import dayjs, { Dayjs, UnitType } from 'dayjs';
 
 /* eslint-disable camelcase */
 interface LogResponse {
@@ -81,12 +79,16 @@ export async function getBreakdowns(from: Dayjs, to: Dayjs): Promise<BreakdownsR
   return (await axios.get<BreakdownsResponse>(`opni-api/insights_breakdown?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`))?.data;
 }
 
-export async function getOverallBreakdownSeries(from: Dayjs, to: Dayjs) {
-  const promises = [...Array(POINTS)].map((_, i) => getOverallBreakdown(from.add(i, 'hour'), from.add(i + 1, 'hour')));
+export async function getOverallBreakdownSeries(resolution: { unit: UnitType, count: number } ) {
+  const now = dayjs();
+  const yesterday = now.subtract(1, 'day');
+  const points = Math.floor(now.diff(yesterday, resolution.unit) / resolution.count);
+
+  const promises = [...Array(points)].map((_, i) => getOverallBreakdown(yesterday.add(i * resolution.count, resolution.unit), yesterday.add((i + 1) * resolution.count, resolution.unit)));
   const responses = (await Promise.all(promises)).map(p => p.data);
 
   return responses.map((r, i) => ({
-    timestamp:  from.add(i, 'hour').valueOf(),
+    timestamp:  yesterday.add(i * resolution.count, resolution.unit).valueOf(),
     normal:     r.Normal || 0,
     suspicious: r.Suspicious || 0,
     anomaly:    r.Anomaly || 0

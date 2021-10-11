@@ -3,9 +3,12 @@ import Card from '@/components/Card';
 import { formatForTimeseries, findBucket, showTooltip } from '@/product/opni/utils/munging';
 import TimeSeries from '@/components/graph/TimeSeries';
 import day from 'dayjs';
+import Loading from '@/components/Loading';
 
 export default {
-  components: { Card, TimeSeries },
+  components: {
+    Card, Loading, TimeSeries
+  },
 
   props: {
     areaOfInterest: {
@@ -21,6 +24,11 @@ export default {
     insights: {
       type:     Array,
       required: true,
+    },
+
+    loading: {
+      type:    Boolean,
+      default: false
     }
   },
 
@@ -101,15 +109,22 @@ export default {
         @onDataShown="onDataShown"
         @onDataHidden="onDataHidden"
       />
+      <Loading v-if="loading" />
     </template>
   </Card>
 </template>
 
 <style lang="scss" scoped>
 ::v-deep {
-  .timesries .card-body {
-    height: 380px;
+  .card-container {
     position: relative;
+  }
+
+  .loading-indicator .overlay {
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
   }
 }
 

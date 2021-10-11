@@ -4,6 +4,7 @@ import day from 'dayjs';
 import Loading from '@/components/Loading';
 
 import { getLogs, getBreakdowns, getOverallBreakdownSeries, getAreasOfInterest } from '@/product/opni/utils/requests';
+import Select from '@/components/form/Select';
 import InsightsChart from './InsightsChart';
 import AreaOfInterstDetail from './AreaOfInterestDetail';
 import AreaOfInterestTable from './AreaOfInterestTable';
@@ -11,7 +12,7 @@ import Breakdown from './Breakdown';
 
 export default {
   components: {
-    Breakdown, InsightsChart, Loading, AreaOfInterstDetail, AreaOfInterestTable
+    Breakdown, InsightsChart, Loading, AreaOfInterstDetail, AreaOfInterestTable, Select
   },
 
   async fetch() {
@@ -30,10 +31,23 @@ export default {
       }
     };
 
+    const resolutions = [
+      {
+        label: '1h', unit: 'hours', count: 1
+      },
+      {
+        label: '30m', unit: 'minutes', count: 30
+      },
+      {
+        label: '10m', unit: 'minutes', count: 10
+      },
+    ];
+
     return {
       highlightAreaOfInterest: null,
       areaOfInterest:          null,
       insights:                [],
+      loading:                 false,
       logs:                    [],
       areasOfInterest:         [],
       podBreakdown:            {},
@@ -42,6 +56,8 @@ export default {
       fromTo,
       highlightAnomalies:      false,
       highlightRange:          null,
+      resolutions,
+      resolution:              resolutions[0]
     };
   },
 
@@ -56,11 +72,10 @@ export default {
 
   methods: {
     async loadData() {
-      this.loading = true;
       const { from, to } = this.requestFromTo;
 
       const responses = await Promise.all([
-        getOverallBreakdownSeries(from, to),
+        getOverallBreakdownSeries(this.resolution),
         getLogs(from, to),
         getAreasOfInterest(from, to),
         getBreakdowns(from, to)
@@ -91,6 +106,16 @@ export default {
     onAreaOfInterestHover(areaOfInterest) {
       this.highlightAreaOfInterest = areaOfInterest;
     }
+  },
+  watch: {
+    async resolution() {
+      try {
+        this.loading = true;
+        this.insights = await getOverallBreakdownSeries(this.resolution);
+      } finally {
+        this.loading = false;
+      }
+    }
   }
 };
 </script>
@@ -102,7 +127,15 @@ export default {
         {{ t('opni.dashboard.title') }}
       </h1>
     </div>
-    <InsightsChart :from-to="fromTo" :insights="insights" :area-of-interest="areaOfInterest || highlightAreaOfInterest" />
+    <div class="chart">
+      <InsightsChart :key="insights.length" :from-to="fromTo" :insights="insights" :area-of-interest="areaOfInterest || highlightAreaOfInterest" :loading="loading" />
+      <Select
+        v-model="resolution"
+        option-key="label"
+        :options="resolutions"
+        placement="bottom"
+      />
+    </div>
     <Breakdown :pod-breakdown="podBreakdown" :namespace-breakdown="namespaceBreakdown" :workload-breakdown="workloadBreakdown" />
     <AreaOfInterestTable :logs="logs" :areas-of-interest="areasOfInterest" @areaOfInterestSelect="onAreaOfInterestSelected" @areaOfInterestHover="onAreaOfInterestHover" />
     <AreaOfInterstDetail :open="!!areaOfInterest" :area-of-interest="areaOfInterest" :logs="logs" @close="areaOfInterest=null" />
@@ -145,5 +178,16 @@ img {
   $size: 20px;
   width: $size;
   height: $size;
+}
+
+.chart {
+  position: relative;
+
+  .unlabeled-select {
+    position: absolute;
+    right: 30px;
+    top: 42px;
+    width: 85px;
+  }
 }
 </style>
