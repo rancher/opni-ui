@@ -51,10 +51,15 @@ interface WorkloadBreakdownAggregation {
   StatefulSet: WorkloadBreakdown[];
 }
 
+interface ControlPlaneBreakdownAggregation {
+  Components: WorkloadBreakdown[];
+}
+
 interface BreakdownsResponse {
   Namespaces: Breakdown[];
   Pods: Breakdown[];
   Workloads: WorkloadBreakdownAggregation;
+  'Control Plane': ControlPlaneBreakdownAggregation;
 }
 
 interface AreaOfInterestResponse {

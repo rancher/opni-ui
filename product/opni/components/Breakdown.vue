@@ -1,14 +1,14 @@
 <script>
-import sumBy from 'lodash/sumBy';
 import Tab from '@/components/Tabbed/Tab';
 import Tabbed from '@/components/Tabbed';
 import PodBreakdownDetail from './PodBreakdownDetail';
 import NamespaceBreakdownDetail from './NamespaceBreakdownDetail';
 import WorkloadBreakdownDetail from './WorkloadBreakdownDetail';
+import ControlPlaneBreakdownDetail from './ControlPlaneBreakdownDetail';
 
 export default {
   components: {
-    PodBreakdownDetail, NamespaceBreakdownDetail, Tabbed, Tab, WorkloadBreakdownDetail
+    ControlPlaneBreakdownDetail, PodBreakdownDetail, NamespaceBreakdownDetail, Tabbed, Tab, WorkloadBreakdownDetail
   },
 
   props: {
@@ -24,29 +24,9 @@ export default {
       type:     Object,
       required: true
     },
-  },
-
-  data() {
-    return {
-      showPodBreakdownDetail:          false,
-      showNamespaceBreakdownDetail:    false,
-      showWorkloadBreakdownDetail:     false,
-    };
-  },
-
-  computed: {
-    podCount() {
-      return sumBy(this.podBreakdown, breakdown => breakdown.Insights.Anomaly);
-    },
-
-    namespaceCount() {
-      return sumBy(this.namespaceBreakdown, breakdown => breakdown.Insights.Anomaly);
-    },
-
-    workloadCount() {
-      const breakdown = Object.values(this.workloadBreakdown).flat();
-
-      return sumBy(breakdown, breakdown => breakdown?.Insights?.Anomaly || 0);
+    controlPlaneBreakdown: {
+      type:     Object,
+      required: true
     }
   },
 
@@ -82,6 +62,15 @@ export default {
         :weight="1"
       >
         <WorkloadBreakdownDetail :breakdown="workloadBreakdown" />
+      </Tab>
+
+      <Tab
+        name="controlPlane"
+        label="Control Plane"
+        :show-header="false"
+        :weight="0"
+      >
+        <ControlPlaneBreakdownDetail :breakdown="controlPlaneBreakdown" />
       </Tab>
     </Tabbed>
   </div>

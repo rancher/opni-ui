@@ -35,6 +35,7 @@ export default {
       podBreakdown:            {},
       namespaceBreakdown:      {},
       workloadBreakdown:       {},
+      controlPlaneBreakdown:   {},
       fromTo,
       highlightAnomalies:      false,
       highlightRange:          null,
@@ -68,6 +69,7 @@ export default {
           Pods: this.podBreakdown,
           Namespaces: this.namespaceBreakdown,
           Workloads: this.workloadBreakdown,
+          'Control Plane': this.controlPlaneBreakdown
         }
       ] = responses;
 
@@ -106,7 +108,7 @@ export default {
       :loading="loading"
       @onGranularity="granularity = $event"
     />
-    <Breakdown :pod-breakdown="podBreakdown" :namespace-breakdown="namespaceBreakdown" :workload-breakdown="workloadBreakdown" />
+    <Breakdown :pod-breakdown="podBreakdown" :namespace-breakdown="namespaceBreakdown" :workload-breakdown="workloadBreakdown" :control-plane-breakdown="controlPlaneBreakdown" />
   </div>
 </template>
 
