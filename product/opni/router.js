@@ -4,6 +4,7 @@ import Router from 'vue-router';
 import { createRoutesFromNavigation } from '@/utils/navigation';
 import Logging from './pages/Logging';
 import Metrics from './pages/Metrics';
+import Preempt from './pages/Preempt';
 
 Vue.use(Router);
 
@@ -11,15 +12,22 @@ export const NAVIGATION = {
   routes: [
     {
       path:      '/',
-      redirect: { name: 'logging' },
+      redirect: { name: 'respond' },
       display:  false
     },
     {
-      name:      'logging',
-      path:      '/logging',
-      labelKey:  'opni.nav.logging',
+      name:      'respond',
+      path:      '/respond',
+      labelKey:  'opni.nav.respond',
       icon:      'globe',
       component: Logging
+    },
+    {
+      name:      'preempt',
+      path:      '/preempt',
+      labelKey:  'opni.nav.preempt',
+      icon:      'globe',
+      component: Preempt
     },
     {
       path:      '/metrics',

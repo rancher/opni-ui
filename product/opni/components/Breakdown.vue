@@ -1,13 +1,14 @@
 <script>
-import Card from '@/components/Card';
 import sumBy from 'lodash/sumBy';
+import Tab from '@/components/Tabbed/Tab';
+import Tabbed from '@/components/Tabbed';
 import PodBreakdownDetail from './PodBreakdownDetail';
 import NamespaceBreakdownDetail from './NamespaceBreakdownDetail';
 import WorkloadBreakdownDetail from './WorkloadBreakdownDetail';
 
 export default {
   components: {
-    Card, PodBreakdownDetail, NamespaceBreakdownDetail, WorkloadBreakdownDetail
+    PodBreakdownDetail, NamespaceBreakdownDetail, Tabbed, Tab, WorkloadBreakdownDetail
   },
 
   props: {
@@ -53,43 +54,36 @@ export default {
 };
 </script>
 <template>
-  <div class="row">
-    <div class="col span-4" @click="showPodBreakdownDetail = true">
-      <Card class="card mt-20 breakdown-card" :show-actions="false" :show-highlight-border="showPodBreakdownDetail">
-        <template #body>
-          <div class="breakdown pl-15 pr-15">
-            <h1>{{ podCount }}</h1>
-            <h3>Pod</h3>
-            <div />
-          </div>
-        </template>
-      </Card>
-    </div>
-    <div class="col span-4" @click="showNamespaceBreakdownDetail = true">
-      <Card class="card mt-20 breakdown-card" :show-actions="false" :show-highlight-border="showNamespaceBreakdownDetail">
-        <template #body>
-          <div class="breakdown p-15">
-            <h1>{{ namespaceCount }}</h1>
-            <h3>Namespace</h3>
-            <div />
-          </div>
-        </template>
-      </Card>
-    </div>
-    <div class="col span-4" @click="showWorkloadBreakdownDetail = true">
-      <Card class="card mt-20 breakdown-card" :show-actions="false" :show-highlight-border="showWorkloadBreakdownDetail">
-        <template #body>
-          <div class="breakdown p-15">
-            <h1>{{ workloadCount }}</h1>
-            <h3>Workload</h3>
-            <div />
-          </div>
-        </template>
-      </Card>
-    </div>
-    <PodBreakdownDetail :open="showPodBreakdownDetail" :breakdown="podBreakdown" @close="showPodBreakdownDetail=false" />
-    <NamespaceBreakdownDetail :open="showNamespaceBreakdownDetail" :breakdown="namespaceBreakdown" @close="showNamespaceBreakdownDetail=false" />
-    <WorkloadBreakdownDetail :open="showWorkloadBreakdownDetail" :breakdown="workloadBreakdown" @close="showWorkloadBreakdownDetail=false" />
+  <div>
+    <h3 class="mt-20">
+      Breakdowns
+    </h3>
+    <Tabbed :side-tabs="true">
+      <Tab
+        name="pod"
+        label="Pod"
+        :show-header="false"
+        :weight="3"
+      >
+        <PodBreakdownDetail :breakdown="podBreakdown" />
+      </Tab>
+      <Tab
+        name="namespace"
+        label="Namespace"
+        :show-header="false"
+        :weight="2"
+      >
+        <NamespaceBreakdownDetail :breakdown="namespaceBreakdown" />
+      </Tab>
+      <Tab
+        name="workload"
+        label="Workload"
+        :show-header="false"
+        :weight="1"
+      >
+        <WorkloadBreakdownDetail :breakdown="workloadBreakdown" />
+      </Tab>
+    </Tabbed>
   </div>
 </template>
 

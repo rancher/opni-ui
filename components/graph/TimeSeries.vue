@@ -1,7 +1,7 @@
 <script>
 import bb, { area, selection } from 'billboard.js';
 import { randomStr } from '@/utils/string';
-import { getAbsoluteValue } from '@/components/form/SuperDatePicker/util';
+import day from 'dayjs';
 
 const SELECTED_RADIUS = 7;
 
@@ -9,14 +9,6 @@ export default {
   name:       'TimeSeries',
   components: { },
   props:      {
-    from: {
-      type:     Object,
-      required: true
-    },
-    to: {
-      type:     Object,
-      required: true
-    },
     regions: {
       type:    Array,
       default: () => []
@@ -66,14 +58,6 @@ export default {
   },
 
   computed: {
-    minTime() {
-      return getAbsoluteValue(this.from).valueOf();
-    },
-
-    maxTime() {
-      return getAbsoluteValue(this.to).valueOf();
-    },
-
     // TODO decide if/when we want to show log y axes
     needsLogY() {
       // const allVals = Object.values(this.dataSeries).reduce((all, each) => {
@@ -96,12 +80,6 @@ export default {
   },
 
   watch: {
-    minTime() {
-      this.createChart();
-    },
-    maxTime() {
-      this.createChart();
-    },
     regions() {
       const regions = this.createRegions();
 
@@ -155,7 +133,10 @@ export default {
           this.$emit('onDataHidden', d, this.api);
         },
         onselected:   this.onSelected,
-        onunselected: this.onUnselected
+        onunselected: this.onUnselected,
+        axes:         {
+          Normal: 'y2', Suspicious: 'y', Anomaly: 'y'
+        },
       };
 
       this.chart = bb.generate(
@@ -166,18 +147,18 @@ export default {
             x: {
               type:   'timeseries',
               tick: {
-                format: this.xFormat, width: 50, count: 10, height: 200
+                format: this.xFormat, fit: true, width: 50, height: 200
               },
               height: 40,
-              max:    { value: this.maxTime, fit: true },
-              min:    { value: this.minTime, fit: true },
+              // max:    { value: this.maxTime, fit: true },
+              // min:    { value: this.minTime, fit: true },
             },
             y: {
               min:     0,
               padding: { bottom: 0 },
               type:    this.needsLogY ? 'log' : 'indexed'
             },
-
+            y2: { show: true }
           },
           point:   { focus: { expand: { enabled: false }, only: false }, select: { r: SELECTED_RADIUS } },
           legend:  { position: 'inset', inset: { step: 4 } },
@@ -212,8 +193,9 @@ export default {
     formatTooltip(data) {
       let out = "<div class='simple-box'>";
 
+      out += `<div class="strong mb-5">${ day(data[0].x).format('MMMM D - HH:mm:ss') }</div>`;
       data.forEach((category) => {
-        out += `<div>${ category.name }: ${ category.value }</div>`;
+        out += `<div><div class="color mr-5" style="background-color:${ this.dataSeries[category.id].color }"></div>${ category.name }: ${ category.value }</div>`;
       });
 
       return `${ out }</div>`;
@@ -393,7 +375,22 @@ export default {
       background: var(--simple-box-bg) 0% 0% no-repeat padding-box;
       box-shadow: 0px 0px 10px var(--simple-box-shadow);
       border: 1px solid var(--simple-box-border);
+      border-radius: var(--border-radius);
       padding: $padding;
+
+      .strong {
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 14px;
+      }
+
+      .color {
+        $size: 10px;
+
+        display: inline-block;
+        width: $size;
+        height: $size;
+      }
 
       .top {
         line-height: 24px;

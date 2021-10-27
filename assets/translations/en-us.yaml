@@ -4089,7 +4089,7 @@ tableHeaders:
   components: Components
   commit: Commit
   condition: Condition
-  controlPlaneCount: Control Plane Count
+  controlPlaneAnomalies: Control Plane Anomalies
   count: Count
   customVerbs: Custom Verbs
   dateRange: Date Range
@@ -4216,13 +4216,14 @@ tableHeaders:
   readyToUse: Ready To Use
   backupTarget: Backup Target
   targetVm: Target VM
+  totalAnomalies: Total Anomalies
   phase: Phase
   attachedVM: Attached VM
   hostIp: Host IP
   storage: Storage Size
   defaultVersion: Default version
   ipAddress: IP Address
-  workloadCount: Workload Count
+  workloadAnomalies: Workload Anomalies
 
 target:
   router:
@@ -6089,7 +6090,8 @@ opni:
   dashboard:
     title: Logging
   nav:
-    logging: Logging
+    respond: Respond
+    preempt: Preempt
     metrics: Metrics
   areaOfInterestDetail:
     title: Area of Interest

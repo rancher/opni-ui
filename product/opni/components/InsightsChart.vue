@@ -4,10 +4,35 @@ import { formatForTimeseries, findBucket, showTooltip } from '@/product/opni/uti
 import TimeSeries from '@/components/graph/TimeSeries';
 import day from 'dayjs';
 import Loading from '@/components/Loading';
+import LabeledSelect from '@/components/form/LabeledSelect';
+
+export const GRANULARITIES = [
+  {
+    label: '1h', unit: 'hours', count: 1
+  },
+  {
+    label: '30m', unit: 'minutes', count: 30
+  },
+  {
+    label: '10m', unit: 'minutes', count: 10
+  },
+];
+
+export const RANGES = [
+  { label: '24h' },
+  { label: '12h' },
+  { label: '1h' }
+];
+
+export const REFRESH_RATES = [
+  { label: '5s' },
+  { label: '1m' },
+  { label: '30m' },
+];
 
 export default {
   components: {
-    Card, Loading, TimeSeries
+    Card, Loading, LabeledSelect, TimeSeries
   },
 
   props: {
@@ -16,13 +41,13 @@ export default {
       default: null,
     },
 
-    fromTo: {
-      type:     Object,
-      required: true
-    },
-
     insights: {
       type:     Array,
+      required: true,
+    },
+
+    granularity: {
+      type:     Object,
       required: true,
     },
 
@@ -33,7 +58,12 @@ export default {
   },
 
   data() {
-    return { highlightAnomalies: false };
+    return {
+      highlightAnomalies: false,
+      granularities:      GRANULARITIES,
+      ranges:             RANGES,
+      refreshRates:       REFRESH_RATES,
+    };
   },
 
   computed: {
@@ -43,7 +73,7 @@ export default {
       out['Anomalous'].shouldHighlight = true;
 
       out['Anomalous'].color = 'var(--error)';
-      out['Normal'].color = 'var(--primary)';
+      out['Normal'].color = 'var(--primary-low-opacity)';
       out['Suspicious'].color = 'var(--warning)';
 
       return out;
@@ -94,24 +124,57 @@ export default {
 };
 </script>
 <template>
-  <Card class="card mt-20" :show-actions="false" :show-highlight-border="false">
-    <template #body>
-      <TimeSeries
-        ref="insights"
-        class="timeseries mt-20 mb-20"
-        chart-id="insights"
-        :from="fromTo.from"
-        :to="fromTo.to"
-        :colors="{'Anomalous':'var(--error)', 'Normal': 'var(--primary)', 'Suspicious': 'var(--warning)'}"
-        x-key="timestamp"
-        :data-series="insightSeries"
-        :regions="regions"
-        @onDataShown="onDataShown"
-        @onDataHidden="onDataHidden"
-      />
-      <Loading v-if="loading" />
-    </template>
-  </Card>
+  <div>
+    <div class="row mt-10">
+      <div class="col span-1">
+        <LabeledSelect
+          label="Refresh"
+          :value="refreshRates[0]"
+          option-key="label"
+          :options="refreshRates"
+          placement="bottom"
+          @input="$emit('onGranularity', $event)"
+        />
+      </div>
+      <div class="col span-7"></div>
+      <div class="col span-2">
+        <LabeledSelect
+          label="Range"
+          :value="ranges[0]"
+          option-key="label"
+          :options="ranges"
+          placement="bottom"
+          @input="$emit('onGranularity', $event)"
+        />
+      </div>
+      <div class="col span-2">
+        <LabeledSelect
+          label="Granularity"
+          :value="granularity"
+          option-key="label"
+          :options="granularities"
+          placement="bottom"
+          @input="$emit('onGranularity', $event)"
+        />
+      </div>
+    </div>
+    <Card class="card mt-10" :show-actions="false" :show-highlight-border="false">
+      <template #body>
+        <TimeSeries
+          ref="insights"
+          class="timeseries mt-10 mb-10"
+          chart-id="insights"
+          :colors="{'Anomalous':'var(--error)', 'Normal': 'var(--primary)', 'Suspicious': 'var(--warning)'}"
+          x-key="timestamp"
+          :data-series="insightSeries"
+          :regions="regions"
+          @onDataShown="onDataShown"
+          @onDataHidden="onDataHidden"
+        />
+        <Loading v-if="loading" />
+      </template>
+    </Card>
+  </div>
 </template>
 
 <style lang="scss" scoped>

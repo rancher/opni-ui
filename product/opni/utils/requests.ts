@@ -62,6 +62,11 @@ interface AreaOfInterestResponse {
   end_ts: number;
 }
 
+interface Granularity {
+  unit: UnitType;
+  count: number;
+}
+
 /* eslint-enable camelcase */
 
 export async function getAreasOfInterest(from: Dayjs, to: Dayjs): Promise<FromTo[]> {
@@ -79,24 +84,46 @@ export async function getBreakdowns(from: Dayjs, to: Dayjs): Promise<BreakdownsR
   return (await axios.get<BreakdownsResponse>(`opni-api/insights_breakdown?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`))?.data;
 }
 
-export async function getOverallBreakdownSeries(resolution: { unit: UnitType, count: number } ) {
+export async function getOverallBreakdownSeries(granularity: Granularity ) {
   const now = dayjs();
-  const yesterday = now.subtract(1, 'day');
-  const points = Math.floor(now.diff(yesterday, resolution.unit) / resolution.count);
+  const firstAligned = getFirstAlignedPoint(now, granularity);
+  const points = 24 - 1;
+  const fromTos = getFromTos(now, firstAligned, points, granularity);
 
-  const promises = [...Array(points)].map((_, i) => getOverallBreakdown(yesterday.add(i * resolution.count, resolution.unit), yesterday.add((i + 1) * resolution.count, resolution.unit)));
-  const responses = (await Promise.all(promises)).map(p => p.data);
+  const promises = fromTos.map(({ from, to }) => getOverallBreakdown(from, to));
+  const responses = await Promise.all(promises);
 
-  return responses.map((r, i) => ({
-    timestamp:  yesterday.add(i * resolution.count, resolution.unit).valueOf(),
+  return responses.map(r => ({
+    timestamp:  r.to.valueOf(),
     normal:     r.Normal || 0,
     suspicious: r.Suspicious || 0,
     anomaly:    r.Anomaly || 0
   }));
 }
 
+function getFirstAlignedPoint(now: Dayjs, granularity: Granularity ) {
+  const remainder = now.get(granularity.unit) % granularity.count;
+  const first = granularity.count > 1 ? now.subtract(remainder, granularity.unit) : now;
+
+  return first.startOf(granularity.unit);
+}
+
+function getFromTos(now: Dayjs, firstAligned: Dayjs, numberOfPoints: Number, granularity: Granularity) {
+  const alignedFromTos = [...Array(numberOfPoints)].map((_, i) => ({
+    from: firstAligned.subtract((i + 1) * granularity.count, granularity.unit),
+    to:   firstAligned.subtract(i * granularity.count, granularity.unit)
+  }));
+
+  return [{ from: firstAligned, to: now }, ...alignedFromTos];
+}
+
 export async function getOverallBreakdown(from: Dayjs, to: Dayjs) {
-  return (await axios.get(`opni-api/overall_insights?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`));
+  const response = (await axios.get(`opni-api/overall_insights?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`));
+
+  response.data.from = from;
+  response.data.to = to;
+
+  return response.data;
 }
 
 export async function getLogs(from: Dayjs, to: Dayjs): Promise<Log[]> {

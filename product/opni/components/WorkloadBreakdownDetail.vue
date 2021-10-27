@@ -1,6 +1,5 @@
 <script>
 import SortableTable from '@/components/SortableTable';
-import Drawer from '@/components/Drawer';
 import {
   ANOMALY, BREAKDOWN_RESOURCE, SIMPLE_NAME, NORMAL, SUSPICIOUS
 } from '@/config/table-headers';
@@ -13,23 +12,18 @@ export const HEADERS = [
   },
   BREAKDOWN_RESOURCE,
   ANOMALY,
+  SUSPICIOUS,
   NORMAL,
-  SUSPICIOUS
 ];
 
 export default {
-  components: { Drawer, SortableTable },
+  components: { SortableTable },
 
   props: {
     breakdown: {
       type:    Object,
       default: null,
     },
-
-    open: {
-      type:     Boolean,
-      required: true
-    }
   },
 
   data() {
@@ -50,31 +44,17 @@ export default {
 };
 </script>
 <template>
-  <Drawer :open="open" @close="$emit('close')">
-    <template #title>
-      <div class="p-5 pb-0">
-        <h1>Workload Breakdown</h1> &nbsp;
-      </div>
-    </template>
-    <div class="contents">
-      <div class="row detail mb-10">
-        <div class="col span-12 p-5">
-          <SortableTable
-            :rows="rows"
-            group-by="Namespace"
-            :headers="HEADERS"
-            :search="false"
-            :table-actions="false"
-            :row-actions="false"
-            :paging="true"
-            default-sort-by="name"
-            key-field="id"
-          />
-          <div class="spacer mt-10" />
-        </div>
-      </div>
-    </div>
-  </drawer>
+  <SortableTable
+    :rows="rows"
+    group-by="Namespace"
+    :headers="HEADERS"
+    :search="false"
+    :table-actions="false"
+    :row-actions="false"
+    :paging="true"
+    default-sort-by="anomaly"
+    key-field="id"
+  />
 </template>
 
 <style lang="scss" scoped>

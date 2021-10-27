@@ -43,6 +43,7 @@ $selected: rgba(#3D98D3, .5);
 BODY, .theme-light {
 
   --primary                    : #{$primary};
+  --primary-low-opacity        : #{rgba($primary, 0.25)};
   --primary-text               : #{contrast-color($primary)};
   --primary-hover-bg           : #{darken($primary, 10%)};
   --primary-hover-text         : #{saturate($lightest, 20%)};

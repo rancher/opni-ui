@@ -94,6 +94,12 @@ export default {
       default: null
     },
 
+    defaultSortDescending: {
+      // Default sort order
+      type:    Boolean,
+      default: false
+    },
+
     tableActions: {
       // Show bulk table actions
       type:    Boolean,

@@ -88,7 +88,7 @@ export default {
       sortBy = this._defaultSortBy;
     }
 
-    descending = (typeof this.$route.query.desc) !== 'undefined';
+    descending = (typeof this.$route.query.desc) !== 'undefined' || this.defaultSortDescending;
 
     return {
       sortBy,

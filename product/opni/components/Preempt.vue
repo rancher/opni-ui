@@ -3,13 +3,14 @@ import { ALL_TYPES, getAbsoluteValue } from '@/components/form/SuperDatePicker/u
 import day from 'dayjs';
 import Loading from '@/components/Loading';
 
-import { getLogs, getBreakdowns, getOverallBreakdownSeries } from '@/product/opni/utils/requests';
+import { getLogs, getOverallBreakdownSeries, getAreasOfInterest } from '@/product/opni/utils/requests';
 import InsightsChart, { GRANULARITIES } from './InsightsChart';
-import Breakdown from './Breakdown';
+import AreaOfInterstDetail from './AreaOfInterestDetail';
+import AreaOfInterestTable from './AreaOfInterestTable';
 
 export default {
   components: {
-    Breakdown, InsightsChart, Loading
+    InsightsChart, Loading, AreaOfInterstDetail, AreaOfInterestTable
   },
 
   async fetch() {
@@ -29,12 +30,12 @@ export default {
     };
 
     return {
+      highlightAreaOfInterest: null,
+      areaOfInterest:          null,
       insights:                [],
       loading:                 false,
       logs:                    [],
-      podBreakdown:            {},
-      namespaceBreakdown:      {},
-      workloadBreakdown:       {},
+      areasOfInterest:         [],
       fromTo,
       highlightAnomalies:      false,
       highlightRange:          null,
@@ -58,17 +59,13 @@ export default {
       const responses = await Promise.all([
         getOverallBreakdownSeries(this.granularity),
         getLogs(from, to),
-        getBreakdowns(from, to)
+        getAreasOfInterest(from, to),
       ]);
 
       [
         this.insights,
         this.logs,
-        {
-          Pods: this.podBreakdown,
-          Namespaces: this.namespaceBreakdown,
-          Workloads: this.workloadBreakdown,
-        }
+        this.areasOfInterest,
       ] = responses;
 
       this.logs = this.logs.map(log => ({
@@ -77,12 +74,20 @@ export default {
         stateObj:         {}
       }));
     },
+
+    onAreaOfInterestSelected(areaOfInterest) {
+      this.areaOfInterest = areaOfInterest;
+    },
+
+    onAreaOfInterestHover(areaOfInterest) {
+      this.highlightAreaOfInterest = areaOfInterest;
+    }
   },
   watch: {
-    async granularity() {
+    async resolution() {
       try {
         this.loading = true;
-        this.insights = await getOverallBreakdownSeries(this.granularity);
+        this.insights = await getOverallBreakdownSeries(this.resolution);
       } finally {
         this.loading = false;
       }
@@ -95,18 +100,21 @@ export default {
   <div v-else>
     <div class="bar">
       <h1>
-        Respond
+        Preempt
       </h1>
     </div>
-    <InsightsChart
-      :key="insights.length"
-      :granularity="granularity"
-      :from-to="fromTo"
-      :insights="insights"
-      :loading="loading"
-      @onGranularity="granularity = $event"
-    />
-    <Breakdown :pod-breakdown="podBreakdown" :namespace-breakdown="namespaceBreakdown" :workload-breakdown="workloadBreakdown" />
+    <div class="chart">
+      <InsightsChart
+        :key="insights.length"
+        :granularity="granularity"
+        :from-to="fromTo"
+        :insights="insights"
+        :area-of-interest="areaOfInterest || highlightAreaOfInterest"
+        :loading="loading"
+      />
+    </div>
+    <AreaOfInterestTable :logs="logs" :areas-of-interest="areasOfInterest" @areaOfInterestSelect="onAreaOfInterestSelected" @areaOfInterestHover="onAreaOfInterestHover" />
+    <AreaOfInterstDetail :open="!!areaOfInterest" :area-of-interest="areaOfInterest" :logs="logs" @close="areaOfInterest=null" />
   </div>
 </template>
 
@@ -146,5 +154,16 @@ img {
   $size: 20px;
   width: $size;
   height: $size;
+}
+
+.chart {
+  position: relative;
+
+  .unlabeled-select {
+    position: absolute;
+    right: 30px;
+    top: 42px;
+    width: 85px;
+  }
 }
 </style>
