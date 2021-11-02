@@ -1,7 +1,7 @@
 <script>
 import SortableTable from '@/components/SortableTable';
 import {
-  ANOMALY, BREAKDOWN_RESOURCE, SIMPLE_NAME, NORMAL, SUSPICIOUS
+  SIMPLE_NAME, BREAKDOWN_RESOURCE, ANOMALY, NORMAL, SUSPICIOUS
 } from '@/config/table-headers';
 
 export const HEADERS = [
@@ -11,9 +11,9 @@ export const HEADERS = [
     value: 'Name'
   },
   BREAKDOWN_RESOURCE,
-  ANOMALY,
-  SUSPICIOUS,
-  NORMAL,
+  ANOMALY(),
+  SUSPICIOUS(),
+  NORMAL(),
 ];
 
 export default {

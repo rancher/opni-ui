@@ -1,17 +1,6 @@
 <script>
 import SortableTable from '@/components/SortableTable';
-import { ANOMALY, SIMPLE_NAME, NORMAL, SUSPICIOUS } from '@/config/table-headers';
-
-export const HEADERS = [
-  {
-    ...SIMPLE_NAME,
-    width: null,
-    value: 'Name'
-  },
-  ANOMALY,
-  SUSPICIOUS,
-  NORMAL,
-];
+import { SIMPLE_NAME, ANOMALY, NORMAL, SUSPICIOUS } from '@/config/table-headers';
 
 export default {
   components: { SortableTable },
@@ -24,14 +13,29 @@ export default {
   },
 
   data() {
-    return { HEADERS };
+    return {
+      headers: [
+        {
+          ...SIMPLE_NAME,
+          width: null,
+          value: 'Name'
+        },
+        ANOMALY(() => 'bubble anomaly', row => this.$emit('select', {
+          level: 'Anomaly', key: 'podName', value: row.Name
+        })),
+        SUSPICIOUS(() => 'bubble suspicious', row => this.$emit('select', {
+          level: 'Suspicious', key: 'podName', value: row.Name
+        })),
+        NORMAL(),
+      ]
+    };
   },
 };
 </script>
 <template>
   <SortableTable
     :rows="breakdown"
-    :headers="HEADERS"
+    :headers="headers"
     :search="false"
     :table-actions="false"
     :row-actions="false"

@@ -6090,8 +6090,8 @@ opni:
   dashboard:
     title: Logging
   nav:
-    respond: Respond
-    preempt: Preempt
+    respond: Overview
+    preempt: Investigation
     metrics: Metrics
   areaOfInterestDetail:
     title: Area of Interest

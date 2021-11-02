@@ -6,6 +6,7 @@ import Loading from '@/components/Loading';
 import { getLogs, getBreakdowns, getOverallBreakdownSeries } from '@/product/opni/utils/requests';
 import InsightsChart, { GRANULARITIES } from './InsightsChart';
 import Breakdown from './Breakdown';
+import { RANGES } from '~/product/opni/components/InsightsChart.vue';
 
 export default {
   components: {
@@ -19,7 +20,7 @@ export default {
   data() {
     const fromTo = {
       from: {
-        value: day().subtract(1, 'day'),
+        value: day().subtract(2, 'day'),
         type:  ALL_TYPES.ABSOLUTE.key
       },
       to: {
@@ -39,7 +40,8 @@ export default {
       fromTo,
       highlightAnomalies:      false,
       highlightRange:          null,
-      granularity:             GRANULARITIES[0]
+      granularity:             GRANULARITIES[0],
+      range:                   RANGES[0]
     };
   },
 
@@ -49,7 +51,7 @@ export default {
         from: getAbsoluteValue(this.fromTo.from),
         to:   getAbsoluteValue(this.fromTo.to)
       };
-    }
+    },
   },
 
   methods: {
@@ -88,6 +90,14 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+    range() {
+      const to = day();
+
+      this.fromTo = {
+        from: to.subtract(this.range.count, this.range.unit),
+        to
+      };
     }
   }
 };
@@ -108,7 +118,7 @@ export default {
       :loading="loading"
       @onGranularity="granularity = $event"
     />
-    <Breakdown :pod-breakdown="podBreakdown" :namespace-breakdown="namespaceBreakdown" :workload-breakdown="workloadBreakdown" :control-plane-breakdown="controlPlaneBreakdown" />
+    <Breakdown :from-to="requestFromTo" :pod-breakdown="podBreakdown" :namespace-breakdown="namespaceBreakdown" :workload-breakdown="workloadBreakdown" :control-plane-breakdown="controlPlaneBreakdown" />
   </div>
 </template>
 

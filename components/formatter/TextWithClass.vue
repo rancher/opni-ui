@@ -2,7 +2,7 @@
 export default {
   props: {
     value: {
-      type:    String,
+      type:    [String, Number],
       default: null,
     },
 
@@ -13,17 +13,30 @@ export default {
 
     getClass: {
       type:    Function,
-      default: null,
+      default: () => ''
+    },
+
+    onClick: {
+      type:    Function,
+      default: null
     }
   },
   computed: {
     computedClass() {
       return this.getClass(this.row, this.value);
     }
+  },
+
+  methods: {
+    click() {
+      if (this.onClick) {
+        return this.onClick(this.row, this.value);
+      }
+    }
   }
 };
 </script>
 
 <template>
-  <span :class="computedClass">{{ value }}</span>
+  <span :class="computedClass" @click="click">{{ value }}</span>
 </template>

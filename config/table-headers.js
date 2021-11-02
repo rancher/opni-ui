@@ -39,19 +39,33 @@ export const NAME = {
   canBeVariable: true,
 };
 
-export const ANOMALY = {
-  name:          'anomaly',
-  labelKey:      'tableHeaders.anomaly',
-  value:         'Insights.Anomaly',
-  sort:          ['Insights.Anomaly'],
-};
+export function ANOMALY(getClass, onClick) {
+  return {
+    name:          'anomaly',
+    labelKey:      'tableHeaders.anomaly',
+    value:         'Insights.Anomaly',
+    sort:          ['Insights.Anomaly'],
+    formatter:     'TextWithClass',
+    formatterOpts: {
+      getClass,
+      onClick
+    },
+  };
+}
 
-export const NORMAL = {
-  name:          'normal',
-  labelKey:      'tableHeaders.normal',
-  value:         'Insights.Normal',
-  sort:          ['Insights.Normal'],
-};
+export function NORMAL(getClass, onClick) {
+  return {
+    name:          'normal',
+    labelKey:      'tableHeaders.normal',
+    value:         'Insights.Normal',
+    sort:          ['Insights.Normal'],
+    formatter:     'TextWithClass',
+    formatterOpts: {
+      getClass,
+      onClick
+    },
+  };
+}
 
 export const BREAKDOWN_RESOURCE = {
   name:          'breakdownResource',
@@ -60,12 +74,19 @@ export const BREAKDOWN_RESOURCE = {
   sort:          ['Resource'],
 };
 
-export const SUSPICIOUS = {
-  name:          'suspicious',
-  labelKey:      'tableHeaders.suspicious',
-  value:         'Insights.Suspicious',
-  sort:          ['Insights.Suspicious'],
-};
+export function SUSPICIOUS(getClass, onClick) {
+  return {
+    name:          'suspicious',
+    labelKey:      'tableHeaders.suspicious',
+    value:         'Insights.Suspicious',
+    sort:          ['Insights.Suspicious'],
+    formatter:     'TextWithClass',
+    formatterOpts: {
+      getClass,
+      onClick
+    },
+  };
+}
 
 export const LOGGING_OUTPUT_PROVIDERS = {
   name:          'logging-output-providers',

@@ -1,6 +1,6 @@
 <script>
 import SortableTable from '@/components/SortableTable';
-import { ANOMALY, SIMPLE_NAME, NORMAL, SUSPICIOUS } from '@/config/table-headers';
+import { SIMPLE_NAME, ANOMALY, NORMAL, SUSPICIOUS } from '@/config/table-headers';
 
 export const HEADERS = [
   {
@@ -8,9 +8,9 @@ export const HEADERS = [
     width: null,
     value: 'Name'
   },
-  ANOMALY,
-  SUSPICIOUS,
-  NORMAL,
+  ANOMALY(),
+  SUSPICIOUS(),
+  NORMAL(),
 ];
 
 export default {

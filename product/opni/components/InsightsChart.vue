@@ -19,9 +19,15 @@ export const GRANULARITIES = [
 ];
 
 export const RANGES = [
-  { label: '24h' },
-  { label: '12h' },
-  { label: '1h' }
+  {
+    label: '24h', unit: 'hours', count: 24
+  },
+  {
+    label: '12h', unit: 'hours', count: 12
+  },
+  {
+    label: '1h', unit: 'hours', count: 1
+  }
 ];
 
 export const REFRESH_RATES = [

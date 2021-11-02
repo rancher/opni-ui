@@ -5,13 +5,18 @@ import PodBreakdownDetail from './PodBreakdownDetail';
 import NamespaceBreakdownDetail from './NamespaceBreakdownDetail';
 import WorkloadBreakdownDetail from './WorkloadBreakdownDetail';
 import ControlPlaneBreakdownDetail from './ControlPlaneBreakdownDetail';
+import LogsDrawer from './LogsDrawer';
 
 export default {
   components: {
-    ControlPlaneBreakdownDetail, PodBreakdownDetail, NamespaceBreakdownDetail, Tabbed, Tab, WorkloadBreakdownDetail
+    ControlPlaneBreakdownDetail, LogsDrawer, PodBreakdownDetail, NamespaceBreakdownDetail, Tabbed, Tab, WorkloadBreakdownDetail
   },
 
   props: {
+    fromTo: {
+      type:     Object,
+      required: true,
+    },
     podBreakdown: {
       type:     Array,
       required: true
@@ -30,7 +35,21 @@ export default {
     }
   },
 
-  methods: {}
+  data() {
+    return { selectedBreakdown: null };
+  },
+
+  methods: {
+    selectBreakdown(breakdown) {
+      console.log('breakdown', arguments);
+
+      this.$set(this, 'selectedBreakdown', breakdown);
+    },
+
+    deselectBreakdown() {
+      this.$set(this, 'selectedBreakdown', null);
+    }
+  }
 };
 </script>
 <template>
@@ -45,7 +64,7 @@ export default {
         :show-header="false"
         :weight="3"
       >
-        <PodBreakdownDetail :breakdown="podBreakdown" />
+        <PodBreakdownDetail :breakdown="podBreakdown" @select="selectBreakdown" />
       </Tab>
       <Tab
         name="namespace"
@@ -53,7 +72,7 @@ export default {
         :show-header="false"
         :weight="2"
       >
-        <NamespaceBreakdownDetail :breakdown="namespaceBreakdown" />
+        <NamespaceBreakdownDetail :breakdown="namespaceBreakdown" @select="selectBreakdown" />
       </Tab>
       <Tab
         name="workload"
@@ -61,7 +80,7 @@ export default {
         :show-header="false"
         :weight="1"
       >
-        <WorkloadBreakdownDetail :breakdown="workloadBreakdown" />
+        <WorkloadBreakdownDetail :breakdown="workloadBreakdown" @select="selectBreakdown" />
       </Tab>
 
       <Tab
@@ -70,9 +89,10 @@ export default {
         :show-header="false"
         :weight="0"
       >
-        <ControlPlaneBreakdownDetail :breakdown="controlPlaneBreakdown" />
+        <ControlPlaneBreakdownDetail :breakdown="controlPlaneBreakdown" @select="selectBreakdown" />
       </Tab>
     </Tabbed>
+    <LogsDrawer :open="!!selectedBreakdown" :from-to="fromTo" :filter="selectedBreakdown" @close="deselectBreakdown" />
   </div>
 </template>
 
@@ -83,6 +103,26 @@ export default {
 
     .card-body {
       height: 100px;
+    }
+  }
+
+  .bubble {
+    cursor: pointer;
+
+    &.anomaly {
+      border-color: var(--error);
+
+      &::before {
+        background-color: var(--error);
+      }
+    }
+
+    &.suspicious {
+      border-color: var(--warning);
+
+      &::before {
+        background-color: var(--warning);
+      }
     }
   }
 }
