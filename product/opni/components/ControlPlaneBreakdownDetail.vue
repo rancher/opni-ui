@@ -8,9 +8,9 @@ export const HEADERS = [
     width: null,
     value: 'Name'
   },
-  ANOMALY(),
-  SUSPICIOUS(),
-  NORMAL(),
+  ANOMALY(undefined, undefined, 'Insights.Insights.Anomaly'),
+  SUSPICIOUS(undefined, undefined, 'Insights.Insights.Suspicious'),
+  NORMAL(undefined, undefined, 'Insights.Insights.Normal'),
 ];
 
 export default {
@@ -31,7 +31,6 @@ export default {
 <template>
   <SortableTable
     :rows="breakdown.Components"
-    group-by="Namespace"
     :headers="HEADERS"
     :search="false"
     :table-actions="false"

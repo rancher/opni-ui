@@ -39,12 +39,12 @@ export const NAME = {
   canBeVariable: true,
 };
 
-export function ANOMALY(getClass, onClick) {
+export function ANOMALY(getClass, onClick, value = 'Insights.Anomaly') {
   return {
     name:          'anomaly',
     labelKey:      'tableHeaders.anomaly',
-    value:         'Insights.Anomaly',
-    sort:          ['Insights.Anomaly'],
+    value,
+    sort:          [value],
     formatter:     'TextWithClass',
     formatterOpts: {
       getClass,
@@ -53,12 +53,12 @@ export function ANOMALY(getClass, onClick) {
   };
 }
 
-export function NORMAL(getClass, onClick) {
+export function NORMAL(getClass, onClick, value = 'Insights.Normal') {
   return {
     name:          'normal',
     labelKey:      'tableHeaders.normal',
-    value:         'Insights.Normal',
-    sort:          ['Insights.Normal'],
+    value,
+    sort:          [value],
     formatter:     'TextWithClass',
     formatterOpts: {
       getClass,
@@ -74,12 +74,12 @@ export const BREAKDOWN_RESOURCE = {
   sort:          ['Resource'],
 };
 
-export function SUSPICIOUS(getClass, onClick) {
+export function SUSPICIOUS(getClass, onClick, value = 'Insights.Suspicious') {
   return {
     name:          'suspicious',
     labelKey:      'tableHeaders.suspicious',
-    value:         'Insights.Suspicious',
-    sort:          ['Insights.Suspicious'],
+    value,
+    sort:          [value],
     formatter:     'TextWithClass',
     formatterOpts: {
       getClass,
