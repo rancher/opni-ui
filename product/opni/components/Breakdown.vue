@@ -41,8 +41,6 @@ export default {
 
   methods: {
     selectBreakdown(breakdown) {
-      console.log('breakdown', arguments);
-
       this.$set(this, 'selectedBreakdown', breakdown);
     },
 

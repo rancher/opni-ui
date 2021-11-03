@@ -24,11 +24,16 @@ export default {
     loading: {
       type:    Boolean,
       default: false
+    },
+
+    regions: {
+      type:    Array,
+      default: () => []
     }
   },
 
   data() {
-    return { highlightAnomalies: false };
+    return { };
   },
 
   computed: {
@@ -43,14 +48,6 @@ export default {
 
       return out;
     },
-
-    regions() {
-      if (!this.areaOfInterest) {
-        return [];
-      }
-
-      return [this.areaOfInterest.fromTo];
-    }
   },
 
   methods: {
@@ -72,19 +69,7 @@ export default {
         line:  data.id,
         index
       };
-    },
-
-    onDataShown(data, api) {
-      if (data.includes('Anomalous')) {
-        api.highlightData('Anomalous', d => d > 0);
-      }
-    },
-
-    onDataHidden(data, api) {
-      if (data.includes('Anomalous')) {
-        api.unHighlightData();
-      }
-    },
+    }
   }
 };
 </script>
@@ -100,8 +85,6 @@ export default {
           x-key="timestamp"
           :data-series="insightSeries"
           :regions="regions"
-          @onDataShown="onDataShown"
-          @onDataHidden="onDataHidden"
         />
         <Loading v-if="loading" />
       </template>

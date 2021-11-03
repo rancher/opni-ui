@@ -91,9 +91,8 @@ export async function getBreakdowns(from: Dayjs, to: Dayjs): Promise<BreakdownsR
 
 export async function getOverallBreakdownSeries(granularity: Granularity ) {
   const now = dayjs();
-  const firstAligned = getFirstAlignedPoint(now, granularity);
   const points = 24 - 1;
-  const fromTos = getFromTos(now, firstAligned, points, granularity);
+  const fromTos = getFromTos(now, points, granularity);
 
   const promises = fromTos.map(({ from, to }) => getOverallBreakdown(from, to));
   const responses = await Promise.all(promises);
@@ -113,7 +112,8 @@ function getFirstAlignedPoint(now: Dayjs, granularity: Granularity ) {
   return first.startOf(granularity.unit);
 }
 
-function getFromTos(now: Dayjs, firstAligned: Dayjs, numberOfPoints: Number, granularity: Granularity) {
+function getFromTos(now: Dayjs, numberOfPoints: Number, granularity: Granularity) {
+  const firstAligned = getFirstAlignedPoint(now, granularity);
   const alignedFromTos = [...Array(numberOfPoints)].map((_, i) => ({
     from: firstAligned.subtract((i + 1) * granularity.count, granularity.unit),
     to:   firstAligned.subtract(i * granularity.count, granularity.unit)

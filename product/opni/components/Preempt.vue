@@ -4,13 +4,14 @@ import day from 'dayjs';
 import Loading from '@/components/Loading';
 
 import { getLogs, getOverallBreakdownSeries, getAreasOfInterest } from '@/product/opni/utils/requests';
-import InsightsChart, { GRANULARITIES } from './InsightsChart';
+import InsightsChart from './InsightsChart';
 import AreaOfInterstDetail from './AreaOfInterestDetail';
 import AreaOfInterestTable from './AreaOfInterestTable';
+import Configurator, { DEFAULT_CONFIGURATION } from './Configurator.vue';
 
 export default {
   components: {
-    InsightsChart, Loading, AreaOfInterstDetail, AreaOfInterestTable
+    Configurator, InsightsChart, Loading, AreaOfInterstDetail, AreaOfInterestTable
   },
 
   async fetch() {
@@ -39,7 +40,7 @@ export default {
       fromTo,
       highlightAnomalies:      false,
       highlightRange:          null,
-      granularity:             GRANULARITIES[0]
+      config:                  { ...DEFAULT_CONFIGURATION }
     };
   },
 
@@ -49,7 +50,14 @@ export default {
         from: getAbsoluteValue(this.fromTo.from),
         to:   getAbsoluteValue(this.fromTo.to)
       };
-    }
+    },
+    regions() {
+      if (!this.areaOfInterest && !this.highlightAreaOfInterest) {
+        return [];
+      }
+
+      return [this.areaOfInterest?.fromTo || this.highlightAreaOfInterest?.fromTo];
+    },
   },
 
   methods: {
@@ -57,7 +65,7 @@ export default {
       const { from, to } = this.requestFromTo;
 
       const responses = await Promise.all([
-        getOverallBreakdownSeries(this.granularity),
+        getOverallBreakdownSeries(this.config.granularity),
         getLogs(from, to),
         getAreasOfInterest(from, to),
       ]);
@@ -67,6 +75,25 @@ export default {
         this.logs,
         this.areasOfInterest,
       ] = responses;
+
+      const startOf = day().startOf('hour').subtract(30, 'minutes');
+
+      this.areasOfInterest = ([
+        {
+          from: startOf.subtract(1, 'hours'),
+          to:   startOf.valueOf()
+        },
+
+        {
+          from: startOf.subtract(6, 'hours'),
+          to:   startOf.subtract(4, 'hours').valueOf()
+        },
+
+        {
+          from: startOf.subtract(15, 'hours'),
+          to:   startOf.subtract(11, 'hours').valueOf()
+        }
+      ]);
 
       this.logs = this.logs.map(log => ({
         ...log,
@@ -81,7 +108,7 @@ export default {
 
     onAreaOfInterestHover(areaOfInterest) {
       this.highlightAreaOfInterest = areaOfInterest;
-    }
+    },
   },
   watch: {
     async resolution() {
@@ -103,13 +130,14 @@ export default {
         Preempt
       </h1>
     </div>
+    <Configurator v-model="config" />
     <div class="chart">
       <InsightsChart
         :key="insights.length"
-        :granularity="granularity"
         :from-to="fromTo"
         :insights="insights"
         :area-of-interest="areaOfInterest || highlightAreaOfInterest"
+        :regions="regions"
         :loading="loading"
       />
     </div>

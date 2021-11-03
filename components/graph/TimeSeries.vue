@@ -86,7 +86,7 @@ export default {
       if (regions.length === 0) {
         this.chart.regions.remove();
       } else {
-        this.chart.regions(this.createRegions());
+        this.chart.regions(regions);
       }
     }
   },
@@ -98,10 +98,20 @@ export default {
 
   methods: {
     createRegions() {
-      return this.regions.map(region => ({
-        start: region.from.valueOf(),
-        end:   region.to.valueOf()
-      }));
+      return this.regions.flatMap((region) => {
+        return [
+          {
+            start: 0,
+            end:   region.from.valueOf(),
+            axis:  'x',
+          },
+          {
+            start: region.to.valueOf(),
+            end:   day().valueOf(),
+            axis:  'x',
+          },
+        ];
+      });
     },
     createChart() {
       const columns = [];
@@ -308,7 +318,7 @@ export default {
     fill: var(--input-label);
 
     .bb-region {
-      opacity: 0.1;
+      opacity: 0.7;
     }
 
     .domain {

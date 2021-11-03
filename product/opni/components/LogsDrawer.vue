@@ -34,7 +34,6 @@ export const LOG_HEADERS = [
     formatter:     'TextWithClass',
     formatterOpts: {
       getClass(row) {
-        console.log('aaaa', row);
         const level = row.isControlPlane ? 'control-plane' : 'workload';
 
         return `bubble ${ level }`;

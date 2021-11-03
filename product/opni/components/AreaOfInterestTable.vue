@@ -1,6 +1,5 @@
 <script>
 import SortableTable from '@/components/SortableTable';
-import List from '@/components/formatter/List';
 
 export const AREA_OF_INTEREST_HEADERS = [
   {
@@ -35,10 +34,7 @@ const AREA_OF_INTEREST_HOVER = 'areaOfInterestHover';
 const AREA_OF_INTEREST_SELECT = 'areaOfInterestSelect';
 
 export default {
-  components: {
-    List,
-    SortableTable,
-  },
+  components: { SortableTable },
 
   props: {
     logs: {
@@ -119,6 +115,7 @@ export default {
     :table-actions="false"
     :row-actions="false"
     :paging="true"
+    :rows-per-page="15"
     default-sort-by="name"
     key-field="id"
   >
@@ -132,9 +129,6 @@ export default {
       >
         <td>
           <DateRange :value="row.fromTo" />
-        </td>
-        <td>
-          <List :value="row.levels" />
         </td>
         <td>
           <span class="bubble" :class="{workload: row.workloadCount > row.controlPlaneCount}">{{ row.workloadCount }}</span>
