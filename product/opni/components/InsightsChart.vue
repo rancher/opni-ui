@@ -4,41 +4,10 @@ import { formatForTimeseries, findBucket, showTooltip } from '@/product/opni/uti
 import TimeSeries from '@/components/graph/TimeSeries';
 import day from 'dayjs';
 import Loading from '@/components/Loading';
-import LabeledSelect from '@/components/form/LabeledSelect';
-
-export const GRANULARITIES = [
-  {
-    label: '1h', unit: 'hours', count: 1
-  },
-  {
-    label: '30m', unit: 'minutes', count: 30
-  },
-  {
-    label: '10m', unit: 'minutes', count: 10
-  },
-];
-
-export const RANGES = [
-  {
-    label: '24h', unit: 'hours', count: 24
-  },
-  {
-    label: '12h', unit: 'hours', count: 12
-  },
-  {
-    label: '1h', unit: 'hours', count: 1
-  }
-];
-
-export const REFRESH_RATES = [
-  { label: '5s' },
-  { label: '1m' },
-  { label: '30m' },
-];
 
 export default {
   components: {
-    Card, Loading, LabeledSelect, TimeSeries
+    Card, Loading, TimeSeries
   },
 
   props: {
@@ -52,11 +21,6 @@ export default {
       required: true,
     },
 
-    granularity: {
-      type:     Object,
-      required: true,
-    },
-
     loading: {
       type:    Boolean,
       default: false
@@ -64,12 +28,7 @@ export default {
   },
 
   data() {
-    return {
-      highlightAnomalies: false,
-      granularities:      GRANULARITIES,
-      ranges:             RANGES,
-      refreshRates:       REFRESH_RATES,
-    };
+    return { highlightAnomalies: false };
   },
 
   computed: {
@@ -131,39 +90,6 @@ export default {
 </script>
 <template>
   <div>
-    <div class="row mt-10">
-      <div class="col span-1">
-        <LabeledSelect
-          label="Refresh"
-          :value="refreshRates[0]"
-          option-key="label"
-          :options="refreshRates"
-          placement="bottom"
-          @input="$emit('onGranularity', $event)"
-        />
-      </div>
-      <div class="col span-7"></div>
-      <div class="col span-2">
-        <LabeledSelect
-          label="Range"
-          :value="ranges[0]"
-          option-key="label"
-          :options="ranges"
-          placement="bottom"
-          @input="$emit('onGranularity', $event)"
-        />
-      </div>
-      <div class="col span-2">
-        <LabeledSelect
-          label="Granularity"
-          :value="granularity"
-          option-key="label"
-          :options="granularities"
-          placement="bottom"
-          @input="$emit('onGranularity', $event)"
-        />
-      </div>
-    </div>
     <Card class="card mt-10" :show-actions="false" :show-highlight-border="false">
       <template #body>
         <TimeSeries

@@ -4,13 +4,13 @@ import day from 'dayjs';
 import Loading from '@/components/Loading';
 
 import { getLogs, getBreakdowns, getOverallBreakdownSeries } from '@/product/opni/utils/requests';
-import InsightsChart, { GRANULARITIES } from './InsightsChart';
+import InsightsChart from './InsightsChart';
+import Configurator, { DEFAULT_CONFIGURATION } from './Configurator';
 import Breakdown from './Breakdown';
-import { RANGES } from '~/product/opni/components/InsightsChart.vue';
 
 export default {
   components: {
-    Breakdown, InsightsChart, Loading
+    Breakdown, Configurator, InsightsChart, Loading
   },
 
   async fetch() {
@@ -40,8 +40,7 @@ export default {
       fromTo,
       highlightAnomalies:      false,
       highlightRange:          null,
-      granularity:             GRANULARITIES[0],
-      range:                   RANGES[0]
+      config:                { ...DEFAULT_CONFIGURATION }
     };
   },
 
@@ -59,7 +58,7 @@ export default {
       const { from, to } = this.requestFromTo;
 
       const responses = await Promise.all([
-        getOverallBreakdownSeries(this.granularity),
+        getOverallBreakdownSeries(this.config.granularity),
         getLogs(from, to),
         getBreakdowns(from, to)
       ]);
@@ -110,13 +109,13 @@ export default {
         Respond
       </h1>
     </div>
+    <Configurator v-model="config" />
     <InsightsChart
       :key="insights.length"
-      :granularity="granularity"
+      :granularity="config.granularity"
       :from-to="fromTo"
       :insights="insights"
       :loading="loading"
-      @onGranularity="granularity = $event"
     />
     <Breakdown :from-to="requestFromTo" :pod-breakdown="podBreakdown" :namespace-breakdown="namespaceBreakdown" :workload-breakdown="workloadBreakdown" :control-plane-breakdown="controlPlaneBreakdown" />
   </div>
