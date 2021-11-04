@@ -2,6 +2,7 @@
 import bb, { area, selection } from 'billboard.js';
 import { randomStr } from '@/utils/string';
 import day from 'dayjs';
+import { formatSi } from '@/utils/units';
 
 const SELECTED_RADIUS = 7;
 
@@ -166,9 +167,21 @@ export default {
             y: {
               min:     0,
               padding: { bottom: 0 },
-              type:    this.needsLogY ? 'log' : 'indexed'
+              type:    this.needsLogY ? 'log' : 'indexed',
+              tick:    {
+                format(y) {
+                  return formatSi(y);
+                }
+              }
             },
-            y2: { show: true }
+            y2: {
+              show: true,
+              tick:    {
+                format(y) {
+                  return formatSi(y);
+                }
+              }
+            }
           },
           point:   { focus: { expand: { enabled: false }, only: false }, select: { r: SELECTED_RADIUS } },
           legend:  { position: 'inset', inset: { step: 4 } },
@@ -319,6 +332,7 @@ export default {
 
     .bb-region {
       opacity: 0.7;
+      fill: #DDD;
     }
 
     .domain {

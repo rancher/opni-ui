@@ -4,7 +4,10 @@ import Logging from '../components/Logging';
 
 export default {
   components: { Logging, Main },
-  layout:     'standalone'
+  layout:     'standalone',
+  head() {
+    return { title: 'Opni - Overview' };
+  }
 };
 </script>
 <template>

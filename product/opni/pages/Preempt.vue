@@ -4,7 +4,10 @@ import Preempt from '../components/Preempt';
 
 export default {
   components: { Main, Preempt },
-  layout:     'standalone'
+  layout:     'standalone',
+  head() {
+    return { title: 'Opni - Investigation' };
+  }
 };
 </script>
 <template>

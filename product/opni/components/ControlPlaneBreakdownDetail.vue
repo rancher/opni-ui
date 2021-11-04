@@ -8,8 +8,8 @@ export const HEADERS = [
     width: null,
     value: 'Name'
   },
-  ANOMALY(undefined, undefined, 'Insights.Insights.Anomaly'),
-  SUSPICIOUS(undefined, undefined, 'Insights.Insights.Suspicious'),
+  ANOMALY(() => 'bubble anomaly', undefined, 'Insights.Insights.Anomaly'),
+  SUSPICIOUS(() => 'bubble suspicious', undefined, 'Insights.Insights.Suspicious'),
   NORMAL(undefined, undefined, 'Insights.Insights.Normal'),
 ];
 
