@@ -40,8 +40,6 @@ export default {
     insightSeries() {
       const out = this.formatForTimeseries(this.insights);
 
-      out['Anomalous'].shouldHighlight = true;
-
       out['Anomalous'].color = 'var(--error)';
       out['Normal'].color = 'var(--primary-low-opacity)';
       out['Suspicious'].color = 'var(--warning)';
@@ -85,7 +83,25 @@ export default {
           x-key="timestamp"
           :data-series="insightSeries"
           :regions="regions"
-        />
+        >
+          <template #legend="api">
+            <div class="custom-legend mt-10">
+              <div class="left">
+                <div class="datum" @mouseenter="api.focus('Anomalous')" @mouseleave="api.revert()" @click="api.toggle('Anomalous')">
+                  <div class="square anomalous mr-5"></div><label>Anomalous</label>
+                </div>
+                <div class="datum" @mouseenter="api.focus('Suspicious')" @mouseleave="api.revert()" @click="api.toggle('Suspicious')">
+                  <div class="square suspicious mr-5"></div><label>Suspicious</label>
+                </div>
+              </div>
+              <div class="right">
+                <div class="datum" @mouseenter="api.focus('Normal')" @mouseleave="api.revert()" @click="api.toggle('Normal')">
+                  <label>Normal</label><div class="square normal ml-5"></div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </TimeSeries>
         <Loading v-if="loading" />
       </template>
     </Card>
@@ -103,6 +119,59 @@ export default {
     right: 0;
     top: 0;
     bottom: 0;
+  }
+}
+
+.custom-legend {
+  display: flex;
+
+  flex-direction: row;
+  justify-content: space-between;
+
+  .datum {
+    display: flex;
+
+    flex-direction: row;
+    align-items: center;
+
+    &:hover {
+      .square {
+        opacity: 0.5;
+      }
+    }
+
+    &, label {
+      cursor: pointer;
+    }
+  }
+
+  .left {
+    padding-left: 50px;
+  }
+
+  .right {
+    padding-right: 40px;
+  }
+
+  .square {
+    $size: 12px;
+
+    display: inline-block;
+
+    width: $size;
+    height: $size;
+
+    &.anomalous {
+      background-color: var(--error);
+    }
+
+    &.suspicious {
+      background-color: var(--warning);
+    }
+
+    &.normal {
+      background-color: var(--primary);
+    }
   }
 }
 

@@ -74,6 +74,7 @@ export default {
     },
     api() {
       return {
+        ...this.chart,
         highlightData:   this.highlightData,
         unHighlightData: this.unHighlightData
       };
@@ -183,8 +184,10 @@ export default {
               }
             }
           },
-          point:   { focus: { expand: { enabled: false }, only: false }, select: { r: SELECTED_RADIUS } },
-          legend:  { position: 'inset', inset: { step: 4 } },
+          // point:   { focus: { expand: { enabled: false }, only: false }, select: { r: SELECTED_RADIUS } },
+          legend:  {
+            show: false, position: 'inset', inset: { step: 4 }
+          },
           tooltip: { contents: this.formatTooltip },
           grid:    {
             x: { show: true },
@@ -317,8 +320,11 @@ export default {
 </script>
 
 <template>
-  <div :id="chartId">
-    ...
+  <div>
+    <div :id="chartId">
+      ...
+    </div>
+    <slot class="legend" name="legend" v-bind="api" />
   </div>
 </template>
 
@@ -388,9 +394,9 @@ export default {
     }
   }
 
-  g.bb-legend-item-hidden:not(.bb-legend-item-focused) {
-    opacity: 0.3;
-  }
+  // g.bb-legend-item-hidden:not(.bb-legend-item-focused) {
+  //   opacity: 0.3;
+  // }
 
   .bb-tooltip-container {
     .simple-box {
