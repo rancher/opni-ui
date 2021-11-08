@@ -2,17 +2,6 @@
 import SortableTable from '@/components/SortableTable';
 import { SIMPLE_NAME, ANOMALY, NORMAL, SUSPICIOUS } from '@/config/table-headers';
 
-export const HEADERS = [
-  {
-    ...SIMPLE_NAME,
-    width: null,
-    value: 'Name'
-  },
-  ANOMALY(() => 'bubble anomaly', undefined, 'Insights.Insights.Anomaly'),
-  SUSPICIOUS(() => 'bubble suspicious', undefined, 'Insights.Insights.Suspicious'),
-  NORMAL(undefined, undefined, 'Insights.Insights.Normal'),
-];
-
 export default {
   components: { SortableTable },
 
@@ -24,19 +13,35 @@ export default {
   },
 
   data() {
-    return { HEADERS };
+    return {
+      headers: [
+        {
+          ...SIMPLE_NAME,
+          width: null,
+          value: 'Name'
+        },
+        ANOMALY(() => 'bubble anomaly', row => this.$emit('select', {
+          level: 'Anomaly', key: 'isControlPlane', value: true
+        }), 'Insights.Insights.Anomaly'),
+        SUSPICIOUS(() => 'bubble suspicious', row => this.$emit('select', {
+          level: 'Suspicious', key: 'name', value: row.Name
+        }), 'Insights.Insights.Suspicious'),
+        NORMAL(undefined, undefined, 'Insights.Insights.Normal'),
+      ]
+    };
   },
 };
 </script>
 <template>
   <SortableTable
     :rows="breakdown.Components"
-    :headers="HEADERS"
+    :headers="headers"
     :search="false"
     :table-actions="false"
     :row-actions="false"
     :paging="true"
     default-sort-by="anomaly"
+    :default-sort-descending="true"
     key-field="id"
   />
 </template>

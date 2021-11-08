@@ -100,20 +100,21 @@ export default {
 
   methods: {
     createRegions() {
-      return this.regions.flatMap((region) => {
-        return [
-          {
-            start: 0,
-            end:   region.from.valueOf(),
-            axis:  'x',
-          },
-          {
-            start: region.to.valueOf(),
-            end:   day().valueOf(),
-            axis:  'x',
-          },
-        ];
-      });
+      const converted = this.regions.flatMap(({ from, to }) => [from.valueOf(), to.valueOf()]);
+      const eachPoint = [0, ...converted, day().valueOf()];
+      const result = [];
+
+      for (let i = 0; i < eachPoint.length - 1; i += 2) {
+        const j = i + 1;
+
+        result.push({
+          start: eachPoint[i],
+          end:   eachPoint[j],
+          axis:  'x'
+        });
+      }
+
+      return result;
     },
     createChart() {
       const columns = [];

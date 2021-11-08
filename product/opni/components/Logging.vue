@@ -31,6 +31,8 @@ export default {
 
     return {
       insights:                [],
+      areasOfInterest:         [],
+      areaOfInterest:          null,
       loading:                 false,
       logs:                    [],
       podBreakdown:            {},
@@ -50,6 +52,9 @@ export default {
         from: getAbsoluteValue(this.fromTo.from),
         to:   getAbsoluteValue(this.fromTo.to)
       };
+    },
+    regions() {
+      return [this.areasOfInterest[0]];
     },
   },
 
@@ -79,6 +84,24 @@ export default {
         stateDescription: true,
         stateObj:         {}
       }));
+
+      const startOf = day().startOf('hour').subtract(30, 'minutes');
+
+      this.areasOfInterest = ([
+        {
+          from: startOf.subtract(15, 'hours'),
+          to:   startOf.subtract(11, 'hours').valueOf()
+        },
+        {
+          from: startOf.subtract(6, 'hours'),
+          to:   startOf.subtract(4, 'hours').valueOf()
+        },
+        {
+          from: startOf.subtract(1, 'hours'),
+          to:   startOf.valueOf()
+        },
+
+      ]);
     },
   },
   watch: {
@@ -105,9 +128,6 @@ export default {
   <Loading v-if="$fetchState.pending" />
   <div v-else>
     <div class="bar">
-      <h1>
-        Respond
-      </h1>
     </div>
     <Configurator v-model="config" />
     <InsightsChart
@@ -116,6 +136,7 @@ export default {
       :from-to="fromTo"
       :insights="insights"
       :loading="loading"
+      :regions="areasOfInterest"
     />
     <Breakdown :from-to="requestFromTo" :pod-breakdown="podBreakdown" :namespace-breakdown="namespaceBreakdown" :workload-breakdown="workloadBreakdown" :control-plane-breakdown="controlPlaneBreakdown" />
   </div>

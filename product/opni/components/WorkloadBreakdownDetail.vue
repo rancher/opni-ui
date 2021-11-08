@@ -53,6 +53,7 @@ export default {
     :row-actions="false"
     :paging="true"
     default-sort-by="anomaly"
+    :default-sort-descending="true"
     key-field="id"
   />
 </template>

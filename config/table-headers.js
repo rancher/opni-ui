@@ -44,7 +44,7 @@ export function ANOMALY(getClass, onClick, value = 'Insights.Anomaly') {
     name:          'anomaly',
     labelKey:      'tableHeaders.anomaly',
     value,
-    sort:          [value],
+    sort:          [value, value.replace('Anomaly', 'Suspicious'), value.replace('Anomaly', 'Normal')],
     formatter:     'TextWithClass',
     formatterOpts: {
       getClass,

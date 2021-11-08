@@ -57,6 +57,14 @@ export default {
     </h3>
     <Tabbed :side-tabs="true">
       <Tab
+        name="controlPlane"
+        label="Control Plane"
+        :show-header="false"
+        :weight="4"
+      >
+        <ControlPlaneBreakdownDetail :breakdown="controlPlaneBreakdown" @select="selectBreakdown" />
+      </Tab>
+      <Tab
         name="pod"
         label="Pod"
         :show-header="false"
@@ -79,15 +87,6 @@ export default {
         :weight="1"
       >
         <WorkloadBreakdownDetail :breakdown="workloadBreakdown" @select="selectBreakdown" />
-      </Tab>
-
-      <Tab
-        name="controlPlane"
-        label="Control Plane"
-        :show-header="false"
-        :weight="0"
-      >
-        <ControlPlaneBreakdownDetail :breakdown="controlPlaneBreakdown" @select="selectBreakdown" />
       </Tab>
     </Tabbed>
     <LogsDrawer :open="!!selectedBreakdown" :from-to="fromTo" :filter="selectedBreakdown" @close="deselectBreakdown" />

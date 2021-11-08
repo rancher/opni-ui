@@ -3,8 +3,8 @@ import Router from 'vue-router';
 
 import { createRoutesFromNavigation } from '@/utils/navigation';
 import Logging from './pages/Logging';
-import Metrics from './pages/Metrics';
-import Preempt from './pages/Preempt';
+// import Metrics from './pages/Metrics';
+// import Preempt from './pages/Preempt';
 
 Vue.use(Router);
 
@@ -22,20 +22,20 @@ export const NAVIGATION = {
       icon:      'globe',
       component: Logging
     },
-    {
-      name:      'preempt',
-      path:      '/preempt',
-      labelKey:  'opni.nav.preempt',
-      icon:      'globe',
-      component: Preempt
-    },
-    {
-      path:      '/metrics',
-      labelKey:  'opni.nav.metrics',
-      icon:      'globe',
-      display:   false,
-      component: Metrics
-    }
+    // {
+    //   name:      'preempt',
+    //   path:      '/preempt',
+    //   labelKey:  'opni.nav.preempt',
+    //   icon:      'globe',
+    //   component: Preempt
+    // },
+    // {
+    //   path:      '/metrics',
+    //   labelKey:  'opni.nav.metrics',
+    //   icon:      'globe',
+    //   display:   false,
+    //   component: Metrics
+    // }
   ]
 };
 
