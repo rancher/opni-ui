@@ -1,144 +1,67 @@
 <script>
-import { ALL_TYPES, getAbsoluteValue } from '@/components/form/SuperDatePicker/util';
 import day from 'dayjs';
-import Loading from '@/components/Loading';
-
-import { getLogs, getBreakdowns, getOverallBreakdownSeries } from '@/product/opni/utils/requests';
+import { getFromTos } from '@/product/opni/utils/requests';
 import InsightsChart from './InsightsChart';
 import Configurator, { DEFAULT_CONFIGURATION } from './Configurator';
 import Breakdown from './Breakdown';
 
 export default {
   components: {
-    Breakdown, Configurator, InsightsChart, Loading
-  },
-
-  async fetch() {
-    await this.loadData();
+    Breakdown, Configurator, InsightsChart
   },
 
   data() {
-    const fromTo = {
-      from: {
-        value: day().subtract(2, 'day'),
-        type:  ALL_TYPES.ABSOLUTE.key
-      },
-      to: {
-        value: day(),
-        type:  ALL_TYPES.ABSOLUTE.key
-      }
-    };
-
     return {
-      insights:                [],
       areasOfInterest:         [],
-      areaOfInterest:          null,
-      loading:                 false,
-      logs:                    [],
-      podBreakdown:            {},
-      namespaceBreakdown:      {},
-      workloadBreakdown:       {},
-      controlPlaneBreakdown:   {},
-      fromTo,
-      highlightAnomalies:      false,
-      highlightRange:          null,
-      config:                { ...DEFAULT_CONFIGURATION }
+      config:                { ...DEFAULT_CONFIGURATION },
+      selection:             null,
+      potentialSelection:    null,
+      now:                   day()
     };
   },
 
   computed: {
-    requestFromTo() {
-      return {
-        from: getAbsoluteValue(this.fromTo.from),
-        to:   getAbsoluteValue(this.fromTo.to)
-      };
-    },
     regions() {
       return [this.areasOfInterest[0]];
     },
+    defaultSelection() {
+      return {
+        from: getFromTos(this.now, this.config.range, this.config.granularity)[0].from,
+        to:   this.now
+      };
+    }
   },
 
   methods: {
-    async loadData() {
-      const { from, to } = this.requestFromTo;
-
-      const responses = await Promise.all([
-        getOverallBreakdownSeries(this.config.granularity),
-        getLogs(from, to),
-        getBreakdowns(from, to)
-      ]);
-
-      [
-        this.insights,
-        this.logs,
-        {
-          Pods: this.podBreakdown,
-          Namespaces: this.namespaceBreakdown,
-          Workloads: this.workloadBreakdown,
-          'Control Plane': this.controlPlaneBreakdown
-        }
-      ] = responses;
-
-      this.logs = this.logs.map(log => ({
-        ...log,
-        stateDescription: true,
-        stateObj:         {}
-      }));
-
-      const startOf = day().startOf('hour').subtract(30, 'minutes');
-
-      this.areasOfInterest = ([
-        {
-          from: startOf.subtract(15, 'hours'),
-          to:   startOf.subtract(11, 'hours').valueOf()
-        },
-        {
-          from: startOf.subtract(6, 'hours'),
-          to:   startOf.subtract(4, 'hours').valueOf()
-        },
-        {
-          from: startOf.subtract(1, 'hours'),
-          to:   startOf.valueOf()
-        },
-
-      ]);
+    regionDrag(region) {
+      this.$set(this, 'potentialSelection', region);
     },
-  },
-  watch: {
-    async granularity() {
-      try {
-        this.loading = true;
-        this.insights = await getOverallBreakdownSeries(this.granularity);
-      } finally {
-        this.loading = false;
-      }
-    },
-    range() {
-      const to = day();
-
-      this.fromTo = {
-        from: to.subtract(this.range.count, this.range.unit),
-        to
-      };
+    regionSelected(region) {
+      this.$set(this, 'potentialSelection', null);
+      this.$set(this, 'selection', region);
     }
-  }
+  },
+  watch: {}
 };
 </script>
 <template>
-  <Loading v-if="$fetchState.pending" />
-  <div v-else>
+  <div>
     <div class="bar">
     </div>
     <Configurator v-model="config" />
     <InsightsChart
-      :key="insights.length"
+      :now="now"
       :granularity="config.granularity"
-      :from-to="fromTo"
-      :insights="insights"
-      :loading="loading"
-      :regions="areasOfInterest"
+      :range="config.range"
+      :selection="potentialSelection || selection"
+      @areaOfInterestSelected="regionSelected"
+      @regionDrag="regionDrag"
+      @regionSelected="regionSelected"
     />
-    <Breakdown :from-to="requestFromTo" :pod-breakdown="podBreakdown" :namespace-breakdown="namespaceBreakdown" :workload-breakdown="workloadBreakdown" :control-plane-breakdown="controlPlaneBreakdown" />
+    <Breakdown
+      :potential-selection="potentialSelection"
+      :selection="selection || defaultSelection"
+    />
   </div>
 </template>
 

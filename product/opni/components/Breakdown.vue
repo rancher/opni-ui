@@ -1,6 +1,8 @@
 <script>
 import Tab from '@/components/Tabbed/Tab';
 import Tabbed from '@/components/Tabbed';
+import { getBreakdowns } from '@/product/opni/utils/requests';
+import Loading from '@/components/Loading';
 import PodBreakdownDetail from './PodBreakdownDetail';
 import NamespaceBreakdownDetail from './NamespaceBreakdownDetail';
 import WorkloadBreakdownDetail from './WorkloadBreakdownDetail';
@@ -9,34 +11,34 @@ import LogsDrawer from './LogsDrawer';
 
 export default {
   components: {
-    ControlPlaneBreakdownDetail, LogsDrawer, PodBreakdownDetail, NamespaceBreakdownDetail, Tabbed, Tab, WorkloadBreakdownDetail
+    ControlPlaneBreakdownDetail, Loading, LogsDrawer, PodBreakdownDetail, NamespaceBreakdownDetail, Tabbed, Tab, WorkloadBreakdownDetail
   },
 
   props: {
-    fromTo: {
+    selection: {
       type:     Object,
-      required: true,
+      required:  true,
     },
-    podBreakdown: {
-      type:     Array,
-      required: true
-    },
-    namespaceBreakdown: {
-      type:     Array,
-      required: true
-    },
-    workloadBreakdown: {
+
+    potentialSelection: {
       type:     Object,
-      required: true
-    },
-    controlPlaneBreakdown: {
-      type:     Object,
-      required: true
+      default: null
     }
   },
 
+  fetch() {
+    this.load();
+  },
+
   data() {
-    return { selectedBreakdown: null };
+    return {
+      loading:               true,
+      selectedBreakdown:     null,
+      podBreakdown:          null,
+      namespaceBreakdown:    null,
+      workloadBreakdown:     null,
+      controlPlaneBreakdown: null,
+    };
   },
 
   methods: {
@@ -46,6 +48,45 @@ export default {
 
     deselectBreakdown() {
       this.$set(this, 'selectedBreakdown', null);
+    },
+
+    async load() {
+      this.loading = true;
+
+      const { from, to } = this.selection;
+
+      const responses = await Promise.all([
+        getBreakdowns(from.subtract(1, 'hour'), to),
+      ]);
+
+      [
+        {
+          Pods: this.podBreakdown,
+          Namespaces: this.namespaceBreakdown,
+          Workloads: this.workloadBreakdown,
+          'Control Plane': this.controlPlaneBreakdown
+        }
+      ] = responses;
+
+      this.loading = false;
+    }
+  },
+
+  computed: {
+    selectionDisplay() {
+      const format = 'MMM D HH:mm';
+
+      const selection = this.potentialSelection || this.selection;
+      const from = selection.from.format(format);
+      const to = selection.to.format(format);
+
+      return `${ from } - ${ to }`;
+    }
+  },
+
+  watch: {
+    selection() {
+      this.load();
     }
   }
 };
@@ -53,7 +94,7 @@ export default {
 <template>
   <div>
     <h3 class="mt-20">
-      Breakdowns
+      Breakdowns <span v-if="selection">({{ selectionDisplay }})</span>
     </h3>
     <Tabbed :side-tabs="true">
       <Tab
@@ -62,7 +103,8 @@ export default {
         :show-header="false"
         :weight="4"
       >
-        <ControlPlaneBreakdownDetail :breakdown="controlPlaneBreakdown" @select="selectBreakdown" />
+        <Loading v-if="loading" />
+        <ControlPlaneBreakdownDetail v-else :breakdown="controlPlaneBreakdown" @select="selectBreakdown" />
       </Tab>
       <Tab
         name="pod"
@@ -70,7 +112,8 @@ export default {
         :show-header="false"
         :weight="3"
       >
-        <PodBreakdownDetail :breakdown="podBreakdown" @select="selectBreakdown" />
+        <Loading v-if="loading" />
+        <PodBreakdownDetail v-else :breakdown="podBreakdown" @select="selectBreakdown" />
       </Tab>
       <Tab
         name="namespace"
@@ -78,7 +121,8 @@ export default {
         :show-header="false"
         :weight="2"
       >
-        <NamespaceBreakdownDetail :breakdown="namespaceBreakdown" @select="selectBreakdown" />
+        <Loading v-if="loading" />
+        <NamespaceBreakdownDetail v-else :breakdown="namespaceBreakdown" @select="selectBreakdown" />
       </Tab>
       <Tab
         name="workload"
@@ -86,10 +130,11 @@ export default {
         :show-header="false"
         :weight="1"
       >
-        <WorkloadBreakdownDetail :breakdown="workloadBreakdown" @select="selectBreakdown" />
+        <Loading v-if="loading" />
+        <WorkloadBreakdownDetail v-else :breakdown="workloadBreakdown" @select="selectBreakdown" />
       </Tab>
     </Tabbed>
-    <LogsDrawer :open="!!selectedBreakdown" :from-to="fromTo" :filter="selectedBreakdown" @close="deselectBreakdown" />
+    <LogsDrawer :open="!!selectedBreakdown" :from-to="selection" :filter="selectedBreakdown" @close="deselectBreakdown" />
   </div>
 </template>
 
@@ -101,6 +146,17 @@ export default {
     .card-body {
       height: 100px;
     }
+  }
+
+  .loading-indicator .overlay {
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+  }
+
+  .tab-container {
+    position: relative;
   }
 
   .bubble {

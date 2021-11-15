@@ -14,20 +14,6 @@ export default {
       type:    Array,
       default: () => []
     },
-    /*
-      {
-        id1:{
-          data: []
-          color: string
-          shouldHighlight: bool
-        },
-        id2:{
-          data: []
-          color: string
-          shouldHighlight: bool
-        }
-      }
-      */
     dataSeries: {
       type:     Object,
       required: true
@@ -53,25 +39,14 @@ export default {
   },
   data() {
     return {
-      showReset:             false,
-      chart:                 null,
+      showReset:              false,
+      chart:                  null,
+      lastOver:               null,
+      initialRegionSelection: null
     };
   },
 
   computed: {
-    // TODO decide if/when we want to show log y axes
-    needsLogY() {
-      // const allVals = Object.values(this.dataSeries).reduce((all, each) => {
-      //   all.push(...each.data);
-
-      //   return all;
-      // }, []);
-
-      // const range = [Math.min(...allVals), Math.max(...allVals)];
-
-      // return range[1] > range[0] + 250;
-      return false;
-    },
     api() {
       return {
         ...this.chart,
@@ -83,12 +58,10 @@ export default {
 
   watch: {
     regions() {
-      const regions = this.createRegions();
-
-      if (regions.length === 0) {
+      if (this.regions.length === 0) {
         this.chart.regions.remove();
       } else {
-        this.chart.regions(regions);
+        this.chart.regions(this.regions);
       }
     }
   },
@@ -99,23 +72,6 @@ export default {
   },
 
   methods: {
-    createRegions() {
-      const converted = this.regions.flatMap(({ from, to }) => [from.valueOf(), to.valueOf()]);
-      const eachPoint = [0, ...converted, day().valueOf()];
-      const result = [];
-
-      for (let i = 0; i < eachPoint.length - 1; i += 2) {
-        const j = i + 1;
-
-        result.push({
-          start: eachPoint[i],
-          end:   eachPoint[j],
-          axis:  'x'
-        });
-      }
-
-      return result;
-    },
     createChart() {
       const columns = [];
       const colors = {};
@@ -133,7 +89,11 @@ export default {
         x:         this.xKey,
         type:      area(),
         selection: { enabled: selection(), draggable: false },
-        onover:    (d) => {
+        onover:    (d, f, g ) => {
+          this.$set(this, 'lastOver', d);
+          if (this.initialRegionSelection) {
+            this.$emit('regionDrag', this.getSelection());
+          }
           this.$emit('over', d, columns);
         },
         onout: (d) => {
@@ -144,6 +104,8 @@ export default {
         },
         onhidden: (d) => {
           this.$emit('onDataHidden', d, this.api);
+        },
+        onclick: (d) => {
         },
         onselected:   this.onSelected,
         onunselected: this.onUnselected,
@@ -163,13 +125,11 @@ export default {
                 format: this.xFormat, fit: true, width: 50, height: 200
               },
               height: 40,
-              // max:    { value: this.maxTime, fit: true },
-              // min:    { value: this.minTime, fit: true },
             },
             y: {
               min:     0,
               padding: { bottom: 0 },
-              type:    this.needsLogY ? 'log' : 'indexed',
+              type:    'indexed',
               tick:    {
                 format(y) {
                   return formatSi(y);
@@ -194,15 +154,10 @@ export default {
             x: { show: true },
             y: { show: true }
           },
-          regions:    this.createRegions(),
+          regions:    this.regions,
           transition:  { duration: 0 },
-          // zoom: {
-          //   enabled:     zoom(),
-          //   type:        'drag',
-          //   onzoomstart: this.onZoomStart,
-          //   onzoomend:   this.onZoomEnd
-          // },
-          onrendered: () => {
+          onrendered: (d) => {
+            this.$emit('onRendered', d, this.api);
             this.repositionHighlights();
           },
         }
@@ -316,13 +271,39 @@ export default {
         }
       });
     },
+
+    mouseDown() {
+      this.$set(this, 'initialRegionSelection', this.lastOver);
+    },
+
+    mouseUp() {
+      this.$emit('regionSelected', this.getSelection());
+      this.$set(this, 'initialRegionSelection', null);
+    },
+
+    getSelection() {
+      if (this.lastOver === this.initialRegionSelection) {
+        return null;
+      }
+
+      const selection = [day(this.initialRegionSelection.x.valueOf()), day(this.lastOver.x.valueOf())];
+
+      if (selection[1].isBefore(selection[0])) {
+        selection.reverse();
+      }
+
+      return {
+        from: selection[0],
+        to:   selection[1]
+      };
+    }
   }
 };
 </script>
 
 <template>
   <div>
-    <div :id="chartId">
+    <div :id="chartId" @mousedown="mouseDown" @mouseup="mouseUp">
       ...
     </div>
     <slot class="legend" name="legend" v-bind="api" />
@@ -336,11 +317,6 @@ export default {
   }
   .bb-main {
     fill: var(--input-label);
-
-    .bb-region {
-      opacity: 0.7;
-      fill: #DDD;
-    }
 
     .domain {
       fill: none;

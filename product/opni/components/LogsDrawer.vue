@@ -119,7 +119,7 @@ export default {
   },
 
   watch: {
-    fromTo() {
+    open() {
       this.loadLogs();
     },
     filter() {

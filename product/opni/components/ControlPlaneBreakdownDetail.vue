@@ -22,11 +22,11 @@ export default {
         },
         ANOMALY(() => 'bubble anomaly', row => this.$emit('select', {
           level: 'Anomaly', key: 'isControlPlane', value: true
-        }), 'Insights.Insights.Anomaly'),
+        }), 'Insights.Anomaly'),
         SUSPICIOUS(() => 'bubble suspicious', row => this.$emit('select', {
           level: 'Suspicious', key: 'name', value: row.Name
-        }), 'Insights.Insights.Suspicious'),
-        NORMAL(undefined, undefined, 'Insights.Insights.Normal'),
+        }), 'Insights.Suspicious'),
+        NORMAL(undefined, undefined, 'Insights.Normal'),
       ]
     };
   },
