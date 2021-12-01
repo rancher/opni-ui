@@ -341,6 +341,10 @@ export default {
       opacity: 0.25 !important
     }
 
+    .bb-focused .bb-area {
+      opacity: 0.5 !important
+    }
+
     .highlight-rect {
       fill: var(--error);
       fill-opacity: 0.25;

@@ -132,7 +132,7 @@ export default {
   <Drawer :open="open" @close="$emit('close')">
     <template #title>
       <div class="p-5 pb-0">
-        <h1>Logs</h1>
+        <h1>{{ t('opni.logsDrawer.title') }}</h1>
         <div v-if="open">
           <h3>{{ filter.level }} - {{ filter.key }}: {{ filter.value }}</h3>
         </div>

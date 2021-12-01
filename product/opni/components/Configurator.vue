@@ -75,7 +75,7 @@ export default {
   <div class="row">
     <div class="col span-1">
       <LabeledSelect
-        label="Refresh"
+        :label="t('opni.configurator.refresh')"
         :value="value.refreshRate"
         option-key="label"
         :options="refreshRates"
@@ -86,7 +86,7 @@ export default {
     <div class="col span-7"></div>
     <div class="col span-2">
       <LabeledSelect
-        label="Range"
+        :label="t('opni.configurator.range')"
         :value="value.range"
         option-key="label"
         :options="ranges"
@@ -96,7 +96,7 @@ export default {
     </div>
     <div class="col span-2">
       <LabeledSelect
-        label="Granularity"
+        :label="t('opni.configurator.granularity')"
         :value="value.granularity"
         option-key="label"
         :options="granularities"

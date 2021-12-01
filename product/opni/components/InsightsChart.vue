@@ -34,14 +34,6 @@ export default {
     this.load();
   },
 
-  mounted() {
-    // this.$refs.insights.api.config('onrendered', () => {
-    //   this.moveTabs();
-    // });
-
-    // this.moveTabs();
-  },
-
   data() {
     return {
       areasOfInterest: [],
@@ -155,23 +147,6 @@ export default {
         this.areasOfInterest,
       ] = responses;
 
-      // const startOf = this.now.startOf('hour').subtract(1, 'hours');
-
-      // this.areasOfInterest = [
-      //   {
-      //     from: startOf.subtract(15, 'hours'),
-      //     to:   startOf.subtract(11, 'hours')
-      //   },
-      //   {
-      //     from: startOf.subtract(6, 'hours'),
-      //     to:   startOf.subtract(4, 'hours')
-      //   },
-      //   {
-      //     from: startOf.subtract(1, 'hours'),
-      //     to:   startOf
-      //   },
-      // ];
-
       this.loading = false;
     }
   },
@@ -208,21 +183,21 @@ export default {
               <div class="custom-legend mt-10">
                 <div class="left">
                   <div class="datum" @mouseenter="api.focus('Anomalous')" @mouseleave="api.revert()" @click="api.toggle('Anomalous')">
-                    <div class="square anomalous mr-5"></div><label>Anomalous</label>
+                    <div class="square anomalous mr-5"></div><label>{{ t('opni.chart.labels.anomaly') }}</label>
                   </div>
                   <div class="datum" @mouseenter="api.focus('Suspicious')" @mouseleave="api.revert()" @click="api.toggle('Suspicious')">
-                    <div class="square suspicious mr-5"></div><label>Suspicious</label>
+                    <div class="square suspicious mr-5"></div><label>{{ t('opni.chart.labels.suspicious') }}</label>
                   </div>
                 </div>
                 <div class="right">
                   <div class="datum" @mouseenter="api.focus('Normal')" @mouseleave="api.revert()" @click="api.toggle('Normal')">
-                    <label>Normal</label><div class="square normal ml-5"></div>
+                    <label>{{ t('opni.chart.labels.normal') }}</label><div class="square normal ml-5"></div>
                   </div>
                 </div>
               </div>
             </template>
           </TimeSeries>
-          <div v-for="(aoi, i) in areasOfInterest" :key="i" v-tooltip="'Area of Interest'" class="areas-of-interest-tab" @click="selectAreaOfInterest(aoi)" />
+          <div v-for="(aoi, i) in areasOfInterest" :key="i" v-tooltip="t('opni.chart.areaOfInterest')" class="areas-of-interest-tab" @click="selectAreaOfInterest(aoi)" />
         </div>
       </template>
     </Card>

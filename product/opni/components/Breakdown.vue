@@ -88,12 +88,12 @@ export default {
 <template>
   <div>
     <h3 class="mt-20">
-      Breakdowns <span v-if="selection">({{ selectionDisplay }})</span>
+      {{ t('opni.breakdowns.title') }} <span v-if="selection">({{ selectionDisplay }})</span>
     </h3>
     <Tabbed :side-tabs="true">
       <Tab
         name="controlPlane"
-        label="Control Plane"
+        :label="t('opni.breakdowns.tabs.controlPlane')"
         :show-header="false"
         :weight="4"
       >
@@ -102,7 +102,7 @@ export default {
       </Tab>
       <Tab
         name="pod"
-        label="Pod"
+        :label="t('opni.breakdowns.tabs.pod')"
         :show-header="false"
         :weight="3"
       >
@@ -111,7 +111,7 @@ export default {
       </Tab>
       <Tab
         name="namespace"
-        label="Namespace"
+        :label="t('opni.breakdowns.tabs.namespace')"
         :show-header="false"
         :weight="2"
       >
@@ -120,7 +120,7 @@ export default {
       </Tab>
       <Tab
         name="workload"
-        label="Workload"
+        :label="t('opni.breakdowns.tabs.workload')"
         :show-header="false"
         :weight="1"
       >

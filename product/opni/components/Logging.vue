@@ -40,8 +40,7 @@ export default {
       this.$set(this, 'potentialSelection', null);
       this.$set(this, 'selection', region);
     }
-  },
-  watch: {}
+  }
 };
 </script>
 <template>
