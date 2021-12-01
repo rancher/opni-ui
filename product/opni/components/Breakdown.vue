@@ -55,18 +55,12 @@ export default {
 
       const { from, to } = this.selection;
 
-      const responses = await Promise.all([
-        getBreakdowns(from.subtract(1, 'hour'), to),
-      ]);
+      const breakdowns = await getBreakdowns(from.subtract(1, 'hour'), to);
 
-      [
-        {
-          Pods: this.podBreakdown,
-          Namespaces: this.namespaceBreakdown,
-          Workloads: this.workloadBreakdown,
-          'Control Plane': this.controlPlaneBreakdown
-        }
-      ] = responses;
+      this.podBreakdown = breakdowns.pods;
+      this.namespaceBreakdown = breakdowns.namespaces;
+      this.workloadBreakdown = breakdowns.workloads;
+      this.controlPlaneBreakdown = breakdowns.controlPlanes;
 
       this.loading = false;
     }

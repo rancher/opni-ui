@@ -39,12 +39,12 @@ export const NAME = {
   canBeVariable: true,
 };
 
-export function ANOMALY(getClass, onClick, value = 'Insights.Anomaly') {
+export function ANOMALY(getClass, onClick, value = 'insights.anomalyFormatted', sortValue = 'insights.anomaly') {
   return {
     name:          'anomaly',
     labelKey:      'tableHeaders.anomaly',
     value,
-    sort:          [value, value.replace('Anomaly', 'Suspicious'), value.replace('Anomaly', 'Normal')],
+    sort:          [sortValue, sortValue.replace('anomaly', 'suspicious'), sortValue.replace('anomaly', 'normal')],
     formatter:     'TextWithClass',
     formatterOpts: {
       getClass,
@@ -53,12 +53,12 @@ export function ANOMALY(getClass, onClick, value = 'Insights.Anomaly') {
   };
 }
 
-export function NORMAL(getClass, onClick, value = 'Insights.Normal') {
+export function NORMAL(getClass, onClick, value = 'insights.normalFormatted', sortValue = 'insights.normal') {
   return {
     name:          'normal',
     labelKey:      'tableHeaders.normal',
     value,
-    sort:          [value],
+    sort:          [sortValue],
     formatter:     'TextWithClass',
     formatterOpts: {
       getClass,
@@ -70,16 +70,16 @@ export function NORMAL(getClass, onClick, value = 'Insights.Normal') {
 export const BREAKDOWN_RESOURCE = {
   name:          'breakdownResource',
   labelKey:      'tableHeaders.resource',
-  value:         'Resource',
-  sort:          ['Resource'],
+  value:         'resource',
+  sort:          ['resource'],
 };
 
-export function SUSPICIOUS(getClass, onClick, value = 'Insights.Suspicious') {
+export function SUSPICIOUS(getClass, onClick, value = 'insights.suspiciousFormatted', sortValue = 'insights.suspicious') {
   return {
     name:          'suspicious',
     labelKey:      'tableHeaders.suspicious',
     value,
-    sort:          [value],
+    sort:          [sortValue],
     formatter:     'TextWithClass',
     formatterOpts: {
       getClass,

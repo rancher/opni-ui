@@ -3,17 +3,18 @@ import SortableTable from '@/components/SortableTable';
 import {
   SIMPLE_NAME, BREAKDOWN_RESOURCE, ANOMALY, NORMAL, SUSPICIOUS
 } from '@/config/table-headers';
+import { WorkloadBreakdownAggregation } from '~/product/opni/models/overallBreakdown/WorkloadBreakdownAggregation';
 
 export const HEADERS = [
   {
     ...SIMPLE_NAME,
     width: null,
-    value: 'Name'
+    value: 'breakdown.name'
   },
   BREAKDOWN_RESOURCE,
-  ANOMALY(),
-  SUSPICIOUS(),
-  NORMAL(),
+  ANOMALY(undefined, undefined, 'breakdown.insights.anomalyFormatted', 'breakdown.insights.anomaly'),
+  SUSPICIOUS(undefined, undefined, 'breakdown.insights.suspiciousFormatted', 'breakdown.insights.suspicious'),
+  NORMAL(undefined, undefined, 'breakdown.insights.normalFormatted', 'breakdown.insights.normal')
 ];
 
 export default {
@@ -21,7 +22,7 @@ export default {
 
   props: {
     breakdown: {
-      type:    Object,
+      type:    WorkloadBreakdownAggregation,
       default: null,
     },
   },
@@ -35,8 +36,8 @@ export default {
       return Object.entries(this.breakdown)
         .flatMap(([resource, resourceBreakdown]) => {
           return resourceBreakdown.map(breakdown => ({
-            ...breakdown,
-            Resource: resource
+            breakdown,
+            resource
           }));
         });
     },
@@ -46,7 +47,7 @@ export default {
 <template>
   <SortableTable
     :rows="rows"
-    group-by="Namespace"
+    group-by="breakdown.namespace"
     :headers="HEADERS"
     :search="false"
     :table-actions="false"

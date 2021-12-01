@@ -4,7 +4,7 @@ import { formatForTimeseries, findBucket, showTooltip } from '@/product/opni/uti
 import TimeSeries from '@/components/graph/TimeSeries';
 import day from 'dayjs';
 import Loading from '@/components/Loading';
-import { getOverallBreakdownSeries } from '@/product/opni/utils/requests';
+import { getAreasOfInterest, getOverallBreakdownSeries } from '@/product/opni/utils/requests';
 
 export default {
   components: {
@@ -147,30 +147,30 @@ export default {
 
       const responses = await Promise.all([
         getOverallBreakdownSeries(this.now, this.range, this.granularity),
-      // getAreasOfInterest(from, to)
+        getAreasOfInterest(this.now, this.range, this.granularity)
       ]);
 
       [
         this.insights,
-      // this.areasOfInterest,
+        this.areasOfInterest,
       ] = responses;
 
-      const startOf = this.now.startOf('hour').subtract(1, 'hours');
+      // const startOf = this.now.startOf('hour').subtract(1, 'hours');
 
-      this.areasOfInterest = [
-        {
-          from: startOf.subtract(15, 'hours'),
-          to:   startOf.subtract(11, 'hours')
-        },
-        {
-          from: startOf.subtract(6, 'hours'),
-          to:   startOf.subtract(4, 'hours')
-        },
-        {
-          from: startOf.subtract(1, 'hours'),
-          to:   startOf
-        },
-      ];
+      // this.areasOfInterest = [
+      //   {
+      //     from: startOf.subtract(15, 'hours'),
+      //     to:   startOf.subtract(11, 'hours')
+      //   },
+      //   {
+      //     from: startOf.subtract(6, 'hours'),
+      //     to:   startOf.subtract(4, 'hours')
+      //   },
+      //   {
+      //     from: startOf.subtract(1, 'hours'),
+      //     to:   startOf
+      //   },
+      // ];
 
       this.loading = false;
     }

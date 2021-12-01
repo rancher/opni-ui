@@ -1,94 +1,32 @@
 import axios from 'axios';
 import { Dayjs, UnitType } from 'dayjs';
-
-/* eslint-disable camelcase */
-interface LogResponse {
-  timestamp: Number,
-  log: String,
-  anomaly_level: String,
-  'kubernetes.namespace_name': String;
-  'kubernetes.pod_name': String
-  is_control_plane_log: Boolean,
-}
-
-// interface LogsResponse {
-//   Logs: LogResponse[];
-// }
-
-interface Log {
-  timestamp: Number;
-  message: String;
-  level: String;
-  namespace?: String;
-  podName?: String;
-  isControlPlane: Boolean;
-}
-
+import { AreaOfInterestResponse } from '@/product/opni/models/areasOfInterest';
+import { FromTo } from '@/product/opni/models/fromTo';
+import { Breakdowns, BreakdownsResponse } from '~/product/opni/models/overallBreakdown/Breakdowns';
+import { Log } from '~/product/opni/models/log/Log';
+import { LogsResponse } from '~/product/opni/models/log/Logs';
 interface UnitCount {
   unit: UnitType,
   count: number
 }
 
-interface FromTo {
-    from: Number,
-    to: Number
-}
-interface Insights {
-  Anomaly: Number;
-  Normal: Number;
-  Suspicious: Number;
-}
-interface Breakdown {
-  Insights: Insights;
-  Name: String;
-}
-
-interface WorkloadBreakdown extends Breakdown {
-  Namespace: String;
-}
-interface WorkloadBreakdownAggregation {
-  CustomResource: WorkloadBreakdown[];
-  DaemonSet: WorkloadBreakdown[];
-  Deployment: WorkloadBreakdown[];
-  Independent: WorkloadBreakdown[];
-  Job: WorkloadBreakdown[];
-  ReplicaSet: WorkloadBreakdown[];
-  StatefulSet: WorkloadBreakdown[];
-}
-
-interface ControlPlaneBreakdownAggregation {
-  Components: WorkloadBreakdown[];
-}
-
-interface BreakdownsResponse {
-  Namespaces: Breakdown[];
-  Pods: Breakdown[];
-  Workloads: WorkloadBreakdownAggregation;
-  'Control Plane': ControlPlaneBreakdownAggregation;
-}
-
-interface AreaOfInterestResponse {
-  start_ts: number;
-  end_ts: number;
-}
-
 type Granularity = UnitCount;
 
-/* eslint-enable camelcase */
-
-export async function getAreasOfInterest(from: Dayjs, to: Dayjs): Promise<FromTo[]> {
+export async function getAreasOfInterest(now: Dayjs, range: UnitCount, granularity: Granularity): Promise<FromTo[]> {
+  const fromTos = getFromTos(now, range, granularity);
+  const from = fromTos[0].from;
+  const to = now;
   const response = (await axios.get<AreaOfInterestResponse[]>(`opni-api/areas_of_interest?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`))?.data;
 
   return (response)
     .filter(r => r.start_ts > 0 && r.end_ts > 0)
-    .map(r => ({
-      from: r.start_ts,
-      to:   r.end_ts
-    }));
+    .map(r => new FromTo(r.start_ts, r.end_ts));
 }
 
-export async function getBreakdowns(from: Dayjs, to: Dayjs): Promise<BreakdownsResponse> {
-  return (await axios.get<BreakdownsResponse>(`opni-api/insights_breakdown?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`))?.data;
+export async function getBreakdowns(from: Dayjs, to: Dayjs): Promise<Breakdowns> {
+  const response = (await axios.get<BreakdownsResponse>(`opni-api/insights_breakdown?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`))?.data;
+
+  return new Breakdowns(response);
 }
 
 export async function getOverallBreakdownSeries(now: Dayjs, range: UnitCount, granularity: Granularity ) {
@@ -142,7 +80,7 @@ export function getNumberOfPoints(range: UnitCount, granularity: Granularity) {
 }
 
 export async function getOverallBreakdown(from: Dayjs, to: Dayjs) {
-  const response = (await axios.get(`opni-api/overall_insights?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`));
+  const response = (await axios.get(`opni-api/overall_insights?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }&granularity=junk`));
 
   response.data.from = from;
   response.data.to = to;
@@ -151,17 +89,8 @@ export async function getOverallBreakdown(from: Dayjs, to: Dayjs) {
 }
 
 export async function getLogs(from: Dayjs, to: Dayjs): Promise<Log[]> {
-  // const logs = (await axios.get<LogsResponse>(`opni-api/logs?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`)).data.Logs;
-  const logs = await require('./logs.json').Logs;
+  const logs = (await axios.get<LogsResponse>(`opni-api/logs?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`)).data.Logs;
+  // const logs = await require('./logs.json').Logs;
 
-  return logs.map((log: LogResponse) => {
-    return {
-      timestamp:      log.timestamp,
-      message:        log.log,
-      level:          log.anomaly_level,
-      namespace:      log['kubernetes.namespace_name'],
-      podName:        log['kubernetes.pod_name'],
-      isControlPlane: log.is_control_plane_log,
-    };
-  });
+  return logs.map(l => new Log(l) );
 }

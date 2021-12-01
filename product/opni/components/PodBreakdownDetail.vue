@@ -18,7 +18,7 @@ export default {
         {
           ...SIMPLE_NAME,
           width: null,
-          value: 'Name'
+          value: 'name'
         },
         ANOMALY(() => 'bubble anomaly', row => this.$emit('select', {
           level: 'Anomaly', key: 'podName', value: row.Name

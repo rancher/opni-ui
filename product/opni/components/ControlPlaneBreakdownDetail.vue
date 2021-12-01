@@ -18,15 +18,15 @@ export default {
         {
           ...SIMPLE_NAME,
           width: null,
-          value: 'Name'
+          value: 'name'
         },
         ANOMALY(() => 'bubble anomaly', row => this.$emit('select', {
           level: 'Anomaly', key: 'isControlPlane', value: true
-        }), 'Insights.Anomaly'),
+        }), 'insights.anomalyFormatted', 'insights.anomaly'),
         SUSPICIOUS(() => 'bubble suspicious', row => this.$emit('select', {
-          level: 'Suspicious', key: 'name', value: row.Name
-        }), 'Insights.Suspicious'),
-        NORMAL(undefined, undefined, 'Insights.Normal'),
+          level: 'Suspicious', key: 'name', value: row.name
+        }), 'insights.suspiciousFormatted', 'insights.suspicious'),
+        NORMAL(undefined, undefined, 'insights.normalFormatted', 'insights.normal'),
       ]
     };
   },
@@ -34,7 +34,7 @@ export default {
 </script>
 <template>
   <SortableTable
-    :rows="breakdown.Components"
+    :rows="breakdown.components"
     :headers="headers"
     :search="false"
     :table-actions="false"
