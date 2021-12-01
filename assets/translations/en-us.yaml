@@ -6091,18 +6091,6 @@ opni:
     title: Logging
   nav:
     respond: Overview
-    preempt: Investigation
-    metrics: Metrics
-  areaOfInterestDetail:
-    title: Area of Interest
-    level: 
-      label: Level
-      suspicious: Suspicious ({count})
-      anomaly: Anomaly ({count})
-    area: 
-      label: Area
-      controlPlane: Control Plane ({count})
-      workload: Workload ({count})
   workloadVsControlPlaneChart:
     workload: Workload
     controlPlane: Control Plane
