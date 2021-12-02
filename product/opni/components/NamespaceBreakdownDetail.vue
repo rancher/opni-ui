@@ -21,10 +21,10 @@ export default {
           value: 'name'
         },
         ANOMALY(() => 'bubble anomaly', row => this.$emit('select', {
-          level: 'Anomaly', key: 'namespace', value: row.Name
+          level: 'Anomaly', key: 'namespace_name', value: row.name
         })),
         SUSPICIOUS(() => 'bubble suspicious', row => this.$emit('select', {
-          level: 'Suspicious', key: 'namespace', value: row.Name
+          level: 'Suspicious', key: 'namespace_name', value: row.name
         })),
         NORMAL(),
       ]

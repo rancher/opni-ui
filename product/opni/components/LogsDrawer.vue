@@ -61,9 +61,10 @@ export default {
     filter: {
       type:    Object,
       default: () => ({
-        level: 'Suspicious',
-        key:   'namespace',
-        value: 'kube-system'
+        level:             'Suspicious',
+        key:               'namespace',
+        value:             'kube-system',
+        isControlPlaneLog: false
       })
     },
   },
@@ -88,7 +89,11 @@ export default {
       this.logs = null;
 
       if (this.fromTo) {
-        const filter = { anomaly_level: this.filter.level };
+        const filter = {
+          is_control_plane_log: this.filter.isControlPlaneLog,
+          anomaly_level:        this.filter.level,
+          [this.filter.key]:    this.filter.value
+        };
 
         this.logs = await getLogs(this.fromTo.from.valueOf(), this.fromTo.to.valueOf(), filter);
       }

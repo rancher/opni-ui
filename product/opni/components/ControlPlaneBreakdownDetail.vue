@@ -20,12 +20,8 @@ export default {
           width: null,
           value: 'name'
         },
-        ANOMALY(() => 'bubble anomaly', row => this.$emit('select', {
-          level: 'Anomaly', key: 'isControlPlane', value: true
-        }), 'insights.anomalyFormatted', 'insights.anomaly'),
-        SUSPICIOUS(() => 'bubble suspicious', row => this.$emit('select', {
-          level: 'Suspicious', key: 'name', value: row.name
-        }), 'insights.suspiciousFormatted', 'insights.suspicious'),
+        ANOMALY(() => 'bubble anomaly', row => this.$emit('select', { level: 'Anomaly', isControlPlaneLog: true }), 'insights.anomalyFormatted', 'insights.anomaly'),
+        SUSPICIOUS(() => 'bubble suspicious', row => this.$emit('select', { level: 'Suspicious', isControlPlaneLog: true }), 'insights.suspiciousFormatted', 'insights.suspicious'),
         NORMAL(undefined, undefined, 'insights.normalFormatted', 'insights.normal'),
       ]
     };
