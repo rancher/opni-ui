@@ -17,14 +17,14 @@ export const LOG_HEADERS = [
   {
     name:          'namespace',
     labelKey:      'tableHeaders.namespace',
-    value:         'namespace',
-    sort:          ['namespace']
+    value:         'kubernetesNamespaceName',
+    sort:          ['kubernetesNamespaceName']
   },
   {
     name:          'podName',
     labelKey:      'tableHeaders.podName',
-    value:         'podName',
-    sort:          ['podName']
+    value:         'kubernetesPodName',
+    sort:          ['kubernetesPodName']
   },
   {
     name:          'area',
@@ -34,7 +34,7 @@ export const LOG_HEADERS = [
     formatter:     'TextWithClass',
     formatterOpts: {
       getClass(row) {
-        const level = row.isControlPlane ? 'control-plane' : 'workload';
+        const level = row.isControlPlaneLog ? 'control-plane' : 'workload';
 
         return `bubble ${ level }`;
       }
@@ -75,35 +75,10 @@ export default {
       showAnomaly:       true,
       showWorkloads:     true,
       showControlPlanes: true,
-      logs:              null
+      logs:              null,
     };
   },
 
-  computed: {
-    filteredLogs() {
-      if (!this.filter || !this.logs) {
-        return null;
-      }
-
-      return this.logs.filter((log) => {
-        return log.level === this.filter.level &&
-          log[this.filter.key] === this.filter.value;
-      });
-    },
-
-    mappedLogs() {
-      if (!this.filter || !this.filteredLogs) {
-        return null;
-      }
-
-      return this.filteredLogs.map(log => ({
-        ...log,
-        area:             log.isControlPlane ? 'Control Plane' : 'Workload',
-        stateDescription: true,
-        stateObj:         {}
-      }));
-    },
-  },
   methods: {
     getColor(message) {
       return message.level === 'Anomaly' ? 'error' : 'warning';
@@ -113,7 +88,9 @@ export default {
       this.logs = null;
 
       if (this.fromTo) {
-        this.logs = await getLogs(this.fromTo.from.valueOf(), this.fromTo.to.valueOf());
+        const filter = { anomaly_level: this.filter.level };
+
+        this.logs = await getLogs(this.fromTo.from.valueOf(), this.fromTo.to.valueOf(), filter);
       }
     }
   },
@@ -138,13 +115,13 @@ export default {
         </div>
       </div>
     </template>
-    <Loading v-if="mappedLogs === null" mode="relative" />
+    <Loading v-if="logs === null" mode="relative" />
     <div v-else class="contents">
-      <div class="row detail mb-10">
+      <div class="row detail pb-20">
         <div class="col span-12 p-5 pr-20">
           <SortableTable
             class="table"
-            :rows="mappedLogs"
+            :rows="logs || []"
             :headers="LOG_HEADERS"
             :search="false"
             :table-actions="false"
@@ -156,12 +133,12 @@ export default {
           >
             <template #sub-row="{row, fullColspan}">
               <tr class="opni sub-row">
-                <td :colspan="fullColspan" :class="{[row.level.toLowerCase()]: true}" class="pt-0">
+                <td :colspan="fullColspan" class="pt-0">
                   <Banner
                     class="m-0"
                     :color="getColor(row)"
                   >
-                    {{ row.message }}
+                    {{ row.log }}
                   </Banner>
                 </td>
               </tr>

@@ -88,8 +88,11 @@ export async function getOverallBreakdown(from: Dayjs, to: Dayjs) {
   return response.data;
 }
 
-export async function getLogs(from: Dayjs, to: Dayjs): Promise<Log[]> {
-  const logs = (await axios.get<LogsResponse>(`opni-api/logs?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`)).data.Logs;
+export async function getLogs(from: Dayjs, to: Dayjs, filter: Object): Promise<Log[]> {
+  const filterString = Object.entries(filter)
+    .map(([key, value]) => `${ key }=${ value }`)
+    .join('&');
+  const logs = (await axios.get<LogsResponse>(`opni-api/logs?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }&${ filterString }`)).data.Logs;
   // const logs = await require('./logs.json').Logs;
 
   return logs.map(l => new Log(l) );

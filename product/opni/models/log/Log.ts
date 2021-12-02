@@ -25,4 +25,16 @@ export class Log {
       this.kubernetesPodName = response['kubernetes.pod_name'];
       this.isControlPlaneLog = response.is_control_plane_log;
     }
+
+    get area() {
+      return this.isControlPlaneLog ? 'Control Plane' : 'Workload';
+    }
+
+    get stateDescription() {
+      return true;
+    }
+
+    get stateObj() {
+      return {};
+    }
 }
