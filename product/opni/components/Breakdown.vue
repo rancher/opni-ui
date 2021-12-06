@@ -7,11 +7,10 @@ import PodBreakdownDetail from './PodBreakdownDetail';
 import NamespaceBreakdownDetail from './NamespaceBreakdownDetail';
 import WorkloadBreakdownDetail from './WorkloadBreakdownDetail';
 import ControlPlaneBreakdownDetail from './ControlPlaneBreakdownDetail';
-import LogsDrawer from './LogsDrawer';
 
 export default {
   components: {
-    ControlPlaneBreakdownDetail, Loading, LogsDrawer, PodBreakdownDetail, NamespaceBreakdownDetail, Tabbed, Tab, WorkloadBreakdownDetail
+    ControlPlaneBreakdownDetail, Loading, PodBreakdownDetail, NamespaceBreakdownDetail, Tabbed, Tab, WorkloadBreakdownDetail
   },
 
   props: {
@@ -33,7 +32,6 @@ export default {
   data() {
     return {
       loading:               true,
-      selectedBreakdown:     null,
       podBreakdown:          null,
       namespaceBreakdown:    null,
       workloadBreakdown:     null,
@@ -42,14 +40,6 @@ export default {
   },
 
   methods: {
-    selectBreakdown(breakdown) {
-      this.$set(this, 'selectedBreakdown', breakdown);
-    },
-
-    deselectBreakdown() {
-      this.$set(this, 'selectedBreakdown', null);
-    },
-
     async load() {
       this.loading = true;
 
@@ -98,7 +88,7 @@ export default {
         :weight="4"
       >
         <Loading v-if="loading" />
-        <ControlPlaneBreakdownDetail v-else :breakdown="controlPlaneBreakdown" @select="selectBreakdown" />
+        <ControlPlaneBreakdownDetail v-else :breakdown="controlPlaneBreakdown" :from-to="selection" />
       </Tab>
       <Tab
         name="pod"
@@ -107,7 +97,7 @@ export default {
         :weight="3"
       >
         <Loading v-if="loading" />
-        <PodBreakdownDetail v-else :breakdown="podBreakdown" @select="selectBreakdown" />
+        <PodBreakdownDetail v-else :breakdown="podBreakdown" :from-to="selection" />
       </Tab>
       <Tab
         name="namespace"
@@ -116,7 +106,7 @@ export default {
         :weight="2"
       >
         <Loading v-if="loading" />
-        <NamespaceBreakdownDetail v-else :breakdown="namespaceBreakdown" @select="selectBreakdown" />
+        <NamespaceBreakdownDetail v-else :breakdown="namespaceBreakdown" :from-to="selection" />
       </Tab>
       <Tab
         name="workload"
@@ -125,10 +115,9 @@ export default {
         :weight="1"
       >
         <Loading v-if="loading" />
-        <WorkloadBreakdownDetail v-else :breakdown="workloadBreakdown" @select="selectBreakdown" />
+        <WorkloadBreakdownDetail v-else :breakdown="workloadBreakdown" />
       </Tab>
     </Tabbed>
-    <LogsDrawer :open="!!selectedBreakdown" :from-to="selection" :filter="selectedBreakdown" @close="deselectBreakdown" />
   </div>
 </template>
 

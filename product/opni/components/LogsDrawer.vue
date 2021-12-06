@@ -3,6 +3,7 @@ import SortableTable from '@/components/SortableTable';
 import Drawer from '@/components/Drawer';
 import Banner from '@/components/Banner';
 import Loading from '@/components/Loading';
+import isEqual from 'lodash/isEqual';
 import { getLogs } from '~/product/opni/utils/requests';
 
 export const LOG_HEADERS = [
@@ -48,25 +49,10 @@ export default {
   },
 
   props: {
-    open: {
-      type:     Boolean,
-      required: true
-    },
-
     fromTo: {
       type:     Object,
       required: true,
-    },
-
-    filter: {
-      type:    Object,
-      default: () => ({
-        level:             'Suspicious',
-        key:               'namespace',
-        value:             'kube-system',
-        isControlPlaneLog: false
-      })
-    },
+    }
   },
 
   data() {
@@ -77,47 +63,51 @@ export default {
       showWorkloads:     true,
       showControlPlanes: true,
       logs:              null,
+      isOpen:            false,
+      lastFilter:        null,
     };
   },
 
   methods: {
-    getColor(message) {
-      return message.level === 'Anomaly' ? 'error' : 'warning';
+    getColor(log) {
+      return log.anomalyLevel === 'Anomaly' ? 'error' : 'warning';
     },
 
-    async loadLogs() {
-      this.logs = null;
+    async loadLogs(newFilter) {
+      if (isEqual(newFilter, this.lastFilter)) {
+        return;
+      }
+
+      this.$set(this, 'logs', null);
+      this.$set(this, 'lastFilter', newFilter);
 
       if (this.fromTo) {
         const filter = {
-          is_control_plane_log: this.filter.isControlPlaneLog,
-          anomaly_level:        this.filter.level,
-          [this.filter.key]:    this.filter.value
+          is_control_plane_log: newFilter.isControlPlaneLog,
+          anomaly_level:        newFilter.level,
+          [newFilter.key]:      newFilter.value
         };
 
         this.logs = await getLogs(this.fromTo.from.valueOf(), this.fromTo.to.valueOf(), filter);
       }
+    },
+
+    open(filter) {
+      this.$set(this, 'isOpen', true);
+      this.loadLogs(filter);
+    },
+
+    close() {
+      this.$set(this, 'isOpen', false);
     }
   },
-
-  watch: {
-    open() {
-      this.loadLogs();
-    },
-    filter() {
-      this.loadLogs();
-    }
-  }
 };
 </script>
 <template>
-  <Drawer :open="open" @close="$emit('close')">
+  <Drawer :open="isOpen" @close="close">
     <template #title>
       <div class="p-5 pb-0">
         <h1>{{ t('opni.logsDrawer.title') }}</h1>
-        <div v-if="open">
-          <h3>{{ filter.level }} - {{ filter.key }}: {{ filter.value }}</h3>
-        </div>
       </div>
     </template>
     <Loading v-if="logs === null" mode="relative" />

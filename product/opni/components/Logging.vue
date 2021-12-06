@@ -12,7 +12,7 @@ export default {
 
   data() {
     return {
-      areasOfInterest:         [],
+      areasOfInterest:       [],
       config:                { ...DEFAULT_CONFIGURATION },
       selection:             null,
       potentialSelection:    null,

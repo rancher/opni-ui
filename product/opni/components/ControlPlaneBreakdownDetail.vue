@@ -1,14 +1,20 @@
 <script>
 import SortableTable from '@/components/SortableTable';
 import { SIMPLE_NAME, ANOMALY, NORMAL, SUSPICIOUS } from '@/config/table-headers';
+import LogsDrawer from './LogsDrawer';
 
 export default {
-  components: { SortableTable },
+  components: { LogsDrawer, SortableTable },
 
   props: {
     breakdown: {
       type:    Object,
       default: null,
+    },
+
+    fromTo: {
+      type:     Object,
+      required:  true,
     },
   },
 
@@ -20,26 +26,38 @@ export default {
           width: null,
           value: 'name'
         },
-        ANOMALY(() => 'bubble anomaly', row => this.$emit('select', { level: 'Anomaly', isControlPlaneLog: true }), 'insights.anomalyFormatted', 'insights.anomaly'),
-        SUSPICIOUS(() => 'bubble suspicious', row => this.$emit('select', { level: 'Suspicious', isControlPlaneLog: true }), 'insights.suspiciousFormatted', 'insights.suspicious'),
+        ANOMALY(() => 'bubble anomaly', row => this.select('Anomaly', row), 'insights.anomalyFormatted', 'insights.anomaly'),
+        SUSPICIOUS(() => 'bubble suspicious', row => this.select('Suspicious', row), 'insights.suspiciousFormatted', 'insights.suspicious'),
         NORMAL(undefined, undefined, 'insights.normalFormatted', 'insights.normal'),
       ]
     };
   },
+
+  methods: {
+    select(level, row) {
+      this.$refs.drawer.open({
+        level,
+        isControlPlaneLog: true
+      });
+    }
+  }
 };
 </script>
 <template>
-  <SortableTable
-    :rows="breakdown.components"
-    :headers="headers"
-    :search="false"
-    :table-actions="false"
-    :row-actions="false"
-    :paging="true"
-    default-sort-by="anomaly"
-    :default-sort-descending="true"
-    key-field="id"
-  />
+  <div>
+    <SortableTable
+      :rows="breakdown.components"
+      :headers="headers"
+      :search="false"
+      :table-actions="false"
+      :row-actions="false"
+      :paging="true"
+      default-sort-by="anomaly"
+      :default-sort-descending="true"
+      key-field="id"
+    />
+    <LogsDrawer ref="drawer" :from-to="fromTo" />
+  </div>
 </template>
 
 <style lang="scss" scoped>
