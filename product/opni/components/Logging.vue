@@ -1,6 +1,6 @@
 <script>
 import day from 'dayjs';
-import { getFromTos } from '@/product/opni/utils/requests';
+import { getStartTime } from '@/product/opni/utils/requests';
 import InsightsChart from './InsightsChart';
 import Configurator, { DEFAULT_CONFIGURATION } from './Configurator';
 import Breakdown from './Breakdown';
@@ -26,7 +26,7 @@ export default {
     },
     defaultSelection() {
       return {
-        from: getFromTos(this.now, this.config.range, this.config.granularity)[0].from,
+        from: getStartTime(this.now, this.config.range, this.config.granularity),
         to:   this.now
       };
     }

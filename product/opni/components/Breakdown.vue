@@ -115,7 +115,7 @@ export default {
         :weight="1"
       >
         <Loading v-if="loading" />
-        <WorkloadBreakdownDetail v-else :breakdown="workloadBreakdown" />
+        <WorkloadBreakdownDetail v-else :breakdown="workloadBreakdown" :from-to="selection" />
       </Tab>
     </Tabbed>
   </div>

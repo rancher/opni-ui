@@ -2,6 +2,7 @@
 import SortableTable from '@/components/SortableTable';
 import { SIMPLE_NAME, ANOMALY, NORMAL, SUSPICIOUS } from '@/config/table-headers';
 import LogsDrawer from './LogsDrawer';
+import { getControlPlaneLogs } from '~/product/opni/utils/requests';
 
 export default {
   components: { LogsDrawer, SortableTable },
@@ -26,8 +27,8 @@ export default {
           width: null,
           value: 'name'
         },
-        ANOMALY(() => 'bubble anomaly', row => this.select('Anomaly', row), 'insights.anomalyFormatted', 'insights.anomaly'),
-        SUSPICIOUS(() => 'bubble suspicious', row => this.select('Suspicious', row), 'insights.suspiciousFormatted', 'insights.suspicious'),
+        ANOMALY(this.select, undefined, 'insights.anomalyFormatted', 'insights.anomaly'),
+        SUSPICIOUS(this.select, undefined, 'insights.suspiciousFormatted', 'insights.suspicious'),
         NORMAL(undefined, undefined, 'insights.normalFormatted', 'insights.normal'),
       ]
     };
@@ -35,10 +36,10 @@ export default {
 
   methods: {
     select(level, row) {
-      this.$refs.drawer.open({
-        level,
-        isControlPlaneLog: true
-      });
+      this.$refs.drawer.open({ level, row });
+    },
+    async logGetter(level, row) {
+      return await getControlPlaneLogs(this.fromTo.from, this.fromTo.to, level, row.name);
     }
   }
 };
@@ -56,7 +57,7 @@ export default {
       :default-sort-descending="true"
       key-field="id"
     />
-    <LogsDrawer ref="drawer" :from-to="fromTo" />
+    <LogsDrawer ref="drawer" :from-to="fromTo" :log-getter="logGetter" />
   </div>
 </template>
 

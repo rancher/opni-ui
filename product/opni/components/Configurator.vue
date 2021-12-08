@@ -3,37 +3,37 @@ import LabeledSelect from '@/components/form/LabeledSelect';
 
 export const GRANULARITIES = [
   {
-    label: '1h', unit: 'hours', count: 1
+    label: '1h', unit: 'h', count: 1
   },
   {
-    label: '30m', unit: 'minutes', count: 30
+    label: '30m', unit: 'm', count: 30
   },
   {
-    label: '10m', unit: 'minutes', count: 10
+    label: '10m', unit: 'm', count: 10
   },
 ];
 
 export const RANGES = [
   {
-    label: '24h', unit: 'hours', count: 24
+    label: '24h', unit: 'h', count: 24
   },
   {
-    label: '12h', unit: 'hours', count: 12
+    label: '12h', unit: 'h', count: 12
   },
   {
-    label: '1h', unit: 'hours', count: 1
+    label: '1h', unit: 'h', count: 1
   }
 ];
 
 export const REFRESH_RATES = [
   {
-    label: '10s', unit: 'seconds', count: 10
+    label: '10s', unit: 's', count: 10
   },
   {
-    label: '1m', unit: 'minutes', count: 1
+    label: '1m', unit: 'm', count: 1
   },
   {
-    label: '30m', unit: 'minutes', count: 30
+    label: '30m', unit: 'm', count: 30
   },
 ];
 

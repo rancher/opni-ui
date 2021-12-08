@@ -20,12 +20,12 @@ export class WorkloadBreakdownAggregation {
     statefulSet: WorkloadBreakdown[];
 
     constructor(response: WorkloadBreakdownAggregationResponse) {
-      this.customResource = response.CustomResource.map(b => new WorkloadBreakdown(b));
-      this.daemonSet = response.DaemonSet.map(b => new WorkloadBreakdown(b));
-      this.deployment = response.Deployment.map(b => new WorkloadBreakdown(b));
-      this.independent = response.Independent.map(b => new WorkloadBreakdown(b));
-      this.job = response.Job.map(b => new WorkloadBreakdown(b));
-      this.replicaSet = response.ReplicaSet.map(b => new WorkloadBreakdown(b));
-      this.statefulSet = response.StatefulSet.map(b => new WorkloadBreakdown(b));
+      this.customResource = response.CustomResource.map(b => new WorkloadBreakdown(b, 'CustomResource'));
+      this.daemonSet = response.DaemonSet.map(b => new WorkloadBreakdown(b, 'DaemonSet'));
+      this.deployment = response.Deployment.map(b => new WorkloadBreakdown(b, 'Deployment'));
+      this.independent = response.Independent.map(b => new WorkloadBreakdown(b, 'Independent'));
+      this.job = response.Job.map(b => new WorkloadBreakdown(b, 'Job'));
+      this.replicaSet = response.ReplicaSet.map(b => new WorkloadBreakdown(b, 'ReplicaSet'));
+      this.statefulSet = response.StatefulSet.map(b => new WorkloadBreakdown(b, 'StatefulSet'));
     }
 }

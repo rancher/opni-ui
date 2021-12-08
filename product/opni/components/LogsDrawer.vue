@@ -3,8 +3,6 @@ import SortableTable from '@/components/SortableTable';
 import Drawer from '@/components/Drawer';
 import Banner from '@/components/Banner';
 import Loading from '@/components/Loading';
-import isEqual from 'lodash/isEqual';
-import { getLogs } from '~/product/opni/utils/requests';
 
 export const LOG_HEADERS = [
   {
@@ -19,28 +17,15 @@ export const LOG_HEADERS = [
     name:          'namespace',
     labelKey:      'tableHeaders.namespace',
     value:         'kubernetesNamespaceName',
-    sort:          ['kubernetesNamespaceName']
+    sort:          ['kubernetesNamespaceName'],
+    width:         '300px'
   },
   {
     name:          'podName',
     labelKey:      'tableHeaders.podName',
     value:         'kubernetesPodName',
     sort:          ['kubernetesPodName']
-  },
-  {
-    name:          'area',
-    labelKey:      'tableHeaders.area',
-    value:         'area',
-    sort:          'area',
-    formatter:     'TextWithClass',
-    formatterOpts: {
-      getClass(row) {
-        const level = row.isControlPlaneLog ? 'control-plane' : 'workload';
-
-        return `bubble ${ level }`;
-      }
-    }
-  },
+  }
 ];
 
 export default {
@@ -52,6 +37,11 @@ export default {
     fromTo: {
       type:     Object,
       required: true,
+    },
+
+    logGetter: {
+      type:     Function,
+      required: true
     }
   },
 
@@ -73,28 +63,15 @@ export default {
       return log.anomalyLevel === 'Anomaly' ? 'error' : 'warning';
     },
 
-    async loadLogs(newFilter) {
-      if (isEqual(newFilter, this.lastFilter)) {
-        return;
-      }
+    async loadLogs(level, row) {
+      const logs = await this.logGetter(level, row);
 
-      this.$set(this, 'logs', null);
-      this.$set(this, 'lastFilter', newFilter);
-
-      if (this.fromTo) {
-        const filter = {
-          is_control_plane_log: newFilter.isControlPlaneLog,
-          anomaly_level:        newFilter.level,
-          [newFilter.key]:      newFilter.value
-        };
-
-        this.logs = await getLogs(this.fromTo.from.valueOf(), this.fromTo.to.valueOf(), filter);
-      }
+      this.logs = logs.logs;
     },
 
-    open(filter) {
+    open({ level, row }) {
       this.$set(this, 'isOpen', true);
-      this.loadLogs(filter);
+      this.loadLogs(level, row);
     },
 
     close() {

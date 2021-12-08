@@ -3,32 +3,39 @@ import SortableTable from '@/components/SortableTable';
 import {
   SIMPLE_NAME, BREAKDOWN_RESOURCE, ANOMALY, NORMAL, SUSPICIOUS
 } from '@/config/table-headers';
+import LogsDrawer from './LogsDrawer';
 import { WorkloadBreakdownAggregation } from '~/product/opni/models/overallBreakdown/WorkloadBreakdownAggregation';
-
-export const HEADERS = [
-  {
-    ...SIMPLE_NAME,
-    width: null,
-    value: 'breakdown.name'
-  },
-  BREAKDOWN_RESOURCE,
-  ANOMALY(undefined, undefined, 'breakdown.insights.anomalyFormatted', 'breakdown.insights.anomaly'),
-  SUSPICIOUS(undefined, undefined, 'breakdown.insights.suspiciousFormatted', 'breakdown.insights.suspicious'),
-  NORMAL(undefined, undefined, 'breakdown.insights.normalFormatted', 'breakdown.insights.normal')
-];
+import { getWorkloadLogs } from '~/product/opni/utils/requests';
 
 export default {
-  components: { SortableTable },
+  components: { LogsDrawer, SortableTable },
 
   props: {
     breakdown: {
       type:    WorkloadBreakdownAggregation,
       default: null,
     },
+
+    fromTo: {
+      type:     Object,
+      required:  true,
+    },
   },
 
   data() {
-    return { HEADERS };
+    return {
+      headers: [
+        {
+          ...SIMPLE_NAME,
+          width: null,
+          value: 'breakdown.name'
+        },
+        BREAKDOWN_RESOURCE,
+        ANOMALY(this.select, undefined, 'breakdown.insights.anomalyFormatted', 'breakdown.insights.anomaly'),
+        SUSPICIOUS(this.select, undefined, 'breakdown.insights.suspiciousFormatted', 'breakdown.insights.suspicious'),
+        NORMAL(undefined, undefined, 'breakdown.insights.normalFormatted', 'breakdown.insights.normal')
+      ]
+    };
   },
 
   computed: {
@@ -42,21 +49,35 @@ export default {
         });
     },
   },
+
+  methods: {
+    select(level, row) {
+      this.$refs.drawer.open({ level, row });
+    },
+    async logGetter(level, row) {
+      console.log('dddd', row);
+
+      return await getWorkloadLogs(this.fromTo.from, this.fromTo.to, level, row.breakdown.name, row.breakdown.namespace, row.breakdown.type);
+    }
+  }
 };
 </script>
 <template>
-  <SortableTable
-    :rows="rows"
-    group-by="breakdown.namespace"
-    :headers="HEADERS"
-    :search="false"
-    :table-actions="false"
-    :row-actions="false"
-    :paging="true"
-    default-sort-by="anomaly"
-    :default-sort-descending="true"
-    key-field="id"
-  />
+  <div>
+    <SortableTable
+      :rows="rows"
+      group-by="breakdown.namespace"
+      :headers="headers"
+      :search="false"
+      :table-actions="false"
+      :row-actions="false"
+      :paging="true"
+      default-sort-by="anomaly"
+      :default-sort-descending="true"
+      key-field="id"
+    />
+    <LogsDrawer ref="drawer" :from-to="fromTo" :log-getter="logGetter" />
+  </div>
 </template>
 
 <style lang="scss" scoped>

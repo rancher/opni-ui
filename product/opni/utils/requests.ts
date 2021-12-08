@@ -1,10 +1,10 @@
 import axios from 'axios';
-import { Dayjs, UnitType } from 'dayjs';
+import day, { Dayjs, UnitType } from 'dayjs';
 import { AreaOfInterestResponse } from '@/product/opni/models/areasOfInterest';
 import { FromTo } from '@/product/opni/models/fromTo';
 import { Breakdowns, BreakdownsResponse } from '~/product/opni/models/overallBreakdown/Breakdowns';
 import { Log } from '~/product/opni/models/log/Log';
-import { LogsResponse } from '~/product/opni/models/log/Logs';
+import { Logs, LogsResponse } from '~/product/opni/models/log/Logs';
 interface UnitCount {
   unit: UnitType,
   count: number
@@ -12,9 +12,10 @@ interface UnitCount {
 
 type Granularity = UnitCount;
 
+type LogLevel = 'Normal' | 'Anomalous' | 'Suspicious';
+
 export async function getAreasOfInterest(now: Dayjs, range: UnitCount, granularity: Granularity): Promise<FromTo[]> {
-  const fromTos = getFromTos(now, range, granularity);
-  const from = fromTos[0].from;
+  const from = getStartTime(now, range, granularity);
   const to = now;
   const response = (await axios.get<AreaOfInterestResponse[]>(`opni-api/areas_of_interest?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`))?.data;
 
@@ -29,58 +30,43 @@ export async function getBreakdowns(from: Dayjs, to: Dayjs): Promise<Breakdowns>
   return new Breakdowns(response);
 }
 
-export async function getOverallBreakdownSeries(now: Dayjs, range: UnitCount, granularity: Granularity ) {
-  const fromTos = getFromTos(now, range, granularity);
+export async function getOverallBreakdownSeries(now: Dayjs, range: UnitCount, granularity: Granularity) {
+  const from = getStartTime(now, range, granularity);
+  const to = now;
+  const response = (await axios.get(`opni-api/overall_insights?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }&granularity_level=${ granularity.count }${ granularity.unit }`));
 
-  const promises = fromTos.map(({ from, to }) => getOverallBreakdown(from, to));
-  const responses = await Promise.all(promises);
+  response.data.from = from;
+  response.data.to = to;
 
-  return responses.map(r => ({
-    timestamp:  r.to.valueOf(),
+  const mapped = response.data.Insights.map((r: any) => ({
+    timestamp:  day(r.time_start).add(granularity.count, granularity.unit).valueOf(),
     normal:     r.Normal || 0,
     suspicious: r.Suspicious || 0,
     anomaly:    r.Anomaly || 0
   }));
+
+  if (mapped.length > 0) {
+    mapped[mapped.length - 1].timestamp = now.valueOf();
+  }
+
+  return mapped;
 }
 
-function getFirstAlignedPoint(now: Dayjs, granularity: Granularity ) {
+export function getStartTime(now: Dayjs, range: UnitCount, granularity: Granularity) {
+  const firstAlignedPoint = getFirstAlignedPoint(now, granularity);
+
+  return firstAlignedPoint.subtract(range.count, range.unit);
+}
+
+export function getFirstAlignedPoint(now: Dayjs, granularity: Granularity ) {
   const remainder = now.get(granularity.unit) % granularity.count;
   const first = granularity.count > 1 ? now.subtract(remainder, granularity.unit) : now;
 
   return first.startOf(granularity.unit);
 }
 
-const UNIT_MS_COUNT = {
-  milliseconds: 1,
-  seconds:      1000,
-  minutes:      60000,
-  hours:        3600000,
-  days:         86400000,
-  months:       2592000000,
-  years:        31536000000,
-};
-
-export function getFromTos(now: Dayjs, range: UnitCount, granularity: Granularity) {
-  const firstAligned = getFirstAlignedPoint(now, granularity);
-  const numberOfPoints = getNumberOfPoints(range, granularity);
-
-  const alignedFromTos = [...Array(numberOfPoints)].map((_, i) => ({
-    from: firstAligned.subtract((i + 1) * granularity.count, granularity.unit),
-    to:   firstAligned.subtract(i * granularity.count, granularity.unit)
-  }));
-
-  return [{ from: firstAligned, to: now }, ...alignedFromTos].reverse();
-}
-
-export function getNumberOfPoints(range: UnitCount, granularity: Granularity) {
-  const rangeMs = (UNIT_MS_COUNT as any)[range.unit] * range.count;
-  const granularityMs = (UNIT_MS_COUNT as any)[granularity.unit] * granularity.count;
-
-  return Math.ceil(rangeMs / granularityMs);
-}
-
 export async function getOverallBreakdown(from: Dayjs, to: Dayjs) {
-  const response = (await axios.get(`opni-api/overall_insights?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }&granularity=junk`));
+  const response = (await axios.get(`opni-api/overall_insights?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }&granularity_level=junk`));
 
   response.data.from = from;
   response.data.to = to;
@@ -96,4 +82,66 @@ export async function getLogs(from: Dayjs, to: Dayjs, filter: Object): Promise<L
   // const logs = await require('./logs.json').Logs;
 
   return logs.map(l => new Log(l) );
+}
+
+function query(params: Object) {
+  return Object.entries(params)
+    .filter(([, value]) => value)
+    .map(([key, value]) => `${ key }=${ value }`)
+    .join('&');
+}
+
+export async function getPodLogs(from: Dayjs, to: Dayjs, logLevel: LogLevel, name: String, namespaceName: String, scrollId?: String):Promise<Logs> {
+  const params = {
+    start_ts:       from.valueOf(),
+    end_ts:         to.valueOf(),
+    anomaly_level:  logLevel,
+    scroll_id:      scrollId,
+    pod_name:       name,
+    namespace_name: namespaceName
+  };
+  const logs = (await axios.get<LogsResponse>(`opni-api/logs_pod?${ query(params) }`)).data;
+
+  return new Logs(logs);
+}
+
+export async function getNamespaceLogs(from: Dayjs, to: Dayjs, logLevel: LogLevel, name: String, scrollId: String) {
+  const params = {
+    start_ts:       from.valueOf(),
+    end_ts:         to.valueOf(),
+    anomaly_level:  logLevel,
+    scroll_id:      scrollId,
+    namespace_name: name
+  };
+  const logs = (await axios.get<LogsResponse>(`opni-api/logs_namespace?${ query(params) }`)).data;
+
+  return new Logs(logs);
+}
+
+export async function getWorkloadLogs(from: Dayjs, to: Dayjs, logLevel: LogLevel, name: String, namespaceName: String, workloadType: String, scrollId: String) {
+  const params = {
+    start_ts:       from.valueOf(),
+    end_ts:         to.valueOf(),
+    anomaly_level:  logLevel,
+    scroll_id:      scrollId,
+    namespace_name: namespaceName,
+    workload_type:  workloadType,
+    workload_name:  name
+  };
+  const logs = (await axios.get<LogsResponse>(`opni-api/logs_workload?${ query(params) }`)).data;
+
+  return new Logs(logs);
+}
+
+export async function getControlPlaneLogs(from: Dayjs, to: Dayjs, logLevel: LogLevel, name: String, scrollId: String) {
+  const params = {
+    start_ts:                from.valueOf(),
+    end_ts:                  to.valueOf(),
+    anomaly_level:           logLevel,
+    scroll_id:               scrollId,
+    control_plane_component: name
+  };
+  const logs = (await axios.get<LogsResponse>(`opni-api/logs_control_plane?${ query(params) }`)).data;
+
+  return new Logs(logs);
 }

@@ -39,7 +39,7 @@ export const NAME = {
   canBeVariable: true,
 };
 
-export function ANOMALY(getClass, onClick, value = 'insights.anomalyFormatted', sortValue = 'insights.anomaly') {
+export function ANOMALY(onSelect, getClass = () => 'bubble anomaly', value = 'insights.anomalyFormatted', sortValue = 'insights.anomaly') {
   return {
     name:          'anomaly',
     labelKey:      'tableHeaders.anomaly',
@@ -48,12 +48,14 @@ export function ANOMALY(getClass, onClick, value = 'insights.anomalyFormatted', 
     formatter:     'TextWithClass',
     formatterOpts: {
       getClass,
-      onClick
+      onClick(row) {
+        onSelect('Anomaly', row);
+      }
     },
   };
 }
 
-export function NORMAL(getClass, onClick, value = 'insights.normalFormatted', sortValue = 'insights.normal') {
+export function NORMAL(onClick, getClass, value = 'insights.normalFormatted', sortValue = 'insights.normal') {
   return {
     name:          'normal',
     labelKey:      'tableHeaders.normal',
@@ -74,7 +76,7 @@ export const BREAKDOWN_RESOURCE = {
   sort:          ['resource'],
 };
 
-export function SUSPICIOUS(getClass, onClick, value = 'insights.suspiciousFormatted', sortValue = 'insights.suspicious') {
+export function SUSPICIOUS(onSelect, getClass = () => 'bubble suspicious', value = 'insights.suspiciousFormatted', sortValue = 'insights.suspicious') {
   return {
     name:          'suspicious',
     labelKey:      'tableHeaders.suspicious',
@@ -83,7 +85,9 @@ export function SUSPICIOUS(getClass, onClick, value = 'insights.suspiciousFormat
     formatter:     'TextWithClass',
     formatterOpts: {
       getClass,
-      onClick
+      onClick(row) {
+        onSelect('Suspicious', row);
+      }
     },
   };
 }

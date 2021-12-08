@@ -2,6 +2,7 @@
 import SortableTable from '@/components/SortableTable';
 import { SIMPLE_NAME, ANOMALY, NORMAL, SUSPICIOUS } from '@/config/table-headers';
 import LogsDrawer from './LogsDrawer';
+import { getPodLogs } from '~/product/opni/utils/requests';
 
 export default {
   components: { LogsDrawer, SortableTable },
@@ -26,8 +27,8 @@ export default {
           width: null,
           value: 'name'
         },
-        ANOMALY(() => 'bubble anomaly', row => this.select('Anomaly', row)),
-        SUSPICIOUS(() => 'bubble suspicious', row => this.select('Suspicious', row)),
+        ANOMALY(this.select),
+        SUSPICIOUS(this.select),
         NORMAL(),
       ]
     };
@@ -35,11 +36,11 @@ export default {
 
   methods: {
     select(level, row) {
-      this.$refs.drawer.open({
-        level,
-        key:   'pod_name',
-        value: row.name
-      });
+      this.$refs.drawer.open({ level, row });
+    },
+
+    async logGetter(level, row) {
+      return await getPodLogs(this.fromTo.from, this.fromTo.to, level, row.name, row.namesapce);
     }
   }
 };
@@ -57,6 +58,6 @@ export default {
       :default-sort-descending="true"
       key-field="id"
     />
-    <LogsDrawer ref="drawer" :from-to="fromTo" />
+    <LogsDrawer ref="drawer" :from-to="fromTo" :log-getter="logGetter" />
   </div>
 </template>

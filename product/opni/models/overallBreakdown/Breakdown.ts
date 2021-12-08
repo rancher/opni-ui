@@ -3,6 +3,7 @@ import { Insights, InsightsResponse } from './Insights';
 export interface BreakdownResponse {
     Insights: InsightsResponse;
     Name: String;
+    Namespace: String;
 }
 
 export class Breakdown {
@@ -18,5 +19,9 @@ export class Breakdown {
 
   get insights(): Insights {
     return new Insights(this.response.Insights);
+  }
+
+  get namesapce(): String {
+    return this.response.Namespace;
   }
 }
