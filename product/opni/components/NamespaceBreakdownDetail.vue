@@ -38,8 +38,8 @@ export default {
     select(level, row) {
       this.$refs.drawer.open({ level, row });
     },
-    async logGetter(level, row) {
-      return await getNamespaceLogs(this.fromTo.from, this.fromTo.to, level, row.name, row.namesapce);
+    async logGetter(level, row, scrollId) {
+      return await getNamespaceLogs(this.fromTo.from, this.fromTo.to, level, row.name, row.namesapce, scrollId);
     }
   }
 };

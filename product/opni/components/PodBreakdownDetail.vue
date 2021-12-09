@@ -39,8 +39,8 @@ export default {
       this.$refs.drawer.open({ level, row });
     },
 
-    async logGetter(level, row) {
-      return await getPodLogs(this.fromTo.from, this.fromTo.to, level, row.name, row.namesapce);
+    async logGetter(level, row, scrollId) {
+      return await getPodLogs(this.fromTo.from, this.fromTo.to, level, row.name, row.namesapce, scrollId);
     }
   }
 };

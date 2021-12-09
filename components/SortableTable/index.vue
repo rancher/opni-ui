@@ -183,8 +183,18 @@ export default {
      * If pagination of the data is enabled or not
      */
     paging: {
-      type:    Boolean,
+      type:    [Boolean, String],
       default: false,
+    },
+
+    pagingAsyncCount: {
+      type:    Number,
+      default: null
+    },
+
+    pagingAsyncLoadNextPage: {
+      type:    Function,
+      default: () => null
     },
 
     /**
@@ -605,7 +615,15 @@ export default {
         @on-toggle-all="onToggleAll"
         @on-sort-change="changeSort"
       />
-
+      <tbody v-if="loadingPage">
+        <slot name="loading-page">
+          <tr class="loading-page">
+            <td :colspan="fullColspan">
+              Loading...
+            </td>
+          </tr>
+        </slot>
+      </tbody>
       <tbody v-if="noRows">
         <slot name="no-rows">
           <tr class="no-rows">
@@ -715,6 +733,7 @@ export default {
     </table>
     <div v-if="showPaging" class="paging">
       <button
+        v-if="paging !== 'async'"
         type="button"
         class="btn btn-sm role-multi-action"
         :disabled="page == 1"
@@ -725,7 +744,7 @@ export default {
       <button
         type="button"
         class="btn btn-sm role-multi-action"
-        :disabled="page == 1"
+        :disabled="page == 1 || loadingPage"
         @click="goToPage('prev')"
       >
         <i class="icon icon-chevron-left" />
@@ -736,12 +755,13 @@ export default {
       <button
         type="button"
         class="btn btn-sm role-multi-action"
-        :disabled="page == totalPages"
+        :disabled="page == totalPages || loadingPage"
         @click="goToPage('next')"
       >
         <i class="icon icon-chevron-right" />
       </button>
       <button
+        v-if="paging !== 'async'"
         type="button"
         class="btn btn-sm role-multi-action"
         :disabled="page == totalPages"
@@ -864,14 +884,14 @@ $spacing: 10px;
       background: var(--sortable-table-selected-bg);
     }
 
-    .no-rows {
+    .no-rows, .loading-page {
       td {
         padding: 30px 0;
         text-align: center;
       }
     }
 
-    .no-rows, .no-results {
+    .no-rows, .no-results, .loading-page {
       &:hover {
         background-color: var(--body-bg);
       }

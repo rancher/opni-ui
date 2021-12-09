@@ -10,21 +10,21 @@ export const LOG_HEADERS = [
     labelKey:  'tableHeaders.date',
     formatter: 'Date',
     value:     'timestamp',
-    sort:      ['timestamp'],
+    sort:      false,
     width:     '300px'
   },
   {
     name:          'namespace',
     labelKey:      'tableHeaders.namespace',
     value:         'kubernetesNamespaceName',
-    sort:          ['kubernetesNamespaceName'],
+    sort:          false,
     width:         '300px'
   },
   {
     name:          'podName',
     labelKey:      'tableHeaders.podName',
     value:         'kubernetesPodName',
-    sort:          ['kubernetesPodName']
+    sort:          false
   }
 ];
 
@@ -55,6 +55,8 @@ export default {
       logs:              null,
       isOpen:            false,
       lastFilter:        null,
+      level:             null,
+      row:               null,
     };
   },
 
@@ -63,15 +65,24 @@ export default {
       return log.anomalyLevel === 'Anomaly' ? 'error' : 'warning';
     },
 
-    async loadLogs(level, row) {
-      const logs = await this.logGetter(level, row);
+    async loadLogs() {
+      const logs = await this.logGetter(this.level, this.row, this.logs?.scrollId);
 
-      this.logs = logs.logs;
+      if (this.logs) {
+        this.logs.logs.push(...logs.logs);
+        this.logs.scrollId = logs.scrollId;
+      } else {
+        this.logs = logs;
+      }
     },
 
     open({ level, row }) {
       this.$set(this, 'isOpen', true);
-      this.loadLogs(level, row);
+      this.$set(this, 'level', level);
+      this.$set(this, 'row', row);
+      this.$set(this, 'logs', null);
+
+      this.loadLogs();
     },
 
     close() {
@@ -93,13 +104,15 @@ export default {
         <div class="col span-12 p-5 pr-20">
           <SortableTable
             class="table"
-            :rows="logs || []"
+            :rows="logs.logs || []"
             :headers="LOG_HEADERS"
             :search="false"
             :table-actions="false"
             :row-actions="false"
-            :paging="true"
-            :rows-per-page="8"
+            paging="async"
+            :paging-async-count="logs.count"
+            :paging-async-load-next-page="loadLogs"
+            :rows-per-page="100"
             default-sort-by="name"
             key-field="id"
           >

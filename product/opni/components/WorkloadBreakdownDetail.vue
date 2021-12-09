@@ -54,10 +54,8 @@ export default {
     select(level, row) {
       this.$refs.drawer.open({ level, row });
     },
-    async logGetter(level, row) {
-      console.log('dddd', row);
-
-      return await getWorkloadLogs(this.fromTo.from, this.fromTo.to, level, row.breakdown.name, row.breakdown.namespace, row.breakdown.type);
+    async logGetter(level, row, scrollId) {
+      return await getWorkloadLogs(this.fromTo.from, this.fromTo.to, level, row.breakdown.name, row.breakdown.namespace, row.breakdown.type, scrollId);
     }
   }
 };

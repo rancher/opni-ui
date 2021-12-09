@@ -3,6 +3,10 @@ import { PAGE } from '@/config/query-params';
 
 export default {
   computed: {
+    count() {
+      return this.paging === 'async' ? this.pagingAsyncCount : this.filteredRows.length;
+    },
+
     perPage() {
       let out = this.rowsPerPage || 0;
 
@@ -27,11 +31,11 @@ export default {
     },
 
     indexTo() {
-      return Math.min(this.filteredRows.length, this.indexFrom + this.perPage - 1);
+      return Math.min(this.count, this.indexFrom + this.perPage - 1);
     },
 
     totalPages() {
-      return Math.ceil(this.filteredRows.length / this.perPage );
+      return Math.ceil(this.count / this.perPage );
     },
 
     showPaging() {
@@ -42,7 +46,7 @@ export default {
       const opt = {
         ...(this.pagingParams || {}),
 
-        count: this.filteredRows.length,
+        count: this.count,
         pages: this.totalPages,
         from:  this.indexFrom,
         to:    this.indexTo,
@@ -61,7 +65,11 @@ export default {
   },
 
   data() {
-    return { page: this.$route.query[PAGE] || 1 };
+    return {
+      loadingPage: false,
+      loadedPages: 1,
+      page:        (this.paging !== 'async' ? this.$route.query[PAGE] : null) || 1
+    };
   },
 
   watch: {
@@ -69,7 +77,7 @@ export default {
       // Go to the last page if we end up "past" the last page because the table changed
 
       const from = this.indexFrom;
-      const last = this.filteredRows.length;
+      const last = this.count;
 
       if ( this.page > 1 && from > last ) {
         this.setPage(this.totalPages);
@@ -94,6 +102,10 @@ export default {
       }
       this.page = num;
 
+      if ( this.paging === 'async') {
+        return;
+      }
+
       if ( num === 1 ) {
         this.$router.applyQuery({ [PAGE]: undefined });
       } else {
@@ -113,6 +125,7 @@ export default {
         break;
       case 'next':
         page = Math.min(this.totalPages, this.page + 1 );
+        this.loadNextPage(page);
         break;
       case 'last':
         page = this.totalPages;
@@ -120,6 +133,15 @@ export default {
       }
 
       this.setPage(page);
+    },
+
+    async loadNextPage(page) {
+      if (page > this.loadedPages) {
+        this.loadingPage = true;
+
+        await this.pagingAsyncLoadNextPage();
+        this.loadingPage = false;
+      }
     }
   }
 };

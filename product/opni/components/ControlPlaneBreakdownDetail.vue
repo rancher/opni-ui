@@ -38,8 +38,8 @@ export default {
     select(level, row) {
       this.$refs.drawer.open({ level, row });
     },
-    async logGetter(level, row) {
-      return await getControlPlaneLogs(this.fromTo.from, this.fromTo.to, level, row.name);
+    async logGetter(level, row, scrollId) {
+      return await getControlPlaneLogs(this.fromTo.from, this.fromTo.to, level, row.name, scrollId);
     }
   }
 };
