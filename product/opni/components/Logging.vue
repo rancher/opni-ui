@@ -16,14 +16,20 @@ export default {
       config:                { ...DEFAULT_CONFIGURATION },
       selection:             null,
       potentialSelection:    null,
-      now:                   day()
+      now:                   day(),
+      refreshRateInterval:   null,
     };
   },
 
+  created() {
+    this.createInterval();
+  },
+
+  beforeDestroy() {
+    this.deleteInterval();
+  },
+
   computed: {
-    regions() {
-      return [this.areasOfInterest[0]];
-    },
     defaultSelection() {
       return {
         from: getStartTime(this.now, this.config.range, this.config.granularity),
@@ -39,6 +45,27 @@ export default {
     regionSelected(region) {
       this.$set(this, 'potentialSelection', null);
       this.$set(this, 'selection', region);
+    },
+    deleteInterval() {
+      if (this.refreshRateInterval) {
+        clearInterval(this.refreshRateInterval);
+        this.$set(this, 'refreshRateInterval', null);
+      }
+    },
+    createInterval() {
+      this.deleteInterval();
+      const ms = this.now.add(this.config.refreshRate.count, this.config.refreshRate.unit).diff(this.now);
+
+      this.$set(this, 'refreshRateInterval', setInterval(this.refresh, ms));
+    },
+    refresh() {
+      this.$set(this, 'now', day());
+    }
+  },
+
+  watch: {
+    'config.refreshRate'() {
+      this.createInterval();
     }
   }
 };

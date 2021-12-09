@@ -152,6 +152,10 @@ export default {
   },
 
   watch: {
+    now() {
+      this.load();
+    },
+
     range() {
       this.load();
     },

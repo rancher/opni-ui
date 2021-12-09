@@ -27,7 +27,7 @@ export const RANGES = [
 
 export const REFRESH_RATES = [
   {
-    label: '10s', unit: 's', count: 10
+    label: '30s', unit: 's', count: 30
   },
   {
     label: '1m', unit: 'm', count: 1
@@ -40,7 +40,7 @@ export const REFRESH_RATES = [
 export const DEFAULT_CONFIGURATION = {
   granularity: GRANULARITIES[0],
   range:       RANGES[0],
-  refreshRate: REFRESH_RATES[0]
+  refreshRate: REFRESH_RATES[2]
 };
 
 export default {
@@ -63,10 +63,8 @@ export default {
 
   methods: {
     update(prop, value) {
-      this.$emit('input', {
-        ...this.value,
-        [prop]: value
-      });
+      this.value[prop] = value;
+      this.$emit('input', this.value);
     }
   }
 };
