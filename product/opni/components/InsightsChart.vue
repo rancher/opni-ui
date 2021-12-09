@@ -59,7 +59,7 @@ export default {
 
       const targets = [this.selection];
       const converted = targets.flatMap(({ from, to }) => [from.valueOf(), to.valueOf()]);
-      const eachPoint = [0, ...converted, day().valueOf()];
+      const eachPoint = [this.insightSeries?.timestamp?.data?.[0] || 0, ...converted, day().valueOf()];
       const result = [];
 
       for (let i = 0; i < eachPoint.length - 1; i += 2) {
