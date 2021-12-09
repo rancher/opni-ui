@@ -45,7 +45,7 @@ export default {
 
       const { from, to } = this.selection;
 
-      const breakdowns = await getBreakdowns(from.subtract(1, 'hour'), to);
+      const breakdowns = await getBreakdowns(from, to);
 
       this.podBreakdown = breakdowns.pods;
       this.namespaceBreakdown = breakdowns.namespaces;

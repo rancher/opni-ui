@@ -55,8 +55,8 @@ export default {
       logs:              null,
       isOpen:            false,
       lastFilter:        null,
-      level:             null,
-      row:               null,
+      selectedLevel:     null,
+      selectedRow:       null,
     };
   },
 
@@ -66,7 +66,7 @@ export default {
     },
 
     async loadLogs() {
-      const logs = await this.logGetter(this.level, this.row, this.logs?.scrollId);
+      const logs = await this.logGetter(this.selectedLevel, this.selectedRow, this.logs?.scrollId);
 
       if (this.logs) {
         this.logs.logs.push(...logs.logs);
@@ -78,8 +78,8 @@ export default {
 
     open({ level, row }) {
       this.$set(this, 'isOpen', true);
-      this.$set(this, 'level', level);
-      this.$set(this, 'row', row);
+      this.$set(this, 'selectedLevel', level);
+      this.$set(this, 'selectedRow', row);
       this.$set(this, 'logs', null);
 
       this.loadLogs();
