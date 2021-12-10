@@ -1,11 +1,8 @@
----
 kind: pipeline
-name: test
+name: docker-tag
 
 trigger:
   event:
-  - push
-  - pull_request
   - tag
 
 platform:
@@ -13,8 +10,13 @@ platform:
   arch: amd64
 
 steps:
-- name: test
-  pull: default
-  image: node:12
-  commands:
-  - scripts/ci
+- name: docker-image
+  image: plugins/docker
+  settings:
+    dockerfile: product/opni/Dockerfile
+    tag: ${DRONE_TAG}
+    repo: rancher/opni-ui
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
