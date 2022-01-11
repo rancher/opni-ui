@@ -17,7 +17,7 @@ type LogLevel = 'Normal' | 'Anomalous' | 'Suspicious';
 export async function getAreasOfInterest(now: Dayjs, range: UnitCount, granularity: Granularity): Promise<FromTo[]> {
   const from = getStartTime(now, range, granularity);
   const to = now;
-  const response = (await axios.get<AreaOfInterestResponse[]>(`opni-api/areas_of_interest?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`))?.data;
+  const response = (await axios.get<AreaOfInterestResponse[]>(`opni-api/areas_of_interest?start_ts=${ from.valueOf() }&end_ts=${ to.valueOf() }`))?.data || [];
 
   return (response)
     .filter(r => r.start_ts > 0 && r.end_ts > 0)
