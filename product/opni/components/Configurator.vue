@@ -73,6 +73,7 @@ export default {
   <div class="row">
     <div class="col span-1">
       <LabeledSelect
+        class="refresh"
         :label="t('opni.configurator.refresh')"
         :value="value.refreshRate"
         option-key="label"
@@ -104,3 +105,9 @@ export default {
     </div>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.refresh {
+  min-width: 100px;
+}
+</style>

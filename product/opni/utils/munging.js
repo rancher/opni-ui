@@ -3,7 +3,9 @@ export function formatForTimeseries(data) {
   const out = {};
 
   keys.forEach((key) => {
-    out[[this.$store.getters['i18n/withFallback'](`opni.chart.labels.${ key }`, { count: 1 }, key)]] = { data: [] };
+    const translatedKey = this.$store.getters['i18n/withFallback'](`opni.chart.labels.${ key }`, { count: 1 }, key);
+
+    out[translatedKey] = { data: [] };
   });
 
   data.forEach((entry) => {
