@@ -23,9 +23,12 @@ export default {
     return {
       headers: [
         {
-          ...SIMPLE_NAME,
-          width: null,
-          value: 'name'
+          name:          'Name',
+          label:         'Name',
+          value:         'name',
+          sort:          `name`,
+          formatter:     'KibanaLink',
+          formatterOpts: { options: { fromTo: this.fromTo, type: 'control-plane' } },
         },
         ANOMALY(this.select, undefined, 'insights.anomalyFormatted', 'insights.anomaly'),
         SUSPICIOUS(this.select, undefined, 'insights.suspiciousFormatted', 'insights.suspicious'),

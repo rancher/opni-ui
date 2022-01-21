@@ -23,9 +23,12 @@ export default {
     return {
       headers: [
         {
-          ...SIMPLE_NAME,
-          width: null,
-          value: 'name'
+          name:          'Name',
+          label:         'Name',
+          value:         'name',
+          sort:          `name`,
+          formatter:     'KibanaLink',
+          formatterOpts: { options: { fromTo: this.fromTo, type: 'namespace' } },
         },
         ANOMALY(this.select),
         SUSPICIOUS(this.select),

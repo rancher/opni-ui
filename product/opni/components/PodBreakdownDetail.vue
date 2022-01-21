@@ -28,7 +28,7 @@ export default {
           value:         'name',
           sort:          `name`,
           formatter:     'KibanaLink',
-          formatterOpts: { options: { internal: true } },
+          formatterOpts: { options: { fromTo: this.fromTo, type: 'pod' } },
         },
         ANOMALY(this.select),
         SUSPICIOUS(this.select),
