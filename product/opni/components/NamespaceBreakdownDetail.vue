@@ -1,6 +1,6 @@
 <script>
 import SortableTable from '@/components/SortableTable';
-import { SIMPLE_NAME, ANOMALY, NORMAL, SUSPICIOUS } from '@/config/table-headers';
+import { ANOMALY, NORMAL, SUSPICIOUS } from '@/config/table-headers';
 import LogsDrawer from './LogsDrawer';
 import { getNamespaceLogs } from '~/product/opni/utils/requests';
 
@@ -23,9 +23,12 @@ export default {
     return {
       headers: [
         {
-          ...SIMPLE_NAME,
-          width: null,
-          value: 'name'
+          name:          'Name',
+          label:         'Name',
+          value:         'name',
+          sort:          `name`,
+          formatter:     'KibanaLink',
+          formatterOpts: { options: { fromTo: this.fromTo, type: 'namespace' } },
         },
         ANOMALY(this.select),
         SUSPICIOUS(this.select),

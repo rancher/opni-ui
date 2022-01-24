@@ -1,5 +1,12 @@
 export function formatForTimeseries(data) {
+  const keys = ['anomaly', 'normal', 'suspicious'];
   const out = {};
+
+  keys.forEach((key) => {
+    const translatedKey = this.$store.getters['i18n/withFallback'](`opni.chart.labels.${ key }`, { count: 1 }, key);
+
+    out[translatedKey] = { data: [] };
+  });
 
   data.forEach((entry) => {
     Object.entries(entry).forEach(([key, value]) => {

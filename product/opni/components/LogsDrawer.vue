@@ -6,6 +6,14 @@ import Loading from '@/components/Loading';
 
 export const LOG_HEADERS = [
   {
+    name:      'collapse',
+    labelKey:  'tableHeaders.empty',
+    formatter: 'Collapse',
+    value:     'timestamp',
+    sort:      false,
+    width:     '20px'
+  },
+  {
     name:      'date',
     labelKey:  'tableHeaders.date',
     formatter: 'Date',
@@ -100,7 +108,7 @@ export default {
     </template>
     <Loading v-if="logs === null" mode="relative" />
     <div v-else class="contents">
-      <div class="row detail pb-20">
+      <div class="row detail">
         <div class="col span-12 p-5 pr-20">
           <SortableTable
             class="table"
@@ -118,7 +126,7 @@ export default {
           >
             <template #sub-row="{row, fullColspan}">
               <tr class="opni sub-row">
-                <td :colspan="fullColspan" class="pt-0">
+                <td v-if="row.open" :colspan="fullColspan" class="pt-0">
                   <Banner
                     class="m-0"
                     :color="getColor(row)"
@@ -137,9 +145,12 @@ export default {
 
 <style lang="scss" scoped>
 .contents {
-  display: flex;
-  flex-direction: column;
-  height: 380px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
   overflow: hidden;
 }
 

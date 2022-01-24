@@ -308,6 +308,7 @@ module.exports = {
     '~/plugins/directives',
     '~/plugins/transitions',
     '~/plugins/calendar',
+    '~/plugins/day',
     { src: '~plugins/vue-js-modal' },
     { src: '~/plugins/js-yaml', ssr: false },
     { src: '~/plugins/resize', ssr: false },

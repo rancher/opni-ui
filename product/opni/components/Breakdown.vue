@@ -47,10 +47,10 @@ export default {
 
       const breakdowns = await getBreakdowns(from, to);
 
-      this.podBreakdown = breakdowns.pods;
-      this.namespaceBreakdown = breakdowns.namespaces;
-      this.workloadBreakdown = breakdowns.workloads;
-      this.controlPlaneBreakdown = breakdowns.controlPlanes;
+      this.podBreakdown = breakdowns?.pods || [];
+      this.namespaceBreakdown = breakdowns?.namespaces || [];
+      this.workloadBreakdown = breakdowns?.workloads || [];
+      this.controlPlaneBreakdown = breakdowns?.controlPlanes || [];
 
       this.loading = false;
     }
