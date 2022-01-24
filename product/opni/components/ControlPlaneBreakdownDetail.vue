@@ -1,6 +1,6 @@
 <script>
 import SortableTable from '@/components/SortableTable';
-import { SIMPLE_NAME, ANOMALY, NORMAL, SUSPICIOUS } from '@/config/table-headers';
+import { ANOMALY, NORMAL, SUSPICIOUS } from '@/config/table-headers';
 import LogsDrawer from './LogsDrawer';
 import { getControlPlaneLogs } from '~/product/opni/utils/requests';
 

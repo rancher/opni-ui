@@ -49,7 +49,6 @@ export default {
     },
 
     toggle() {
-      console.log('toggle')
       this.$set(this, 'maximized', !this.maximized);
     }
   },

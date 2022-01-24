@@ -26,12 +26,9 @@ export default {
     return {
       headers: [
         {
-          name:          'Name',
-          label:         'Name',
-          value:         'breakdown.name',
-          sort:          `breakdown.name`,
-          formatter:     'KibanaLink',
-          formatterOpts: { options: { fromTo: this.fromTo, type: 'workload' } },
+          ...SIMPLE_NAME,
+          width: null,
+          value: 'breakdown.name'
         },
         BREAKDOWN_RESOURCE,
         ANOMALY(this.select, undefined, 'breakdown.insights.anomalyFormatted', 'breakdown.insights.anomaly'),
