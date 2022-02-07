@@ -242,10 +242,8 @@ export default {
 
     async parallelRemove(goTo, btnCB) {
       try {
-        const spoofedTypes = this.getSpoofedTypes(this.toRemove);
-
         await Promise.all(this.toRemove.map(resource => resource.remove()));
-        await this.refreshSpoofedTypes(spoofedTypes);
+        // await this.refreshSpoofedTypes(spoofedTypes);
 
         if ( goTo && !isEmpty(goTo) ) {
           this.currentRouter.push(goTo);

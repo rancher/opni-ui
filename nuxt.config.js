@@ -24,9 +24,14 @@ if ( !api.startsWith('http') ) {
 }
 
 let opniApi = process.env.OPNI_API || 'http://localhost:8888';
+let opniMonitoringTest = process.env.OPNI_MONITORING_TEST || 'http://localhost:7777';
 
 if (opniApi && !opniApi.startsWith('http')) {
   opniApi = `http://${ opniApi }`;
+}
+
+if (opniMonitoringTest && !opniMonitoringTest.startsWith('http')) {
+  opniMonitoringTest = `http://${ opniMonitoringTest }`;
 }
 
 let routerBasePath = '/';
@@ -71,6 +76,10 @@ console.log(`API: ${ api }`); // eslint-disable-line no-console
 
 if (opniApi) {
   console.log(`OPNI API: ${ opniApi }`); // eslint-disable-line no-console
+}
+
+if (opniMonitoringTest) {
+  console.log(`OPNI MONITORING TEST: ${ opniMonitoringTest }`);
 }
 
 module.exports = {
@@ -341,6 +350,10 @@ module.exports = {
       ...proxyOpts(opniApi, false),
       pathRewrite: { '^/opni-api': '' }
     }, // OPNI,
+    '/opni-test': {
+      ...proxyOpts(opniMonitoringTest, false),
+      pathRewrite: { '^/opni-test': '' }
+    },
     // These are for Ember embedding
     '/c/*/edit':     proxyOpts('https://127.0.0.1:8000'), // Can't proxy all of /c because that's used by Vue too
     '/k/':           proxyOpts('https://127.0.0.1:8000'),

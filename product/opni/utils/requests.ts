@@ -2,9 +2,12 @@ import axios from 'axios';
 import day, { Dayjs, UnitType } from 'dayjs';
 import { AreaOfInterestResponse } from '@/product/opni/models/areasOfInterest';
 import { FromTo } from '@/product/opni/models/fromTo';
+import { TokensResponse, Token } from '@/product/opni/models/Token';
+import { Cluster, ClustersResponse } from '@/product/opni/models/Cluster';
 import { Breakdowns, BreakdownsResponse } from '~/product/opni/models/overallBreakdown/Breakdowns';
 import { Log } from '~/product/opni/models/log/Log';
 import { Logs, LogsResponse } from '~/product/opni/models/log/Logs';
+
 interface UnitCount {
   unit: UnitType,
   count: number
@@ -144,4 +147,63 @@ export async function getControlPlaneLogs(from: Dayjs, to: Dayjs, logLevel: LogL
   const logs = (await axios.get<LogsResponse>(`opni-api/logs_control_plane?${ query(params) }`)).data;
 
   return new Logs(logs);
+}
+
+export async function getTokens(vue: any) {
+  const tokensResponse = (await axios.get<TokensResponse>(`opni-api/management/tokens`)).data.items;
+
+  return tokensResponse.map(tokenResponse => new Token(tokenResponse, vue));
+}
+
+export async function createToken(ttlInSeconds: string) {
+  (await axios.post<any>(`opni-api/management/tokens`, { ttl: ttlInSeconds }));
+}
+
+export function deleteToken(id: string): Promise<undefined> {
+  return axios.delete(`opni-api/management/tokens/${ id }`);
+}
+export interface CertResponse {
+  issuer: string;
+  subject: string;
+  isCA: boolean;
+  notBefore: string;
+  notAfter: string;
+  fingerprint: string;
+}
+
+export interface CertsResponse {
+  chain: CertResponse[];
+}
+
+export async function getCerts(): Promise<CertResponse[]> {
+  return (await axios.get<CertsResponse>(`opni-api/management/certs`)).data.chain;
+}
+
+export async function getClusterFingerprint() {
+  const certs = await getCerts();
+
+  return certs.length > 0 ? certs[certs.length - 1].fingerprint : {};
+}
+
+export async function updateCluster(id: string ) {
+  (await axios.put<any>(`opni-api/management/cluster/${ id }`, {
+    cluster: {},
+    labels:  {}
+  }));
+}
+
+export async function createAgent(tokenId: string) {
+  const fingerprint = await getClusterFingerprint();
+
+  (await axios.post<any>(`opni-test/agents`, { token: tokenId, pins: [fingerprint] }));
+}
+
+export async function getClusters(vue: any): Promise<Cluster[]> {
+  const clustersResponse = (await axios.get<ClustersResponse>(`opni-api/management/clusters`)).data.items;
+
+  return clustersResponse.map( clusterResponse => new Cluster(clusterResponse, vue));
+}
+
+export function deleteCluster(id: string): Promise<undefined> {
+  return axios.delete(`opni-api/management/clusters/${ id }`);
 }

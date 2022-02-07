@@ -4105,6 +4105,7 @@ tableHeaders:
   download: Download
   effect: Effect
   endpoints: Endpoints
+  expiration: Expiration
   flow: Flow
   gitRepos: Git Repos
   host: |-
@@ -4121,6 +4122,7 @@ tableHeaders:
   jobs: Jobs
   key: Key
   keys: Data
+  labels: Labels
   lastUpdated: Last Updated
   lastSeen: Last Seen
   level: Level
@@ -4142,6 +4144,7 @@ tableHeaders:
   namespaceNameUnlinked: Name
   node: Node
   nodeName: Name
+  nodes: Nodes
   nodesReady: Nodes Ready
   nodePort: Node Port
   normal: Normal
@@ -4203,6 +4206,7 @@ tableHeaders:
   updated: Updated
   upgrade: Upgradable
   url: URL
+  used: Used
   userDisplayName: Display Name
   userId: ID
   userStatus: Status
@@ -6104,9 +6108,22 @@ opni:
     title: Logging
   logsDrawer:
     title: Logs
+  monitoring:
+    clusters:
+      tabs:
+        target:
+          label: Target
+          token: Token
+        labels:
+          label: Labels
   nav:
-    respond: Overview
+    configuration: Configuration
+    clusters: Clusters
+    rbac: RBAC
+    tokens: Tokens
   workloadVsControlPlaneChart:
     workload: Workload
     controlPlane: Control Plane
+
+    
 
