@@ -29,12 +29,14 @@ export default {
           labelKey:      'tableHeaders.labels',
           sort:          ['labels'],
           value:         'labels',
+          formatter:     'ListBubbles'
         },
         {
           name:          'nodes',
           labelKey:      'tableHeaders.nodes',
           sort:          ['nodes'],
           value:         'nodes',
+          formatter:     'List'
         },
       ]
     };

@@ -4132,6 +4132,8 @@ tableHeaders:
   machineNodeName: Node
   manual: Manual
   matches: Matches
+  matchExpressions: Match Expressions
+  matchLabels: Match Labels
   maxKubernetesVersion: Max Kubernetes Version
   message: Message
   minKubernetesVersion: Min Kubernetes Version
@@ -4194,6 +4196,7 @@ tableHeaders:
   status: Status
   storage_class_provisioner: Provisioner
   subject: Subject
+  subjects: Subjects
   subType: Kind
   success: Success
   summary: Summary
@@ -6116,10 +6119,28 @@ opni:
           token: Token
         labels:
           label: Labels
+    roleBindings:
+      role: Role
+      tabs:
+        subjects:
+          label: Subjects
+        taints:
+          label: Taints
+    role:
+      tabs:
+        clusters:
+          label: Clusters
+          add: Add Cluster
+        matchLabels:
+          label: Match Labels
+        matchExpressions:
+          label: Match Expressions
   nav:
     configuration: Configuration
     clusters: Clusters
     rbac: RBAC
+    roles: Roles
+    roleBindings: Role Bindings
     tokens: Tokens
   workloadVsControlPlaneChart:
     workload: Workload

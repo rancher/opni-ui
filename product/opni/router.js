@@ -6,6 +6,10 @@ import Clusters from './pages/Clusters';
 import Cluster from './pages/Cluster';
 import Tokens from './pages/Tokens';
 import RBAC from './pages/RBAC';
+import Roles from './pages/Roles';
+import Role from './pages/Role';
+import RoleBindings from './pages/RoleBindings';
+import RoleBinding from './pages/RoleBinding';
 import Configuration from './pages/Configuration';
 
 Vue.use(Router);
@@ -52,14 +56,46 @@ export const NAVIGATION = {
       path:      '/rbac',
       labelKey:  'opni.nav.rbac',
       icon:      'globe',
-      component: RBAC
+      component: RBAC,
+      display:   false
+    },
+    {
+      name:      'roles',
+      path:      '/roles',
+      labelKey:  'opni.nav.roles',
+      icon:      'globe',
+      component: Roles
+    },
+    {
+      name:      'role',
+      path:      '/role/create',
+      labelKey:  'opni.nav.roles',
+      icon:      'globe',
+      component: Role,
+      display:   false
+    },
+    {
+      name:      'roleBinding',
+      path:      '/role-binding/create',
+      labelKey:  'opni.nav.roleBindings',
+      icon:      'globe',
+      component: RoleBinding,
+      display:   false
+    },
+    {
+      name:      'roleBindings',
+      path:      '/role-bindings',
+      labelKey:  'opni.nav.roleBindings',
+      icon:      'globe',
+      component: RoleBindings
     },
     {
       name:      'configuration',
       path:      '/configuration',
       labelKey:  'opni.nav.configuration',
       icon:      'globe',
-      component: Configuration
+      component: Configuration,
+      display:   false
     },
     // {
     //   name:      'preempt',

@@ -20,6 +20,10 @@ export default {
     mode: {
       type:    String,
       default: _VIEW
+    },
+    showTitle: {
+      type:    Boolean,
+      default: true
     }
   },
 
@@ -49,12 +53,13 @@ export default {
   <div class="taints">
     <KeyValue
       v-model="localValue"
-      :title="t('tableHeaders.taints')"
+      :title="showTitle ? t('tableHeaders.taints') : ''"
       :mode="mode"
       :as-map="false"
       :read-allowed="false"
       :protip="false"
       :show-header="true"
+      :value-multiline="false"
       :default-add-data="defaultAddData"
       :extra-columns="['effect']"
       :preserve-keys="['effect']"

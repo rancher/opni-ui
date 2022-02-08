@@ -259,7 +259,7 @@ $spacing-property-map: (
   position: relative;
   padding: 1px 4px;
 
-  border: 1px solid rgba(0, 0, 0, 0);
+  border: 1px solid var(--info);
   border-radius: var(--border-radius);
 
   &::before {
@@ -271,5 +271,6 @@ $spacing-property-map: (
     top: 0;
 
     opacity: 0.3;
+    background-color: var(--info);
   }
 }

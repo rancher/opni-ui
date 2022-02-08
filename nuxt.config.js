@@ -79,7 +79,7 @@ if (opniApi) {
 }
 
 if (opniMonitoringTest) {
-  console.log(`OPNI MONITORING TEST: ${ opniMonitoringTest }`);
+  console.log(`OPNI MONITORING TEST: ${ opniMonitoringTest }`); // eslint-disable-line no-console
 }
 
 module.exports = {

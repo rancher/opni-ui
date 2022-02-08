@@ -4,7 +4,7 @@ import LabeledSelect from '@/components/form/LabeledSelect';
 import AsyncButton from '@/components/AsyncButton';
 import CopyCode from '@/components/CopyCode';
 import KeyValue from '@/components/form/KeyValue';
-import { getTokens, createAgent, getClusters } from '@/product/opni/utils/requests';
+import { getTokens, createAgent, getClusters, updateCluster } from '@/product/opni/utils/requests';
 import Loading from '@/components/Loading';
 import Card from '@/components/Card';
 import Banner from '@/components/Banner';
@@ -23,7 +23,7 @@ export default {
 
   async fetch() {
     this.$set(this, 'tokens', await getTokens());
-    this.$set(this, 'token', this.tokens[0] || null);
+    this.$set(this, 'token', this.tokens[0].id || null);
     this.$set(this, 'clusterCount', (await getClusters()).length);
   },
 
@@ -35,7 +35,7 @@ export default {
       name:                 '',
       clusterCount:         0,
       clusterCountInterval: null,
-      newClusterFound:      false
+      newCluster:           null
     };
   },
 
@@ -53,21 +53,34 @@ export default {
 
   methods: {
     save() {
+      updateCluster(this.newCluster.id, this.name, this.labels);
+
       this.$router.replace({ name: 'clusters' });
     },
 
     createAgent() {
-      createAgent(this.token.id);
+      createAgent(this.token);
     },
 
     async lookForNewCluster() {
-      const newClusterCount = (await getClusters()).length;
+      const clusters = await getClusters();
+      const newClusterCount = clusters.length;
 
       if (newClusterCount > this.clusterCount) {
         clearInterval(this.clusterCountInterval);
+        this.newCluster = clusters[clusters.length - 1];
         this.clusterCountInterval = null;
         this.newClusterFound = true;
       }
+    }
+  },
+
+  computed: {
+    tokenOptions() {
+      return this.tokens.map(token => ({
+        label: token.nameDisplay,
+        value: token.id
+      }));
     }
   }
 };
@@ -86,8 +99,7 @@ export default {
           :label="t('opni.monitoring.clusters.tabs.target.token')"
           :placeholder="t('monitoring.clusterType.placeholder')"
           :localized-label="true"
-          option-label="id"
-          :options="tokens"
+          :options="tokenOptions"
         />
       </div>
     </div>
@@ -99,6 +111,7 @@ export default {
         v-model="labels"
         mode="edit"
         :read-allowed="false"
+        :value-multiline="false"
         label="Labels"
         add-label="Add Label"
       />
@@ -109,9 +122,9 @@ export default {
       </h4>
       <div slot="body" class="">
         <CopyCode class="install-command">
-          helm install ..... --token={{ token.id }}
+          helm install ..... --token={{ token }}
         </CopyCode>
-        <Banner v-if="!newClusterFound" color="warning">
+        <Banner v-if="!newCluster" color="warning">
           You must run this install command before you can save this cluster. <a class="btn bg-warning mr-10" @click="createAgent">Hack Create Agent</a>
         </Banner>
       </div>

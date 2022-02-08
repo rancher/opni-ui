@@ -30,8 +30,8 @@ export class Cluster extends Resource {
       return this.base.id;
     }
 
-    get labels(): { [key: string]: string } {
-      return this.base.labels;
+    get labels(): string[] {
+      return Object.entries(this.base.labels).map(([key, value]) => `${ key }=${ value }`);
     }
 
     get nodes(): [] {

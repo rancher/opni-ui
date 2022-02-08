@@ -7,6 +7,8 @@ import { Cluster, ClustersResponse } from '@/product/opni/models/Cluster';
 import { Breakdowns, BreakdownsResponse } from '~/product/opni/models/overallBreakdown/Breakdowns';
 import { Log } from '~/product/opni/models/log/Log';
 import { Logs, LogsResponse } from '~/product/opni/models/log/Logs';
+import { MatchLabel, Role, RolesResponse } from '~/product/opni/models/Role';
+import { RoleBinding, RoleBindingsResponse } from '~/product/opni/models/RoleBinding';
 
 interface UnitCount {
   unit: UnitType,
@@ -185,10 +187,13 @@ export async function getClusterFingerprint() {
   return certs.length > 0 ? certs[certs.length - 1].fingerprint : {};
 }
 
-export async function updateCluster(id: string ) {
-  (await axios.put<any>(`opni-api/management/cluster/${ id }`, {
-    cluster: {},
-    labels:  {}
+export async function updateCluster(id: string, name: string, labels: { [key: string]: string }) {
+  (await axios.put<any>(`opni-api/management/clusters/${ id }`, {
+    cluster: {
+      id,
+      name
+    },
+    labels
   }));
 }
 
@@ -206,4 +211,36 @@ export async function getClusters(vue: any): Promise<Cluster[]> {
 
 export function deleteCluster(id: string): Promise<undefined> {
   return axios.delete(`opni-api/management/clusters/${ id }`);
+}
+
+export async function getRoles(vue: any): Promise<Role[]> {
+  const rolesResponse = (await axios.get<RolesResponse>(`opni-api/management/roles`)).data.items;
+
+  return rolesResponse.map( roleResponse => new Role(roleResponse, vue));
+}
+
+export function deleteRole(id: string): Promise<undefined> {
+  return axios.delete(`opni-api/management/roles/${ id }`);
+}
+
+export async function createRole(name: string, clusterIDs: string[], matchLabels: MatchLabel) {
+  (await axios.post<any>(`opni-api/management/roles`, {
+    name, clusterIDs, matchLabels
+  }));
+}
+
+export async function getRoleBindings(vue: any): Promise<RoleBinding[]> {
+  const roleBindingsResponse = (await axios.get<RoleBindingsResponse>(`opni-api/management/rolebindings`)).data.items;
+
+  return roleBindingsResponse.map( roleBindingResponse => new RoleBinding(roleBindingResponse, vue));
+}
+
+export function deleteRoleBinding(id: string): Promise<undefined> {
+  return axios.delete(`opni-api/management/rolebindings/${ id }`);
+}
+
+export async function createRoleBinding(name: string, roleName: string, subjects: string[], taints: string[]) {
+  (await axios.post<any>(`opni-api/management/rolebindings`, {
+    name, roleName, subjects, taints
+  }));
 }

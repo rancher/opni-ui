@@ -1,6 +1,6 @@
 <script>
 import SortableTable from '@/components/SortableTable';
-import { getClusters, getTokens } from '@/product/opni/utils/requests';
+import { getRoles } from '@/product/opni/utils/requests';
 import Loading from '@/components/Loading';
 import AddTokenDialog from './dialogs/AddTokenDialog';
 
@@ -15,41 +15,42 @@ export default {
   data() {
     return {
       loading:  false,
-      tokens:   [],
-      clusters: [],
+      roles:   [],
       headers:  [
         {
-          name:      'id',
-          labelKey:  'tableHeaders.id',
-          sort:      ['id'],
-          value:     'id',
+          name:      'name',
+          labelKey:  'tableHeaders.name',
+          sort:      ['name'],
+          value:     'name',
           width:     undefined
         },
         {
-          name:          'used',
-          labelKey:      'tableHeaders.used',
-          sort:          ['used'],
-          value:         'usedDisplay',
-          formatter:     'TextWithClass',
-          formatterOpts: {
-            getClass() {
-              return 'nowrap';
-            }
-          },
+          name:          'clusterIds',
+          labelKey:      'tableHeaders.clusters',
+          sort:          ['clusterIds'],
+          value:         'clusterIds',
+          formatter:     'List'
         },
         {
-          name:          'expirationDate',
-          labelKey:      'tableHeaders.expiration',
-          sort:          ['expirationDate'],
-          value:         'expirationDate',
-          formatter:     'LiveExpirationDate',
+          name:          'matchLabels',
+          labelKey:      'tableHeaders.matchLabels',
+          sort:          ['matchLabels'],
+          value:         'matchLabelsDisplay',
+          formatter:     'ListBubbles'
+        },
+        {
+          name:          'matchExpressions',
+          labelKey:      'tableHeaders.matchExpressions',
+          sort:          ['matchExpressions'],
+          value:         'matchExpressionsDisplay',
+          formatter:     'ListBubbles'
         },
       ]
     };
   },
 
   created() {
-    this.$on('remove', this.onTokenDelete);
+    this.$on('remove', this.onClusterDelete);
   },
 
   beforeDestroy() {
@@ -57,7 +58,7 @@ export default {
   },
 
   methods: {
-    onTokenDelete() {
+    onClusterDelete() {
       this.load();
     },
 
@@ -69,8 +70,7 @@ export default {
     async load() {
       try {
         this.loading = true;
-        await this.$set(this, 'tokens', await getTokens(this));
-        await this.$set(this, 'clusters', await getClusters(this));
+        await this.$set(this, 'roles', await getRoles(this));
       } finally {
         this.loading = false;
       }
@@ -83,20 +83,20 @@ export default {
   <div v-else>
     <header>
       <div class="title">
-        <h1>Tokens</h1>
+        <h1>Roles</h1>
       </div>
       <div class="actions-container">
-        <a class="btn role-primary" @click="openCreateDialog">
-          Create Token
+        <a class="btn role-primary" href="/role/create">
+          Create Role
         </a>
       </div>
     </header>
     <SortableTable
-      :rows="tokens"
+      :rows="roles"
       :headers="headers"
       :search="false"
       default-sort-by="expirationDate"
-      key-field="id"
+      key-field="name"
     />
     <AddTokenDialog ref="dialog" @save="load" />
   </div>
