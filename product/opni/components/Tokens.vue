@@ -19,10 +19,10 @@ export default {
       clusters: [],
       headers:  [
         {
-          name:      'id',
-          labelKey:  'tableHeaders.id',
-          sort:      ['id'],
-          value:     'id',
+          name:      'nameDisplay',
+          labelKey:  'tableHeaders.name',
+          sort:      ['nameDisplay'],
+          value:     'nameDisplay',
           width:     undefined
         },
         {

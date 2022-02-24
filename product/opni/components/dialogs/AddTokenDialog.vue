@@ -2,6 +2,7 @@
 import AsyncButton from '@/components/AsyncButton';
 import Card from '@/components/Card';
 import { exceptionToErrorsArray } from '@/utils/error';
+import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import { createToken } from '@/product/opni/utils/requests';
 
@@ -9,27 +10,33 @@ export default {
   components: {
     Card,
     AsyncButton,
+    LabeledInput,
     LabeledSelect
   },
   data() {
     const expirationOptions = [
       {
-        label: '6 months',
-        value: '15780000s'
+        label: '10 min',
+        value: '600s'
       },
       {
-        label: '1 year',
-        value: '31560000s'
+        label: '30 min',
+        value: '1800s'
       },
       {
-        label: '3 years',
-        value: '94680000s'
+        label: '1 day',
+        value: '86400s'
+      },
+      {
+        label: '7 days',
+        value: '604800s'
       }
     ];
 
     return {
+      name:       null,
       expirationOptions,
-      expiration: expirationOptions[0]
+      expiration: expirationOptions[0].value
     };
   },
   methods: {
@@ -44,7 +51,7 @@ export default {
 
     async apply(buttonDone) {
       try {
-        await createToken(this.expiration.value);
+        await createToken(this.expiration, this.name || undefined);
         buttonDone(true);
         this.$emit('save');
         this.close();
@@ -70,11 +77,20 @@ export default {
     <Card class="prompt-restore" :show-highlight-border="false" title="Create Token">
       <h4 slot="title" class="text-default-text" v-html="'Create Token'" />
       <div slot="body" class="pt-10">
-        <LabeledSelect
-          v-model="expiration"
-          label="Expiration"
-          :options="expirationOptions"
-        />
+        <div class="row mb-10">
+          <div class="col span-12">
+            <LabeledInput v-model.trim="name" label="Name (Optional)" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col span-12">
+            <LabeledSelect
+              v-model="expiration"
+              label="Expiration"
+              :options="expirationOptions"
+            />
+          </div>
+        </div>
       </div>
 
       <div slot="actions" class="buttons">

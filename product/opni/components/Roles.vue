@@ -1,8 +1,9 @@
 <script>
 import SortableTable from '@/components/SortableTable';
-import { getRoles } from '@/product/opni/utils/requests';
+import { getClusters, getRoles } from '@/product/opni/utils/requests';
 import Loading from '@/components/Loading';
 import AddTokenDialog from './dialogs/AddTokenDialog';
+import { findBy } from '~/utils/array';
 
 export default {
   components: {
@@ -15,20 +16,21 @@ export default {
   data() {
     return {
       loading:  false,
-      roles:   [],
+      roles:    [],
+      clusters: [],
       headers:  [
         {
-          name:      'name',
+          name:      'nameDisplay',
           labelKey:  'tableHeaders.name',
-          sort:      ['name'],
-          value:     'name',
+          sort:      ['nameDisplay'],
+          value:     'nameDisplay',
           width:     undefined
         },
         {
-          name:          'clusterIds',
+          name:          'clusterNames',
           labelKey:      'tableHeaders.clusters',
-          sort:          ['clusterIds'],
-          value:         'clusterIds',
+          sort:          ['clusterNames'],
+          value:         'clusterNames',
           formatter:     'List'
         },
         {
@@ -70,10 +72,33 @@ export default {
     async load() {
       try {
         this.loading = true;
-        await this.$set(this, 'roles', await getRoles(this));
+        const [roles, clusters] = await Promise.all([getRoles(this), getClusters(this)]);
+
+        this.$set(this, 'roles', roles);
+        this.$set(this, 'clusters', clusters);
       } finally {
         this.loading = false;
       }
+    }
+  },
+  computed: {
+    rows() {
+      return this.roles.map((role) => {
+        const clusterNames = role.clusterIds.map((clusterId) => {
+          const cluster = findBy(this.clusters, 'id', clusterId);
+
+          return cluster.nameDisplay;
+        });
+
+        return {
+          id:                      role.id,
+          nameDisplay:             role.nameDisplay,
+          clusterNames,
+          matchLabelsDisplay:      role.matchLabelsDisplay,
+          matchExpressionsDisplay: role.matchExpressionsDisplay,
+          availableActions:        role.availableActions
+        };
+      });
     }
   }
 };
@@ -92,11 +117,11 @@ export default {
       </div>
     </header>
     <SortableTable
-      :rows="roles"
+      :rows="rows"
       :headers="headers"
       :search="false"
       default-sort-by="expirationDate"
-      key-field="name"
+      key-field="id"
     />
     <AddTokenDialog ref="dialog" @save="load" />
   </div>

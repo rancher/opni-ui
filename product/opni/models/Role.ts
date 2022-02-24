@@ -13,7 +13,7 @@ export interface MatchLabel {
 }
 
 export interface RoleResponse {
-  name: string;
+  id: string;
   clusterIDs: string[];
   matchLabels: MatchLabel
 }
@@ -30,8 +30,12 @@ export class Role extends Resource {
       this.base = base;
     }
 
+    get id() {
+      return this.base.id;
+    }
+
     get name() {
-      return this.base.name;
+      return this.id;
     }
 
     get nameDisplay(): string {
@@ -73,7 +77,7 @@ export class Role extends Resource {
     }
 
     async remove() {
-      await deleteRole(this.base.name);
+      await deleteRole(this.base.id);
       super.remove();
     }
 }

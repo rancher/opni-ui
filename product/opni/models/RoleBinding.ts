@@ -2,8 +2,8 @@ import { Resource } from './Resource';
 import { deleteRoleBinding } from '~/product/opni/utils/requests';
 
 export interface RoleBindingResponse {
-  name: string;
-  roleName: string;
+  id: string;
+  roleId: string;
   subjects: string[];
   taints: string[];
 }
@@ -21,7 +21,7 @@ export class RoleBinding extends Resource {
     }
 
     get name() {
-      return this.base.name;
+      return this.base.id;
     }
 
     get nameDisplay(): string {
@@ -33,7 +33,7 @@ export class RoleBinding extends Resource {
     }
 
     get role() {
-      return this.base.roleName;
+      return this.base.roleId;
     }
 
     get taints() {
@@ -56,7 +56,7 @@ export class RoleBinding extends Resource {
     }
 
     async remove() {
-      await deleteRoleBinding(this.base.name);
+      await deleteRoleBinding(this.base.id);
       super.remove();
     }
 }

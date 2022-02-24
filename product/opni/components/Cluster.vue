@@ -90,7 +90,7 @@ export default {
   <div v-else>
     <div class="row">
       <div class="col span-6">
-        <LabeledInput v-model="name" label="Name" />
+        <LabeledInput v-model="name" label="Name (Optional)" />
       </div>
       <div class="col span-6">
         <LabeledSelect

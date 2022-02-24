@@ -24,7 +24,10 @@ export default {
   async fetch() {
     const clusters = await getClusters();
 
-    this.$set(this, 'clusterIdOptions', clusters.map(cluster => cluster.id));
+    this.$set(this, 'clusterIdOptions', clusters.map(cluster => ({
+      label: cluster.nameDisplay,
+      value: cluster.id,
+    })));
   },
 
   data() {

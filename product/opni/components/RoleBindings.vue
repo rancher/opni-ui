@@ -29,21 +29,14 @@ export default {
           labelKey:      'tableHeaders.subjects',
           sort:          ['subjects'],
           value:         'subjects',
-          formatter:     'List'
+          formatter:     'ListBubbles'
         },
         {
           name:          'role',
           labelKey:      'tableHeaders.role',
           sort:          ['role'],
           value:         'role',
-        },
-        {
-          name:          'taints',
-          labelKey:      'tableHeaders.taints',
-          sort:          ['taints'],
-          value:         'taints',
-          formatter:     'ListBubbles'
-        },
+        }
       ]
     };
   },

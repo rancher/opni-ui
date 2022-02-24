@@ -6,7 +6,6 @@ import { createRoleBinding, getRoles } from '@/product/opni/utils/requests';
 import Loading from '@/components/Loading';
 import Tab from '@/components/Tabbed/Tab';
 import Tabbed from '@/components/Tabbed';
-import Taints from '@/components/form/Taints';
 import ArrayList from '@/components/form/ArrayList';
 
 export default {
@@ -17,7 +16,6 @@ export default {
     Loading,
     Tab,
     Tabbed,
-    Taints,
     ArrayList
   },
 
@@ -32,26 +30,24 @@ export default {
       name:      '',
       roleName:  '',
       subjects:  [],
-      taints:    [],
       roles:     [],
     };
   },
 
   methods: {
     async save() {
-      await createRoleBinding(this.name, this.roleName, this.subjects, this.taintsToSave);
+      await createRoleBinding(this.name, this.roleName, this.subjects);
 
       this.$router.replace({ name: 'roleBindings' });
     }
   },
 
   computed: {
-    taintsToSave() {
-      return this.taints.map(taint => `${ taint.key }=${ taint.value }:${ taint.effect }`);
-    },
-
     roleOptions() {
-      return this.roles.map(role => role.name);
+      return this.roles.map(role => ({
+        label: role.name,
+        value: role.id
+      }));
     }
   }
 };
@@ -84,13 +80,6 @@ export default {
           :protip="false"
           add-label="Add Subject"
         />
-      </Tab>
-      <Tab
-        name="taints"
-        :label="t('opni.monitoring.roleBindings.tabs.taints.label')"
-        :weight="1"
-      >
-        <Taints v-model="taints" mode="edit" :show-title="false" />
       </Tab>
     </Tabbed>
     <div class="resource-footer">

@@ -1,12 +1,18 @@
 import day from 'dayjs';
 import { Resource } from './Resource';
 import { deleteToken } from '~/product/opni/utils/requests';
+import { Labels, LABEL_KEYS } from '~/product/opni/models/shared';
 
+export interface TokenMetadata {
+  leaseID: string;
+  ttl: string;
+  usageCount: number;
+  labels: Labels;
+}
 export interface TokenResponse {
   tokenID: string;
   secret: string;
-  leaseID: string;
-  ttl: string;
+  metadata: TokenMetadata;
 }
 
 export interface TokensResponse {
@@ -31,12 +37,16 @@ export class Token extends Resource {
       return `${ this.base.tokenID }.${ this.base.secret }`;
     }
 
+    get name(): string {
+      return this.base.metadata.labels[LABEL_KEYS.NAME];
+    }
+
     get nameDisplay(): string {
-      return this.base.tokenID;
+      return this.name || this.id;
     }
 
     get expirationDate(): string {
-      return this.now.add(Number.parseInt(this.base.ttl), 's').format();
+      return this.now.add(Number.parseInt(this.ttl), 's').format();
     }
 
     get secret(): string {
@@ -44,11 +54,11 @@ export class Token extends Resource {
     }
 
     get ttl(): string {
-      return this.base.ttl;
+      return this.base.metadata.ttl;
     }
 
     get used(): number {
-      return 0;
+      return this.base.metadata.usageCount;
     }
 
     get usedDisplay(): string {

@@ -1,5 +1,6 @@
 import { Resource } from './Resource';
 import { deleteCluster } from '~/product/opni/utils/requests';
+import { LABEL_KEYS } from '~/product/opni/models/shared';
 
 export interface ClusterResponse {
     id: string;
@@ -23,7 +24,11 @@ export class Cluster extends Resource {
     }
 
     get nameDisplay(): string {
-      return this.base.id;
+      return this.name || this.base.id;
+    }
+
+    get name(): string {
+      return this.base.labels[LABEL_KEYS.NAME];
     }
 
     get id(): string {
@@ -31,7 +36,9 @@ export class Cluster extends Resource {
     }
 
     get labels(): string[] {
-      return Object.entries(this.base.labels).map(([key, value]) => `${ key }=${ value }`);
+      return Object.entries(this.base.labels)
+        .filter(([key]) => !Object.values(LABEL_KEYS).includes(key))
+        .map(([key, value]) => `${ key }=${ value }`);
     }
 
     get nodes(): [] {

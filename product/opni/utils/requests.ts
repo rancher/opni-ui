@@ -9,6 +9,7 @@ import { Log } from '~/product/opni/models/log/Log';
 import { Logs, LogsResponse } from '~/product/opni/models/log/Logs';
 import { MatchLabel, Role, RolesResponse } from '~/product/opni/models/Role';
 import { RoleBinding, RoleBindingsResponse } from '~/product/opni/models/RoleBinding';
+import { LABEL_KEYS } from '~/product/opni/models/shared';
 
 interface UnitCount {
   unit: UnitType,
@@ -157,8 +158,11 @@ export async function getTokens(vue: any) {
   return tokensResponse.map(tokenResponse => new Token(tokenResponse, vue));
 }
 
-export async function createToken(ttlInSeconds: string) {
-  (await axios.post<any>(`opni-api/management/tokens`, { ttl: ttlInSeconds }));
+export async function createToken(ttlInSeconds: string, name: string) {
+  (await axios.post<any>(`opni-api/management/tokens`, {
+    ttl:               ttlInSeconds,
+    labels: { [LABEL_KEYS.NAME]: name }
+  }));
 }
 
 export function deleteToken(id: string): Promise<undefined> {
@@ -189,11 +193,11 @@ export async function getClusterFingerprint() {
 
 export async function updateCluster(id: string, name: string, labels: { [key: string]: string }) {
   (await axios.put<any>(`opni-api/management/clusters/${ id }`, {
-    cluster: {
-      id,
-      name
-    },
-    labels
+    cluster: { id },
+    labels:  {
+      ...labels,
+      [LABEL_KEYS.NAME]: name
+    }
   }));
 }
 
@@ -225,7 +229,7 @@ export function deleteRole(id: string): Promise<undefined> {
 
 export async function createRole(name: string, clusterIDs: string[], matchLabels: MatchLabel) {
   (await axios.post<any>(`opni-api/management/roles`, {
-    name, clusterIDs, matchLabels
+    id: name, clusterIDs, matchLabels
   }));
 }
 
@@ -239,8 +243,8 @@ export function deleteRoleBinding(id: string): Promise<undefined> {
   return axios.delete(`opni-api/management/rolebindings/${ id }`);
 }
 
-export async function createRoleBinding(name: string, roleName: string, subjects: string[], taints: string[]) {
+export async function createRoleBinding(name: string, roleName: string, subjects: string[]) {
   (await axios.post<any>(`opni-api/management/rolebindings`, {
-    name, roleName, subjects, taints
+    id: name, roleId: roleName, subjects
   }));
 }
