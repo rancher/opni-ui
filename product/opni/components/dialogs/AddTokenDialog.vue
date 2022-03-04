@@ -45,7 +45,7 @@ export default {
     },
 
     open() {
-      this.$set(this, 'expiration', this.expirationOptions[0]);
+      this.$set(this, 'expiration', this.expirationOptions[0].value);
       this.$modal.show('add-token-dialog');
     },
 
