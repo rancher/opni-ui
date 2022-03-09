@@ -1,5 +1,7 @@
 import { Resource } from './Resource';
 import { deleteRole } from '~/product/opni/utils/requests';
+import { findBy } from '~/utils/array';
+import { Cluster } from '~/product/opni/models/Cluster';
 
 export interface MatchExpression {
     key: string;
@@ -24,10 +26,15 @@ export interface RolesResponse {
 
 export class Role extends Resource {
     private base: RoleResponse;
+    private clusters?: Cluster[];
 
     constructor(base: RoleResponse, vue: any) {
       super(vue);
       this.base = base;
+    }
+
+    setClusters(clusters: Cluster[]) {
+      this.clusters = clusters;
     }
 
     get id() {
@@ -44,6 +51,18 @@ export class Role extends Resource {
 
     get clusterIds() {
       return this.base.clusterIDs;
+    }
+
+    get clusterNames() {
+      if (!this.clusters) {
+        throw new Error('You must call setClusters to use clusterNames.');
+      }
+
+      return this.clusterIds.map((clusterId) => {
+        const cluster = findBy(this.clusters || [], 'id', clusterId);
+
+        return cluster.nameDisplay;
+      });
     }
 
     get matchExpressionsDisplay() {

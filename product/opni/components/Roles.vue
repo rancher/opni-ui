@@ -3,7 +3,6 @@ import SortableTable from '@/components/SortableTable';
 import { getClusters, getRoles } from '@/product/opni/utils/requests';
 import Loading from '@/components/Loading';
 import AddTokenDialog from './dialogs/AddTokenDialog';
-import { findBy } from '~/utils/array';
 
 export default {
   components: {
@@ -74,31 +73,13 @@ export default {
         this.loading = true;
         const [roles, clusters] = await Promise.all([getRoles(this), getClusters(this)]);
 
+        roles.forEach(role => role.setClusters(clusters));
+
         this.$set(this, 'roles', roles);
         this.$set(this, 'clusters', clusters);
       } finally {
         this.loading = false;
       }
-    }
-  },
-  computed: {
-    rows() {
-      return this.roles.map((role) => {
-        const clusterNames = role.clusterIds.map((clusterId) => {
-          const cluster = findBy(this.clusters, 'id', clusterId);
-
-          return cluster.nameDisplay;
-        });
-
-        return {
-          id:                      role.id,
-          nameDisplay:             role.nameDisplay,
-          clusterNames,
-          matchLabelsDisplay:      role.matchLabelsDisplay,
-          matchExpressionsDisplay: role.matchExpressionsDisplay,
-          availableActions:        role.availableActions
-        };
-      });
     }
   }
 };
@@ -117,7 +98,7 @@ export default {
       </div>
     </header>
     <SortableTable
-      :rows="rows"
+      :rows="roles"
       :headers="headers"
       :search="false"
       default-sort-by="expirationDate"
