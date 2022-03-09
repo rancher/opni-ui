@@ -4,7 +4,9 @@ import { LABEL_KEYS } from '~/product/opni/models/shared';
 
 export interface ClusterResponse {
     id: string;
-    labels: { [key: string]: string };
+    metadata: {
+      labels: { [key: string]: string };
+    }
 }
 
 export interface ClustersResponse {
@@ -28,7 +30,7 @@ export class Cluster extends Resource {
     }
 
     get name(): string {
-      return this.base.labels[LABEL_KEYS.NAME];
+      return this.base.metadata.labels[LABEL_KEYS.NAME];
     }
 
     get id(): string {
@@ -36,7 +38,7 @@ export class Cluster extends Resource {
     }
 
     get labels(): string[] {
-      return Object.entries(this.base.labels)
+      return Object.entries(this.base.metadata.labels)
         .filter(([key]) => !Object.values(LABEL_KEYS).includes(key))
         .map(([key, value]) => `${ key }=${ value }`);
     }

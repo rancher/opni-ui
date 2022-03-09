@@ -35,7 +35,8 @@ export default {
       name:                 '',
       clusterCount:         0,
       clusterCountInterval: null,
-      newCluster:           null
+      newCluster:           null,
+      newClusterFound:      false
     };
   },
 
