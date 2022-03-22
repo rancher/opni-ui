@@ -4,7 +4,9 @@ import LabeledSelect from '@/components/form/LabeledSelect';
 import AsyncButton from '@/components/AsyncButton';
 import CopyCode from '@/components/CopyCode';
 import KeyValue from '@/components/form/KeyValue';
-import { getTokens, createAgent, getClusters, updateCluster } from '@/product/opni/utils/requests';
+import {
+  getTokens, createAgent, getClusters, updateCluster, getCapabilities, getClusterFingerprint, getCapabilityInstaller
+} from '@/product/opni/utils/requests';
 import Loading from '@/components/Loading';
 import Card from '@/components/Card';
 import Banner from '@/components/Banner';
@@ -24,19 +26,25 @@ export default {
   async fetch() {
     this.$set(this, 'tokens', await getTokens());
     this.$set(this, 'token', this.tokens[0].id || null);
+    this.$set(this, 'capabilities', await getCapabilities());
     this.$set(this, 'clusterCount', (await getClusters()).length);
+    this.$set(this, 'pin', await getClusterFingerprint());
   },
 
   data() {
     return {
       tokens:               [],
       token:                null,
+      capabilities:         [],
+      capability:           null,
       labels:               {},
       name:                 '',
       clusterCount:         0,
       clusterCountInterval: null,
       newCluster:           null,
-      newClusterFound:      false
+      newClusterFound:      false,
+      pin:                  null,
+      installCommand:       'select a capability'
     };
   },
 
@@ -73,6 +81,11 @@ export default {
         this.clusterCountInterval = null;
         this.newClusterFound = true;
       }
+    },
+
+    async renderInstallCommand(capability) {
+      this.installCommand = await getCapabilityInstaller(
+        capability, this.token, this.pin, window.location.hostname);
     }
   },
 
@@ -82,6 +95,12 @@ export default {
         label: token.nameDisplay,
         value: token.id
       }));
+    },
+    capabilityOptions() {
+      return this.capabilities.map(capability => ({
+        label: capability,
+        value: capability
+      }));
     }
   }
 };
@@ -90,15 +109,26 @@ export default {
   <Loading v-if="$fetchState.pending" />
   <div v-else>
     <div class="row">
-      <div class="col span-6">
+      <div class="col span-3">
         <LabeledInput v-model="name" label="Name (Optional)" />
+      </div>
+      <div class="col span-3">
+        <LabeledSelect
+          v-model="capability"
+          class="mb-20"
+          :label="t('opni.monitoring.clusters.tabs.target.capability')"
+          :placeholder="t('monitoring.clusterCapability.placeholder')"
+          :localized-label="true"
+          :options="capabilityOptions"
+          @input="renderInstallCommand"
+        />
       </div>
       <div class="col span-6">
         <LabeledSelect
           v-model="token"
           class="mb-20"
           :label="t('opni.monitoring.clusters.tabs.target.token')"
-          :placeholder="t('monitoring.clusterType.placeholder')"
+          :placeholder="t('monitoring.token.placeholder')"
           :localized-label="true"
           :options="tokenOptions"
         />
@@ -123,7 +153,7 @@ export default {
       </h4>
       <div slot="body" class="">
         <CopyCode class="install-command">
-          helm install ..... --token={{ token }}
+          {{ installCommand }}
         </CopyCode>
         <Banner v-if="!newCluster" color="warning">
           You must run this install command before you can save this cluster. <a class="btn bg-warning mr-10" @click="createAgent">Hack Create Agent</a>

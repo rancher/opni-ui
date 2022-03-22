@@ -3,6 +3,7 @@ import day, { Dayjs, UnitType } from 'dayjs';
 import { AreaOfInterestResponse } from '@/product/opni/models/areasOfInterest';
 import { FromTo } from '@/product/opni/models/fromTo';
 import { TokensResponse, Token } from '@/product/opni/models/Token';
+import { CapabilitiesResponse, CapabilityInstallerResponse } from '@/product/opni/models/Capability';
 import { Cluster, ClustersResponse } from '@/product/opni/models/Cluster';
 import { Breakdowns, BreakdownsResponse } from '~/product/opni/models/overallBreakdown/Breakdowns';
 import { Log } from '~/product/opni/models/log/Log';
@@ -156,6 +157,20 @@ export async function getTokens(vue: any) {
   const tokensResponse = (await axios.get<TokensResponse>(`opni-api/management/tokens`)).data.items;
 
   return tokensResponse.map(tokenResponse => new Token(tokenResponse, vue));
+}
+
+export async function getCapabilities(vue: any) {
+  const capabilitiesResponse = (await axios.get<CapabilitiesResponse>(`opni-api/management/capabilities`)).data.items;
+
+  return capabilitiesResponse;
+}
+
+export async function getCapabilityInstaller(capability: string, token: string, pin: string, address: string) {
+  return (await axios.post<CapabilityInstallerResponse>(`opni-api/management/capabilities/${ capability }/installer`, {
+    token,
+    pin,
+    address
+  })).data.command;
 }
 
 export async function createToken(ttlInSeconds: string, name: string) {

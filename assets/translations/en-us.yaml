@@ -2453,6 +2453,12 @@ monitoring:
   clusterType:
     label: Cluster Type
     placeholder: Select cluster type
+  token:
+    label: Token
+    placeholder: Select token
+  clusterCapability:
+    label: Cluster Capability
+    placeholder: Select cluster capability
   createDefaultRoles:
     label: Create Default Monitoring Cluster Roles
     tip: 'Creates <code>monitoring-admin</code>, <code>monitoring-edit</code>, and <code>monitoring-view</code> ClusterRoles that can be assigned to users to provide permissions to CRDs installed by the Monitoring chart.'
@@ -6117,6 +6123,7 @@ opni:
         target:
           label: Target
           token: Token
+          capability: Capability
         labels:
           label: Labels
     roleBindings:
