@@ -25,7 +25,7 @@ export default {
 
   async fetch() {
     this.$set(this, 'tokens', await getTokens());
-    this.$set(this, 'token', this.tokens[0].id || null);
+    this.$set(this, 'token', this.tokens[0]?.id || null);
     this.$set(this, 'capabilities', await getCapabilities());
     this.$set(this, 'clusterCount', (await getClusters()).length);
     this.$set(this, 'pin', await getClusterFingerprint());

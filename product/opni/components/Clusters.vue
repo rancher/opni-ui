@@ -1,6 +1,6 @@
 <script>
 import SortableTable from '@/components/SortableTable';
-import { getClusters } from '@/product/opni/utils/requests';
+import { getClusters, getClusterStats } from '@/product/opni/utils/requests';
 import Loading from '@/components/Loading';
 import AddTokenDialog from './dialogs/AddTokenDialog';
 
@@ -10,6 +10,7 @@ export default {
   },
   async fetch() {
     await this.load();
+    await this.loadStats();
   },
 
   data() {
@@ -32,11 +33,30 @@ export default {
           formatter:     'ListBubbles'
         },
         {
-          name:          'nodes',
-          labelKey:      'tableHeaders.nodes',
-          sort:          ['nodes'],
-          value:         'nodes',
-          formatter:     'List'
+          name:          'capabilities',
+          labelKey:      'tableHeaders.capabilities',
+          sort:          ['capabilities'],
+          value:         'capabilities',
+          formatter:     'ListBubbles'
+        },
+        {
+          name:      'numSeries',
+          labelKey:  'tableHeaders.numSeries',
+          sort:      ['numSeries'],
+          value:     'numSeries',
+          formatter: 'Number'
+        },
+        {
+          name:      'sampleRate',
+          labelKey:  'tableHeaders.sampleRate',
+          sort:      ['sampleRate'],
+          value:     'sampleRateDisplay',
+        },
+        {
+          name:      'rulesRate',
+          labelKey:  'tableHeaders.rulesRate',
+          sort:      ['rulesRate'],
+          value:     'rulesRateDisplay',
         },
       ]
     };
@@ -63,10 +83,17 @@ export default {
     async load() {
       try {
         this.loading = true;
-        await this.$set(this, 'clusters', await getClusters(this));
+        this.$set(this, 'clusters', await getClusters(this));
       } finally {
         this.loading = false;
       }
+    },
+    async loadStats() {
+      const details = await getClusterStats(this);
+
+      this.clusters.forEach((cluster) => {
+        cluster.stats = details.find(d => d.userID === cluster.id);
+      });
     }
   }
 };
@@ -80,7 +107,7 @@ export default {
       </div>
       <div class="actions-container">
         <a class="btn role-primary" href="/cluster/create">
-          Create Cluster
+          Add Cluster
         </a>
       </div>
     </header>

@@ -26,6 +26,20 @@ export default {
           width:     undefined
         },
         {
+          name:          'labels',
+          labelKey:      'tableHeaders.labels',
+          sort:          ['labels'],
+          value:         'labels',
+          formatter:     'ListBubbles'
+        },
+        {
+          name:      'capabilities',
+          labelKey:  'tableHeaders.capabilities',
+          sort:      ['capabilities'],
+          value:     'capabilities',
+          formatter: 'ListBubbles'
+        },
+        {
           name:          'used',
           labelKey:      'tableHeaders.used',
           sort:          ['used'],

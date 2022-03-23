@@ -4084,6 +4084,7 @@ tableHeaders:
   bundlesReady: Bundles
   bundleDeploymentsReady: Deployments
   builtin: Built-In
+  capabilities: Capabilities
   chart: Chart
   clusterCreatorDefault: Cluster Creator Default
   clusterFlow: Cluster Flow
@@ -4156,6 +4157,7 @@ tableHeaders:
   nodesReady: Nodes Ready
   nodePort: Node Port
   normal: Normal
+  numSeries: Series Count
   object: Object
   operatingSystem: OS
   output: Output
@@ -4190,6 +4192,8 @@ tableHeaders:
   restarts: Restarts
   role: Role
   roles: Roles
+  rulesRate: Rule Ingestion Rate
+  sampleRate: Sample Ingestion Rate
   scale: Scale
   scope: Scope
   selector: Selector

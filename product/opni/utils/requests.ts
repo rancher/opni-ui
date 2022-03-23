@@ -4,7 +4,7 @@ import { AreaOfInterestResponse } from '@/product/opni/models/areasOfInterest';
 import { FromTo } from '@/product/opni/models/fromTo';
 import { TokensResponse, Token } from '@/product/opni/models/Token';
 import { CapabilitiesResponse, CapabilityInstallerResponse } from '@/product/opni/models/Capability';
-import { Cluster, ClustersResponse } from '@/product/opni/models/Cluster';
+import { Cluster, ClusterStats, ClusterStatsList, ClustersResponse } from '@/product/opni/models/Cluster';
 import { Breakdowns, BreakdownsResponse } from '~/product/opni/models/overallBreakdown/Breakdowns';
 import { Log } from '~/product/opni/models/log/Log';
 import { Logs, LogsResponse } from '~/product/opni/models/log/Logs';
@@ -183,6 +183,7 @@ export async function createToken(ttlInSeconds: string, name: string) {
 export function deleteToken(id: string): Promise<undefined> {
   return axios.delete(`opni-api/management/tokens/${ id }`);
 }
+
 export interface CertResponse {
   issuer: string;
   subject: string;
@@ -226,6 +227,12 @@ export async function getClusters(vue: any): Promise<Cluster[]> {
   const clustersResponse = (await axios.get<ClustersResponse>(`opni-api/management/clusters`)).data.items;
 
   return clustersResponse.map( clusterResponse => new Cluster(clusterResponse, vue));
+}
+
+export async function getClusterStats(vue: any): Promise<ClusterStats[]> {
+  const clustersResponse = (await axios.get<ClusterStatsList>(`opni-api/CortexAdmin/all_user_stats`)).data.items;
+
+  return clustersResponse;
 }
 
 export function deleteCluster(id: string): Promise<undefined> {
