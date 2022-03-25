@@ -102,6 +102,20 @@ export class Cluster extends Resource {
   get availableActions(): any[] {
     return [
       {
+        action:   'promptEdit',
+        label:    'Edit',
+        icon:     'icon icon-edit',
+        bulkable: false,
+        enabled:  true,
+      },
+      {
+        action:   'copy',
+        label:    'Copy ID',
+        icon:     'icon icon-copy',
+        bulkable: false,
+        enabled:  true,
+      },
+      {
         action:     'promptRemove',
         altAction:  'delete',
         label:      'Delete',

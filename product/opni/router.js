@@ -93,9 +93,9 @@ export const NAVIGATION = {
       name:      'configuration',
       path:      '/configuration',
       labelKey:  'opni.nav.configuration',
-      icon:      'globe',
+      icon:      'gear',
       component: Configuration,
-      display:   false
+      display:   true
     },
     // {
     //   name:      'preempt',

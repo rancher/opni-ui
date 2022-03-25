@@ -2,11 +2,11 @@
 import SortableTable from '@/components/SortableTable';
 import { getClusters, getClusterStats } from '@/product/opni/utils/requests';
 import Loading from '@/components/Loading';
-import AddTokenDialog from './dialogs/AddTokenDialog';
+import EditClusterDialog from './dialogs/EditClusterDialog';
 
 export default {
   components: {
-    AddTokenDialog, Loading, SortableTable
+    EditClusterDialog, Loading, SortableTable
   },
   async fetch() {
     await this.load();
@@ -64,6 +64,8 @@ export default {
 
   created() {
     this.$on('remove', this.onClusterDelete);
+    this.$on('edit', this.openEditDialog);
+    this.$on('copy', this.copyClusterID);
   },
 
   beforeDestroy() {
@@ -75,9 +77,12 @@ export default {
       this.load();
     },
 
-    openCreateDialog(ev) {
-      ev.preventDefault();
-      this.$refs.dialog.open();
+    openEditDialog(cluster) {
+      this.$refs.dialog.open(cluster);
+    },
+
+    copyClusterID(cluster) {
+      this.$copyText(cluster.id);
     },
 
     async load() {
@@ -118,7 +123,7 @@ export default {
       default-sort-by="expirationDate"
       key-field="id"
     />
-    <AddTokenDialog ref="dialog" @save="load" />
+    <EditClusterDialog ref="dialog" @save="load" />
   </div>
 </template>
 

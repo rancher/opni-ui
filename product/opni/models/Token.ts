@@ -95,6 +95,13 @@ export class Token extends Resource {
     get availableActions(): any[] {
       return [
         {
+          action:   'copy',
+          label:    'Copy Token',
+          icon:     'icon icon-copy',
+          bulkable: false,
+          enabled:  true,
+        },
+        {
           action:     'promptRemove',
           altAction:  'delete',
           label:      'Delete',

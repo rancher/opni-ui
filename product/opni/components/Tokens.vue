@@ -64,6 +64,7 @@ export default {
 
   created() {
     this.$on('remove', this.onTokenDelete);
+    this.$on('copyID', this.copyTokenID);
   },
 
   beforeDestroy() {
@@ -78,6 +79,10 @@ export default {
     openCreateDialog(ev) {
       ev.preventDefault();
       this.$refs.dialog.open();
+    },
+
+    copyTokenID(token) {
+      this.$copyText(token.id);
     },
 
     async load() {
