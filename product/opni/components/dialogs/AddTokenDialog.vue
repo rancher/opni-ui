@@ -5,13 +5,17 @@ import { exceptionToErrorsArray } from '@/utils/error';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import { createToken } from '@/product/opni/utils/requests';
+import Checkbox from '@/components/form/Checkbox';
+import Select from '@/components/form/Select';
 
 export default {
   components: {
     Card,
     AsyncButton,
     LabeledInput,
-    LabeledSelect
+    LabeledSelect,
+    Checkbox,
+    Select
   },
   data() {
     const expirationOptions = [
@@ -30,13 +34,45 @@ export default {
       {
         label: '7 days',
         value: '604800s'
+      },
+      {
+        label: 'custom',
+        value: 'custom'
       }
+    ];
+    const customExpirationUnitsOptions = [
+      {
+        label: 'minutes',
+        value: 60
+      },
+      {
+        label: 'hours',
+        value: 3600
+      },
+      {
+        label: 'days',
+        value: 86400
+      },
+      {
+        label: 'weeks',
+        value: 604800
+      },
     ];
 
     return {
-      name:       null,
+      name:                  null,
       expirationOptions,
-      expiration: expirationOptions[0].value
+      expiration:            expirationOptions[0],
+      customExpirationUnit:  customExpirationUnitsOptions[0].value,
+      customExpirationUnitsOptions,
+      customExpirationValue: 1,
+      clusters:              [],
+      capabilities:          {
+        join: {
+          enabled: false,
+          cluster: '',
+        },
+      },
     };
   },
   methods: {
@@ -44,14 +80,26 @@ export default {
       this.$modal.hide('add-token-dialog');
     },
 
-    open() {
+    open(clusters) {
+      this.$set(this, 'clusters', clusters.map(cluster => ({
+        label: cluster.nameDisplay,
+        value: cluster.id,
+      })));
       this.$set(this, 'expiration', this.expirationOptions[0].value);
       this.$modal.show('add-token-dialog');
     },
 
     async apply(buttonDone) {
       try {
-        await createToken(this.expiration, this.name || undefined);
+        let expiration = this.expiration;
+
+        if (expiration === 'custom') {
+          const unitMultiplier = this.customExpirationUnit;
+          const seconds = Math.min(this.customExpirationValue * unitMultiplier, 365 * 24 * 60 * 60);
+
+          expiration = `${ seconds }s`;
+        }
+        await createToken(expiration, this.name || undefined);
         buttonDone(true);
         this.$emit('save');
         this.close();
@@ -70,25 +118,74 @@ export default {
     name="add-token-dialog"
     styles="background-color: var(--nav-bg); border-radius: var(--border-radius); max-height: 100vh;"
     height="auto"
-    :width="400"
+    :width="600"
     :scrollable="true"
     @closed="close()"
   >
     <Card class="prompt-restore" :show-highlight-border="false" title="Create Token">
       <h4 slot="title" class="text-default-text" v-html="'Create Token'" />
-      <div slot="body" class="pt-10">
-        <div class="row mb-10">
-          <div class="col span-12">
-            <LabeledInput v-model.trim="name" label="Name (Optional)" />
+      <div slot="body">
+        <div class="pt-10 pb-10">
+          <div class="row mb-10">
+            <div class="col span-12">
+              <LabeledInput v-model.trim="name" label="Name (Optional)" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col span-12">
+              <LabeledSelect
+                v-model="expiration"
+                label="Expiration"
+                :options="expirationOptions"
+              />
+            </div>
+          </div>
+          <div v-if="expiration === 'custom'" class="row span-6 mt-5 expiry">
+            <input
+              v-model="customExpirationValue"
+              type="number"
+              :mode="'edit'"
+            >
+            <Select
+              v-model="customExpirationUnit"
+              class="ml-10"
+              :options="customExpirationUnitsOptions"
+              :clearable="false"
+            />
           </div>
         </div>
-        <div class="row">
+        <hr />
+        <div class="row mt-10">
           <div class="col span-12">
-            <LabeledSelect
-              v-model="expiration"
-              label="Expiration"
-              :options="expirationOptions"
-            />
+            <h4 class="text-default-text">
+              Advanced Options
+            </h4>
+            <div class="option-row row pt-10">
+              <div class="col span-4">
+                <Checkbox
+                  v-model="capabilities.join.enabled"
+                  class="join-checkbox"
+                  label="Join Existing Cluster"
+                  tooltip="Allow using this token to add new capabilities to an existing cluster."
+                  :disabled="clusters.length === 0"
+                />
+                <p
+                  v-if="!capabilities.join.enabled && clusters.length === 0"
+                  class="no-clusters-warn"
+                >
+                  No Clusters
+                </p>
+              </div>
+              <div class="col span-8">
+                <LabeledSelect
+                  v-model="capabilities.join.cluster"
+                  label="Cluster"
+                  placeholder="Choose an existing cluster"
+                  :options="clusters"
+                  :disabled="!capabilities.join.enabled"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -123,5 +220,23 @@ export default {
     & ::-webkit-scrollbar-corner {
       background: rgba(0,0,0,0);
     }
+  }
+
+  .option-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .join-checkbox + .no-clusters-warn {
+    margin-top: 0;
+    color: var(--warning);
+    position: absolute; // don't push the checkbox up
+    margin-left: 19px; // align with checkbox label
+  }
+
+  .expiry {
+    display: flex;
+    align-items: center;
   }
 </style>

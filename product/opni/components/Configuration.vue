@@ -77,23 +77,28 @@ export default {
 <template>
   <Loading v-if="loading || $fetchState.pending" />
   <div v-else>
-    <div slot="actions" class="buttons pb-10">
-      <p v-if="errors.length" class="error-message mt-10 pr-10">
-        {{ errors.join('; ') }}
-      </p>
-      <AsyncButton
-        ref="saveBtn"
-        class="btn role-primary mr-10"
-        action-label="Save and Restart"
-        waiting-label="Saving..."
-        success-label="Restarting..."
-        error-label="Error"
-        @click="save"
-      />
-      <button class="btn role-secondary mr-10" @click="reset">
-        Reset
-      </button>
-    </div>
+    <header>
+      <div class="title">
+        <h1>Configuration</h1>
+      </div>
+      <div slot="actions" class="row actions-container pb-10">
+        <div v-if="errors.length" class="error-message pr-10">
+          {{ errors.join('; ') }}
+        </div>
+        <AsyncButton
+          ref="saveBtn"
+          class="btn role-primary mr-10"
+          action-label="Save and Restart"
+          waiting-label="Saving..."
+          success-label="Restarting..."
+          error-label="Error"
+          @click="save"
+        />
+        <button class="btn role-secondary mr-10" @click="reset">
+          Reset
+        </button>
+      </div>
+    </header>
     <div slot="body">
       <YamlEditor
         ref="yamlEditor"
@@ -109,8 +114,13 @@ export default {
 </template>
 
 <style lang="scss" scoped>
+.actions-container {
+  display: flex;
+  justify-content: flex-end;
+}
 .buttons {
   display: flex;
+  flex-direction: row;
   justify-content: flex-end;
   width: 100%;
 }
@@ -118,5 +128,7 @@ export default {
   color: var(--error);
   display: flex;
   justify-content: center;
+  align-items: center;
+
 }
 </style>

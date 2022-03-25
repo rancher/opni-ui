@@ -32,6 +32,8 @@ export default {
   },
 
   data() {
+    const placeholderText = 'Select a capability to view install command';
+
     return {
       tokens:               [],
       token:                null,
@@ -44,7 +46,8 @@ export default {
       newCluster:           null,
       newClusterFound:      false,
       pin:                  null,
-      installCommand:       'select a capability'
+      placeholderText,
+      installCommand:       placeholderText,
     };
   },
 
@@ -83,9 +86,9 @@ export default {
       }
     },
 
-    async renderInstallCommand(capability) {
+    async renderInstallCommand() {
       this.installCommand = await getCapabilityInstaller(
-        capability, this.token, this.pin, window.location.hostname);
+        this.capability, this.token, this.pin, window.location.hostname);
     }
   },
 
@@ -126,11 +129,12 @@ export default {
       <div class="col span-6">
         <LabeledSelect
           v-model="token"
-          class="mb-20"
+          class="token-select mb-20"
           :label="t('opni.monitoring.clusters.tabs.target.token')"
           :placeholder="t('monitoring.token.placeholder')"
           :localized-label="true"
           :options="tokenOptions"
+          @input="renderInstallCommand"
         />
       </div>
     </div>
@@ -152,11 +156,21 @@ export default {
         Install Command
       </h4>
       <div slot="body" class="">
-        <CopyCode class="install-command">
+        <CopyCode
+          class="install-command"
+          :class="installCommand === placeholderText && 'placeholder-text'"
+        >
           {{ installCommand }}
         </CopyCode>
         <Banner v-if="!newCluster" color="warning">
-          You must run this install command before you can save this cluster. <a class="btn bg-warning mr-10" @click="createAgent">Hack Create Agent</a>
+          You must run this install command before you can save this cluster.
+          <a
+            v-if="$config.dev"
+            class="btn bg-warning mr-10"
+            @click="createAgent"
+          >
+            Hack Create Agent
+          </a>
         </Banner>
       </div>
     </Card>
@@ -180,6 +194,14 @@ export default {
 
 .install-command {
   width: 100%;
+}
+
+.placeholder-text {
+  font-family: sans-serif !important;
+}
+
+.token-select ::v-deep #vs2__combobox > div.vs__selected-options > span {
+  font-family: monospace;
 }
 
 ::v-deep .warning {

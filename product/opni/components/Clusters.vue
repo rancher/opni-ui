@@ -19,11 +19,17 @@ export default {
       clusters:  [],
       headers:  [
         {
-          name:      'nameDisplay',
-          labelKey:  'tableHeaders.name',
-          sort:      ['nameDisplay'],
-          value:     'nameDisplay',
-          width:     undefined
+          name:          'nameDisplay',
+          labelKey:      'tableHeaders.name',
+          sort:          ['nameDisplay'],
+          value:         'nameDisplay',
+          width:         undefined,
+          formatter:     'Monospace',
+          formatterOpts: {
+            condition: (text) => {
+              return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(text);
+            }
+          }
         },
         {
           name:          'labels',

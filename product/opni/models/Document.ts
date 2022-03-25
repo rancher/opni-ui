@@ -6,10 +6,6 @@ export interface ConfigDocumentWithSchema {
   schema: string;
 }
 
-export interface ConfigDocument {
-  json: string;
-}
-
 export interface GatewayConfig {
   documents: ConfigDocumentWithSchema[];
 }

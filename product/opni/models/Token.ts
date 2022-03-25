@@ -83,7 +83,7 @@ export class Token extends Resource {
     get capabilities(): string[] {
       return this.base.metadata.capabilities.map((capability) => {
         if (capability.type === 'join_existing_cluster' && capability.reference.id) {
-          const clusterId = capability.reference.id.slice(0, 6);
+          const clusterId = capability.reference.id.slice(0, 8);
 
           return `join: ${ clusterId }`;
         }

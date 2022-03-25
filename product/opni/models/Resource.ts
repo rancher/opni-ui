@@ -17,7 +17,7 @@ export class Resource {
     this.vue.$emit('edit', resource);
   }
 
-  public copyID(resource = this) {
+  public copy(resource = this) {
     this.vue.$emit('copy', resource);
   }
 

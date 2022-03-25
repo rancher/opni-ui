@@ -19,11 +19,12 @@ export default {
       clusters: [],
       headers:  [
         {
-          name:      'nameDisplay',
-          labelKey:  'tableHeaders.name',
-          sort:      ['nameDisplay'],
-          value:     'nameDisplay',
-          width:     undefined
+          name:          'nameDisplay',
+          labelKey:      'tableHeaders.token',
+          sort:          ['nameDisplay'],
+          value:         'nameDisplay',
+          width:         undefined,
+          formatter:     'Token',
         },
         {
           name:          'labels',
@@ -64,7 +65,7 @@ export default {
 
   created() {
     this.$on('remove', this.onTokenDelete);
-    this.$on('copyID', this.copyTokenID);
+    this.$on('copy', this.copyToken);
   },
 
   beforeDestroy() {
@@ -78,18 +79,18 @@ export default {
 
     openCreateDialog(ev) {
       ev.preventDefault();
-      this.$refs.dialog.open();
+      this.$refs.dialog.open(this.clusters);
     },
 
-    copyTokenID(token) {
+    copyToken(token) {
       this.$copyText(token.id);
     },
 
     async load() {
       try {
         this.loading = true;
-        await this.$set(this, 'tokens', await getTokens(this));
-        await this.$set(this, 'clusters', await getClusters(this));
+        this.$set(this, 'tokens', await getTokens(this));
+        this.$set(this, 'clusters', await getClusters(this));
       } finally {
         this.loading = false;
       }

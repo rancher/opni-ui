@@ -10,7 +10,7 @@ import { Log } from '~/product/opni/models/log/Log';
 import { Logs, LogsResponse } from '~/product/opni/models/log/Logs';
 import { MatchLabel, Role, RolesResponse } from '~/product/opni/models/Role';
 import { RoleBinding, RoleBindingsResponse } from '~/product/opni/models/RoleBinding';
-import { GatewayConfig, ConfigDocument, Document } from '~/product/opni/models/Document';
+import { GatewayConfig, Document } from '~/product/opni/models/Document';
 import { LABEL_KEYS } from '~/product/opni/models/shared';
 import { base64Encode } from '~/utils/crypto';
 
@@ -210,12 +210,13 @@ export async function getClusterFingerprint() {
 }
 
 export async function updateCluster(id: string, name: string, labels: { [key: string]: string }) {
+  labels = { ...labels, [LABEL_KEYS.NAME]: name };
+  if (name === '') {
+    delete labels[LABEL_KEYS.NAME];
+  }
   (await axios.put<any>(`opni-api/management/clusters/${ id }`, {
     cluster: { id },
-    labels:  {
-      ...labels,
-      [LABEL_KEYS.NAME]: name
-    }
+    labels
   }));
 }
 

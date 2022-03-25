@@ -4215,6 +4215,7 @@ tableHeaders:
   target: Target
   targetKind: Target Type
   targetPort: Target
+  token: Token
   type: Type
   updated: Updated
   upgrade: Upgradable
