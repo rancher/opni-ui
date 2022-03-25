@@ -74,7 +74,7 @@ export default {
       <div slot="body" class="pt-10">
         <div class="row mb-10">
           <div class="col span-12">
-            <LabeledInput v-model.trim="name" label="Name (Optional)" />
+            <LabeledInput v-model.trim="name" label="Name (optional)" />
           </div>
         </div>
         <div class="row">

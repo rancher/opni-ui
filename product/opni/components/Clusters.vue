@@ -15,9 +15,10 @@ export default {
 
   data() {
     return {
-      loading:  false,
-      clusters:  [],
-      headers:  [
+      loading:       false,
+      statsInterval: null,
+      clusters:      [],
+      headers:       [
         {
           name:          'nameDisplay',
           labelKey:      'tableHeaders.name',
@@ -72,10 +73,16 @@ export default {
     this.$on('remove', this.onClusterDelete);
     this.$on('edit', this.openEditDialog);
     this.$on('copy', this.copyClusterID);
+    this.statsInterval = setInterval(this.loadStats, 2000);
   },
 
   beforeDestroy() {
     this.$off('remove');
+    this.$off('edit');
+    this.$off('copy');
+    if (this.statsInterval) {
+      clearInterval(this.statsInterval);
+    }
   },
 
   methods: {
@@ -106,7 +113,7 @@ export default {
         cluster.stats = details.find(d => d.userID === cluster.id);
       });
     }
-  }
+  },
 };
 </script>
 <template>

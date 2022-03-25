@@ -123,12 +123,12 @@ export default {
     @closed="close()"
   >
     <Card class="prompt-restore" :show-highlight-border="false" title="Create Token">
-      <h4 slot="title" class="text-default-text" v-html="'Create Token'" />
+      <h2 slot="title" class="text-default-text" v-html="'Create Token'" />
       <div slot="body">
         <div class="pt-10 pb-10">
           <div class="row mb-10">
             <div class="col span-12">
-              <LabeledInput v-model.trim="name" label="Name (Optional)" />
+              <LabeledInput v-model.trim="name" label="Name (optional)" />
             </div>
           </div>
           <div class="row">
@@ -155,11 +155,11 @@ export default {
           </div>
         </div>
         <hr />
-        <div class="row mt-10">
+        <div class="row pt-10">
           <div class="col span-12">
-            <h4 class="text-default-text">
-              Advanced Options
-            </h4>
+            <h3 class="text-default-text">
+              Extended Capabilities <span class="text-muted">(optional)</span>
+            </h3>
             <div class="option-row row pt-10">
               <div class="col span-4">
                 <Checkbox

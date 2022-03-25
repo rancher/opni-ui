@@ -28,16 +28,13 @@ export default {
   <span v-if="condition(value)" class="mono">
     {{ value }}
   </span>
-  <span v-else class="regular">
+  <span v-else>
     {{ value }}
   </span>
 </template>
 
 <style lang="scss" scoped>
 .mono {
-  font-family: monospace;
-}
-.regular {
-  font-family: sans-serif;
+  font-family: $mono-font;
 }
 </style>

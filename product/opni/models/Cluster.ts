@@ -80,7 +80,7 @@ export class Cluster extends Resource {
   }
 
   get sampleRateDisplay(): string {
-    return this.sampleRate > 0 ? `${ Math.round(this.sampleRate) }/s` : '---';
+    return this.sampleRate > 0 ? `${ Math.ceil(this.sampleRate) }/s` : '—';
   }
 
   get rulesRate(): number {
@@ -88,7 +88,7 @@ export class Cluster extends Resource {
   }
 
   get rulesRateDisplay(): string {
-    return this.rulesRate > 0 ? `${ Math.round(this.rulesRate) }/s` : '---';
+    return this.rulesRate > 0 ? `${ Math.ceil(this.rulesRate) }/s` : '—';
   }
 
   get stats(): ClusterStats {

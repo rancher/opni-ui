@@ -1,17 +1,18 @@
 <script>
-import { nextTick } from 'process';
 import jsyaml from 'js-yaml';
 import YamlEditor from '@/components/YamlEditor';
 import Loading from '@/components/Loading';
 import { exceptionToErrorsArray } from '@/utils/error';
 import AsyncButton from '@/components/AsyncButton';
+import Banner from '@/components/Banner';
 import { getGatewayConfig, updateGatewayConfig } from '~/product/opni/utils/requests';
 
 export default {
   components: {
     YamlEditor,
     AsyncButton,
-    Loading
+    Loading,
+    Banner
   },
 
   async fetch() {
@@ -23,7 +24,7 @@ export default {
       loading:          false,
       documents:        [],
       editorContents:   '',
-      errors:           [],
+      error:           '',
     };
   },
 
@@ -59,13 +60,13 @@ export default {
         await updateGatewayConfig(jsonDocuments);
       } catch (err) {
         buttonCallback(false);
-        this.errors = exceptionToErrorsArray(err);
+        this.$set(this, 'error', exceptionToErrorsArray(err).join('; '));
       } finally {
-        buttonCallback(this.errors.length === 0);
+        buttonCallback(!this.error);
       }
     },
     async reset() {
-      this.errors = [];
+      this.$set(this, 'error', '');
       await this.load();
     },
     onInput(yaml) {
@@ -81,10 +82,10 @@ export default {
       <div class="title">
         <h1>Configuration</h1>
       </div>
-      <div slot="actions" class="row actions-container pb-10">
-        <div v-if="errors.length" class="error-message pr-10">
+      <div slot="actions" class="row actions-container">
+        <!-- <div v-if="errors.length" class="error-message pr-10">
           {{ errors.join('; ') }}
-        </div>
+        </div> -->
         <AsyncButton
           ref="saveBtn"
           class="btn role-primary mr-10"
@@ -99,6 +100,11 @@ export default {
         </button>
       </div>
     </header>
+    <Banner
+      v-if="error"
+      color="error"
+      :label="error"
+    />
     <div slot="body">
       <YamlEditor
         ref="yamlEditor"

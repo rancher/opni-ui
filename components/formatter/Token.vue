@@ -17,6 +17,9 @@ export default {
     },
   },
   computed: {
+    isToken() {
+      return /^[0-9a-f]{12}\.[0-9a-f]{52}$/i.test(this.value);
+    },
     tokenId() {
       return this.value.split('.')[0];
     },
@@ -34,7 +37,7 @@ export default {
 </script>
 
 <template>
-  <span class="token">
+  <span v-if="isToken" class="token">
     <span class="token-id">
       {{ tokenId }}
     </span>
@@ -44,12 +47,14 @@ export default {
     <span class="token-secret">
       {{ tokenSecret }}
     </span>
-    <span
+    <i
       v-tooltip="'Copy Token'"
       class="icon icon-copy"
       @click="onClick"
-    >
-    </span>
+    />
+  </span>
+  <span v-else>
+    {{ value }}
   </span>
 </template>
 
@@ -62,14 +67,14 @@ export default {
 }
 .token-id {
   color: var(--primary);
-  font-family: monospace;
+  font-family: $mono-font;
 }
 .token-dot {
-  font-family: monospace;
+  font-family: $mono-font;
 }
 .token-secret {
   color: var(--app-other-accent);
-  font-family: monospace;
+  font-family: $mono-font;
 }
 .icon-copy {
   cursor: pointer;

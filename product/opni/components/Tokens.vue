@@ -70,6 +70,7 @@ export default {
 
   beforeDestroy() {
     this.$off('remove');
+    this.$off('copy');
   },
 
   methods: {
