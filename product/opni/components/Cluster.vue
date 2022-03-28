@@ -93,8 +93,7 @@ export default {
       if (!this.capability || !this.token) {
         return;
       }
-      const cmd = await getCapabilityInstaller(
-        this.capability, this.token, this.pin, window.location.hostname);
+      const cmd = await getCapabilityInstaller(this.capability, this.token, this.pin);
       const regex = /\%({.*?\})\%/g;
       const inputArgs = [];
 

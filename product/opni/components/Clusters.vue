@@ -73,7 +73,7 @@ export default {
     this.$on('remove', this.onClusterDelete);
     this.$on('edit', this.openEditDialog);
     this.$on('copy', this.copyClusterID);
-    this.statsInterval = setInterval(this.loadStats, 2000);
+    this.statsInterval = setInterval(this.loadStats, 10000);
   },
 
   beforeDestroy() {

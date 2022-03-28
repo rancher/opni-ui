@@ -167,11 +167,10 @@ export async function getCapabilities(vue: any) {
   return capabilitiesResponse;
 }
 
-export async function getCapabilityInstaller(capability: string, token: string, pin: string, address: string) {
+export async function getCapabilityInstaller(capability: string, token: string, pin: string) {
   return (await axios.post<CapabilityInstallerResponse>(`opni-api/management/capabilities/${ capability }/installer`, {
     token,
     pin,
-    address
   })).data.command;
 }
 
