@@ -2,6 +2,7 @@
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import CopyCode from '@/components/CopyCode';
+import Checkbox from '@/components/form/Checkbox';
 import KeyValue from '@/components/form/KeyValue';
 import {
   getTokens, createAgent, getClusters, updateCluster, getCapabilities, getClusterFingerprint, getCapabilityInstaller
@@ -9,6 +10,7 @@ import {
 import Loading from '@/components/Loading';
 import Card from '@/components/Card';
 import Banner from '@/components/Banner';
+import _ from 'lodash';
 
 export default {
   components: {
@@ -19,6 +21,7 @@ export default {
     LabeledSelect,
     Loading,
     KeyValue,
+    Checkbox,
   },
 
   async fetch() {
@@ -45,6 +48,8 @@ export default {
       pin:                  null,
       placeholderText,
       installCommand:       placeholderText,
+      origInstallCommand:   '',
+      inputArgs:            [],
       error:                '',
     };
   },
@@ -88,9 +93,93 @@ export default {
       if (!this.capability || !this.token) {
         return;
       }
-      this.installCommand = await getCapabilityInstaller(
+      const cmd = await getCapabilityInstaller(
         this.capability, this.token, this.pin, window.location.hostname);
-    }
+      const regex = /\%({.*?\})\%/g;
+      const inputArgs = [];
+
+      let match;
+
+      let parsedCmd = cmd;
+
+      while ((match = regex.exec(cmd)) !== null) {
+        const json = JSON.parse(match[1]);
+        let label;
+
+        switch (json.kind) {
+        case 'input':
+          label = json.input.label;
+          break;
+        case 'select':
+          label = json.select.label;
+          break;
+        case 'toggle':
+          label = json.toggle.label;
+          break;
+        }
+        let value;
+        let required = false;
+        let omitEmpty = false;
+        let format = '{{ value }}';
+
+        for (const option of json.options) {
+          switch (option.name) {
+          case 'default':
+            if (option.value === 'true') {
+              value = true;
+            } else if (option.value === 'false') {
+              value = false;
+            } else {
+              value = option.value;
+            }
+            break;
+          case 'required':
+            required = true;
+            break;
+          case 'omitEmpty':
+            omitEmpty = true;
+            break;
+          case 'format':
+            format = option.value;
+            break;
+          }
+        }
+        json['_data'] = {
+          label,
+          value,
+          required,
+          omitEmpty,
+          format,
+        };
+        inputArgs.push(json);
+        parsedCmd = parsedCmd.replace(match[0], `{{ ${ label } }}`);
+      }
+
+      this.$set(this, 'inputArgs', inputArgs);
+      this.$set(this, 'installCommand', parsedCmd);
+      this.origInstallCommand = parsedCmd;
+
+      this.updateInstallCommand();
+    },
+    updateInstallCommand() {
+      let cmd = this.origInstallCommand;
+
+      for (const input of this.inputArgs) {
+        const {
+          label, value, format, omitEmpty
+        } = input._data;
+
+        if (omitEmpty && !value) {
+          cmd = cmd.replace(`{{ ${ label } }}`, '');
+        } else if (value !== '') {
+          _.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
+          const tmpl = _.template(format);
+
+          cmd = cmd.replace(`{{ ${ label } }}`, tmpl({ value }));
+        }
+      }
+      this.$set(this, 'installCommand', cmd);
+    },
   },
 
   computed: {
@@ -159,6 +248,35 @@ export default {
         Install Command
       </h4>
       <div slot="body">
+        <div v-if="inputArgs.length > 0" class="row">
+          <div v-for="item in inputArgs" :key="item.key" class="options col span-3 mb-10">
+            <LabeledSelect
+              v-if="item.kind === 'select'"
+              v-model="item._data.value"
+              :label="item._data.label"
+              :required="item._data.required"
+              :options="item.select.items.map(item => ({
+                label: item || '(none)',
+                value: item
+              }))"
+              @input="updateInstallCommand"
+            />
+            <LabeledInput
+              v-if="item.kind === 'input'"
+              v-model="item._data.value"
+              :label="item._data.label"
+              :required="item._data.required"
+              @input="updateInstallCommand"
+            />
+            <Checkbox
+              v-if="item.kind === 'toggle'"
+              v-model="item._data.value"
+              :label="item._data.label"
+              :required="item._data.required"
+              @input="updateInstallCommand"
+            />
+          </div>
+        </div>
         <CopyCode
           class="install-command"
           :class="installCommand === placeholderText && 'placeholder-text'"
@@ -211,6 +329,13 @@ export default {
 }
 
 ::v-deep .info, ::v-deep .success {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.options {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
