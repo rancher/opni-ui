@@ -123,6 +123,7 @@ export default {
         <MatchExpressions
           v-model="matchExpressions"
           :initial-empty-row="false"
+          type="pod"
         />
       </Tab>
     </Tabbed>
