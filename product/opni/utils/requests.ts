@@ -174,10 +174,11 @@ export async function getCapabilityInstaller(capability: string, token: string, 
   })).data.command;
 }
 
-export async function createToken(ttlInSeconds: string, name: string) {
+export async function createToken(ttlInSeconds: string, name: string, capabilities: any[]) {
   (await axios.post<any>(`opni-api/management/tokens`, {
     ttl:               ttlInSeconds,
-    labels: { [LABEL_KEYS.NAME]: name }
+    labels: { [LABEL_KEYS.NAME]: name },
+    capabilities,
   }));
 }
 

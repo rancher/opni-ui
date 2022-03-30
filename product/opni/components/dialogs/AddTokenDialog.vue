@@ -99,7 +99,15 @@ export default {
 
           expiration = `${ seconds }s`;
         }
-        await createToken(expiration, this.name || undefined);
+        const caps = [];
+
+        if (this.capabilities.join.enabled) {
+          caps.push({
+            type:      'join_existing_cluster',
+            reference: { id: this.capabilities.join.cluster }
+          });
+        }
+        await createToken(expiration, this.name || undefined, caps);
         buttonDone(true);
         this.$emit('save');
         this.close();
