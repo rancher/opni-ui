@@ -295,7 +295,6 @@ export default {
         <Banner v-if="newClusterFound" color="success">
           New cluster added successfully
           <a
-            v-if="$config.dev"
             class="btn bg-success mr-5"
             @click="save"
           >
