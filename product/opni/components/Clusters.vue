@@ -54,16 +54,20 @@ export default {
           formatter: 'Number'
         },
         {
-          name:      'sampleRate',
-          labelKey:  'tableHeaders.sampleRate',
-          sort:      ['sampleRate'],
-          value:     'sampleRateDisplay',
+          name:          'sampleRate',
+          labelKey:      'tableHeaders.sampleRate',
+          sort:          ['sampleRate'],
+          value:         'sampleRate',
+          formatter:     'Number',
+          formatterOpts: { suffix: '/s' }
         },
         {
-          name:      'rulesRate',
-          labelKey:  'tableHeaders.rulesRate',
-          sort:      ['rulesRate'],
-          value:     'rulesRateDisplay',
+          name:          'rulesRate',
+          labelKey:      'tableHeaders.rulesRate',
+          sort:          ['rulesRate'],
+          value:         'rulesRate',
+          formatter:     'Number',
+          formatterOpts: { suffix: '/s' }
         },
       ]
     };

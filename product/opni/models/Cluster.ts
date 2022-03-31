@@ -75,20 +75,12 @@ export class Cluster extends Resource {
     return this.clusterStats?.numSeries;
   }
 
-  get sampleRate(): number {
+  get sampleRate(): number | undefined {
     return this.clusterStats?.ingestionRate;
   }
 
-  get sampleRateDisplay(): string {
-    return this.sampleRate > 0 ? `${ Math.ceil(this.sampleRate) }/s` : '—';
-  }
-
-  get rulesRate(): number {
+  get rulesRate(): number | undefined {
     return this.clusterStats?.RuleIngestionRate;
-  }
-
-  get rulesRateDisplay(): string {
-    return this.rulesRate > 0 ? `${ Math.ceil(this.rulesRate) }/s` : '—';
   }
 
   get stats(): ClusterStats {
