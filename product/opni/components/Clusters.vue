@@ -25,10 +25,16 @@ export default {
           sort:          ['nameDisplay'],
           value:         'nameDisplay',
           width:         undefined,
-          formatter:     'Monospace',
+          formatter:     'TextWithClass',
           formatterOpts: {
-            condition: (text) => {
-              return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(text);
+            getClass(row, value) {
+              // Value could either be a cluster ID in a UUID format or a
+              // friendly name set by the user, if available. If the value is
+              // a cluster ID, display it in a monospace font.
+              // This regex will match UUID versions 1-5.
+              const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+              return uuidRegex.test(value) ? 'monospace' : '';
             }
           }
         },
@@ -36,7 +42,7 @@ export default {
           name:          'labels',
           labelKey:      'tableHeaders.labels',
           sort:          ['labels'],
-          value:         'labels',
+          value:         'displayLabels',
           formatter:     'ListBubbles'
         },
         {
@@ -114,7 +120,7 @@ export default {
       const details = await getClusterStats(this);
 
       this.clusters.forEach((cluster) => {
-        cluster.stats = details.find(d => d.userID === cluster.id);
+        this.$set(cluster, 'stats', details.find(d => d.userID === cluster.id));
       });
     }
   },
@@ -148,6 +154,10 @@ export default {
 ::v-deep {
   .nowrap {
     white-space: nowrap;
+  }
+
+  .monospace {
+    font-family: $mono-font;
   }
 }
 </style>

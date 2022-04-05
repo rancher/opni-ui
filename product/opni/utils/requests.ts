@@ -10,7 +10,7 @@ import { Log } from '~/product/opni/models/log/Log';
 import { Logs, LogsResponse } from '~/product/opni/models/log/Logs';
 import { MatchLabel, Role, RolesResponse } from '~/product/opni/models/Role';
 import { RoleBinding, RoleBindingsResponse } from '~/product/opni/models/RoleBinding';
-import { GatewayConfig, Document } from '~/product/opni/models/Document';
+import { GatewayConfig, ConfigDocument } from '~/product/opni/models/Config';
 import { LABEL_KEYS } from '~/product/opni/models/shared';
 import { base64Encode } from '~/utils/crypto';
 
@@ -274,10 +274,10 @@ export async function createRoleBinding(name: string, roleName: string, subjects
   }));
 }
 
-export async function getGatewayConfig(vue: any): Promise<Document[]> {
+export async function getGatewayConfig(vue: any): Promise<ConfigDocument[]> {
   const config = (await axios.get<GatewayConfig>(`opni-api/management/config`)).data;
 
-  return config.documents.map( configDocument => new Document(configDocument, vue));
+  return config.documents.map(configDocument => new ConfigDocument(configDocument, vue));
 }
 
 export function updateGatewayConfig(jsonDocuments: string[]): Promise<undefined> {

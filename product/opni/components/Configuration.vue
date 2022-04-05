@@ -44,7 +44,7 @@ export default {
             contents += '---\n';
           }
         });
-        this.editorContents = contents;
+        this.$set(this, 'editorContents', contents);
       } finally {
         this.loading = false;
       }
@@ -69,9 +69,6 @@ export default {
       this.$set(this, 'error', '');
       await this.load();
     },
-    onInput(yaml) {
-      this.editorContents = yaml;
-    }
   }
 };
 </script>
@@ -83,11 +80,7 @@ export default {
         <h1>Configuration</h1>
       </div>
       <div slot="actions" class="row actions-container">
-        <!-- <div v-if="errors.length" class="error-message pr-10">
-          {{ errors.join('; ') }}
-        </div> -->
         <AsyncButton
-          ref="saveBtn"
           class="btn role-primary mr-10"
           action-label="Save and Restart"
           waiting-label="Saving..."
@@ -107,13 +100,11 @@ export default {
     />
     <div slot="body">
       <YamlEditor
-        ref="yamlEditor"
         v-model="editorContents"
         :as-object="false"
         :editor-mode="'EDIT_CODE'"
         :read-only="false"
         class="yaml-editor"
-        @onInput="onInput"
       />
     </div>
   </div>
@@ -135,6 +126,5 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-
 }
 </style>

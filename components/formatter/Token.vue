@@ -16,8 +16,14 @@ export default {
       default: ''
     },
   },
+  data() {
+    return { copied: false };
+  },
   computed: {
     isToken() {
+      // Checks if the displayed value is a token string or a friendly name.
+      // Tokens are 64-character hex strings with a '.' separating the first
+      // 12 and last 52 characters.
       return /^[0-9a-f]{12}\.[0-9a-f]{52}$/i.test(this.value);
     },
     tokenId() {
@@ -28,16 +34,28 @@ export default {
     },
   },
   methods: {
-    onClick(ev) {
+    copyToken(ev) {
       ev.stopPropagation();
-      this.$copyText(this.value);
+      ev.preventDefault();
+
+      this.$copyText(this.value).then(() => {
+        this.copied = true;
+        setTimeout(() => {
+          this.copied = false;
+        }, 2000);
+      });
     }
   }
 };
 </script>
 
 <template>
-  <span v-if="isToken" class="token">
+  <span
+    v-if="isToken"
+    v-tooltip="{'content': copied ? 'Copied!' : 'Copy Token', hideOnTargetClick: false}"
+    class="token"
+    @click="copyToken"
+  >
     <span class="token-id">
       {{ tokenId }}
     </span>
@@ -47,11 +65,6 @@ export default {
     <span class="token-secret">
       {{ tokenSecret }}
     </span>
-    <i
-      v-tooltip="'Copy Token'"
-      class="icon icon-copy"
-      @click="onClick"
-    />
   </span>
   <span v-else>
     {{ value }}
@@ -64,6 +77,7 @@ export default {
   flex-grow: 0;
   flex-shrink: 0;
   flex-basis: auto;
+  cursor: pointer;
 }
 .token-id {
   color: var(--primary);
@@ -75,15 +89,5 @@ export default {
 .token-secret {
   color: var(--app-other-accent);
   font-family: $mono-font;
-}
-.icon-copy {
-  cursor: pointer;
-  color: var(--muted);
-  display: flex;
-  margin-left: 7px;
-  align-items: center;
-}
-.icon-copy:hover {
-  color: var(--darker);
 }
 </style>

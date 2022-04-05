@@ -29,13 +29,7 @@ export default {
     open(cluster) {
       this.$set(this, 'id', cluster.id);
       this.$set(this, 'name', cluster.name);
-      this.$set(this, 'labels', cluster.labels.reduce((acc, label) => {
-        const [key, value] = label.split('=');
-
-        acc[key] = value;
-
-        return acc;
-      }, {}));
+      this.$set(this, 'labels', cluster.labels);
       this.$modal.show('edit-cluster-dialog');
     },
 

@@ -57,7 +57,11 @@ export class Cluster extends Resource {
     return this.base.id;
   }
 
-  get labels(): string[] {
+  get labels(): any {
+    return this.base.metadata.labels;
+  }
+
+  get displayLabels(): string[] {
     return Object.entries(this.base.metadata.labels)
       .filter(([key]) => !Object.values(LABEL_KEYS).includes(key))
       .map(([key, value]) => `${ key }=${ value }`);

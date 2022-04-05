@@ -95,7 +95,9 @@ export default {
 
         if (expiration === 'custom') {
           const unitMultiplier = this.customExpirationUnit;
-          const seconds = Math.min(this.customExpirationValue * unitMultiplier, 365 * 24 * 60 * 60);
+          const seconds = Math.min(
+            Math.max(1, this.customExpirationValue) * unitMultiplier,
+            365 * 24 * 60 * 60);
 
           expiration = `${ seconds }s`;
         }
@@ -152,6 +154,7 @@ export default {
             <input
               v-model="customExpirationValue"
               type="number"
+              min="1"
               :mode="'edit'"
             >
             <Select

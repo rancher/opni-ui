@@ -90,8 +90,13 @@ export default {
     async load() {
       try {
         this.loading = true;
-        this.$set(this, 'tokens', await getTokens(this));
-        this.$set(this, 'clusters', await getClusters(this));
+        const [clusters, tokens] = await Promise.all([
+          getClusters(),
+          getTokens(),
+        ]);
+
+        this.$set(this, 'tokens', tokens);
+        this.$set(this, 'clusters', clusters);
       } finally {
         this.loading = false;
       }

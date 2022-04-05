@@ -2,6 +2,7 @@
 import LabeledInput from '@/components/form/LabeledInput';
 import AsyncButton from '@/components/AsyncButton';
 import { createRole, getClusters } from '@/product/opni/utils/requests';
+import { exceptionToErrorsArray } from '@/utils/error';
 import Loading from '@/components/Loading';
 import Tab from '@/components/Tabbed/Tab';
 import Tabbed from '@/components/Tabbed';
@@ -58,7 +59,15 @@ export default {
 
         return;
       }
-      await createRole(this.name, this.clusterIds, this.matchLabelsToSave);
+      try {
+        await createRole(this.name, this.clusterIds, this.matchLabelsToSave);
+      } catch (err) {
+        this.$set(this, 'error', exceptionToErrorsArray(err).join('; '));
+        buttonCallback(false);
+
+        return;
+      }
+      this.$set(this, 'error', '');
       buttonCallback(true);
       this.$router.replace({ name: 'roles' });
     },

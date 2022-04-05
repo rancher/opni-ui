@@ -10,7 +10,7 @@ export interface GatewayConfig {
   documents: ConfigDocumentWithSchema[];
 }
 
-export class Document extends Resource {
+export class ConfigDocument extends Resource {
   private config: ConfigDocumentWithSchema;
 
   constructor(config: ConfigDocumentWithSchema, vue: any) {

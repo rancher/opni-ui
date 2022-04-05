@@ -25,10 +25,17 @@ export default {
   },
 
   async fetch() {
-    this.$set(this, 'tokens', await getTokens());
-    this.$set(this, 'capabilities', await getCapabilities());
-    this.$set(this, 'clusterCount', (await getClusters()).length);
-    this.$set(this, 'pin', await getClusterFingerprint());
+    const [tokens, capabilities, clusters, clusterFingerprint] = await Promise.all([
+      getTokens(),
+      getCapabilities(),
+      getClusters(),
+      getClusterFingerprint(),
+    ]);
+
+    this.$set(this, 'tokens', tokens);
+    this.$set(this, 'capabilities', capabilities);
+    this.$set(this, 'clusterCount', clusters.length);
+    this.$set(this, 'pin', clusterFingerprint);
   },
 
   data() {
@@ -47,10 +54,11 @@ export default {
       newClusterFound:      false,
       pin:                  null,
       placeholderText,
-      installCommand:       placeholderText,
-      origInstallCommand:   '',
-      inputArgs:            [],
-      error:                '',
+      installCmdData:       {
+        tmpl:   '',
+        args:            [],
+      },
+      error: '',
     };
   },
 
@@ -89,11 +97,14 @@ export default {
       }
     },
 
-    async renderInstallCommand() {
+    async fetchInstallCommandTemplate() {
       if (!this.capability || !this.token) {
         return;
       }
       const cmd = await getCapabilityInstaller(this.capability, this.token, this.pin);
+      // This matches one or more instances of brackets surrounded by
+      // % characters on either side, for example %{"foo": "bar"}%
+      // The string between the % characters is assumed to be a json object.
       const regex = /\%({.*?\})\%/g;
       const inputArgs = [];
 
@@ -111,6 +122,10 @@ export default {
           break;
         case 'select':
           label = json.select.label;
+          json.select.items = json.select.items.map(item => ({
+            label: item || '(none)',
+            value: item
+          }));
           break;
         case 'toggle':
           label = json.toggle.label;
@@ -124,11 +139,9 @@ export default {
         for (const option of json.options) {
           switch (option.name) {
           case 'default':
-            if (option.value === 'true') {
-              value = true;
-            } else if (option.value === 'false') {
-              value = false;
-            } else {
+            try {
+              value = JSON.parse(option.value);
+            } catch {
               value = option.value;
             }
             break;
@@ -154,34 +167,46 @@ export default {
         parsedCmd = parsedCmd.replace(match[0], `{{ ${ label } }}`);
       }
 
-      this.$set(this, 'inputArgs', inputArgs);
-      this.$set(this, 'installCommand', parsedCmd);
-      this.origInstallCommand = parsedCmd;
-
-      this.updateInstallCommand();
+      this.$set(this, 'installCmdData', {
+        args:     inputArgs,
+        tmpl: parsedCmd,
+      });
     },
-    updateInstallCommand() {
-      let cmd = this.origInstallCommand;
+    isArgEmpty(arg) {
+      return !arg || arg === 'false';
+    },
+  },
+  computed: {
+    installCommand() {
+      if (!this.installCmdData.args || !this.installCmdData.tmpl) {
+        return this.placeholderText;
+      }
 
-      for (const input of this.inputArgs) {
+      let cmd = this.installCmdData.tmpl;
+
+      for (const input of this.installCmdData.args) {
         const {
           label, value, format, omitEmpty
         } = input._data;
 
-        if (omitEmpty && !value) {
+        if (omitEmpty && this.isArgEmpty(value)) {
           cmd = cmd.replace(`{{ ${ label } }}`, '');
         } else if (value !== '') {
-          _.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
+          // This evaluates arg template strings as if they were template
+          // literals, using the current value of the arg as the name 'value'
+          // in the template.
+          // For example, if the template string is '--foo={{ value }}' and
+          // the current value is 'bar', the result is '--foo=bar'.
+
+          _.templateSettings.interpolate = /{{([\s\S]+?)}}/g; // use go syntax
           const tmpl = _.template(format);
 
           cmd = cmd.replace(`{{ ${ label } }}`, tmpl({ value }));
         }
       }
-      this.$set(this, 'installCommand', cmd);
-    },
-  },
 
-  computed: {
+      return cmd;
+    },
     tokenOptions() {
       return this.tokens.map(token => ({
         label: token.nameDisplay,
@@ -213,7 +238,7 @@ export default {
           :localized-label="true"
           :options="capabilityOptions"
           :required="true"
-          @input="renderInstallCommand"
+          @input="fetchInstallCommandTemplate"
         />
       </div>
       <div class="col span-6">
@@ -225,7 +250,7 @@ export default {
           :localized-label="true"
           :options="tokenOptions"
           :required="true"
-          @input="renderInstallCommand"
+          @input="fetchInstallCommandTemplate"
         />
       </div>
     </div>
@@ -247,32 +272,26 @@ export default {
         Install Command
       </h4>
       <div slot="body">
-        <div v-if="inputArgs.length > 0" class="row">
-          <div v-for="item in inputArgs" :key="item.key" class="options col span-3 mb-10">
+        <div v-if="!!installCmdData.args" class="row">
+          <div v-for="item in installCmdData.args" :key="item.key" class="options col span-3 mb-10">
             <LabeledSelect
               v-if="item.kind === 'select'"
               v-model="item._data.value"
               :label="item._data.label"
               :required="item._data.required"
-              :options="item.select.items.map(item => ({
-                label: item || '(none)',
-                value: item
-              }))"
-              @input="updateInstallCommand"
+              :options="item.select.items"
             />
             <LabeledInput
               v-if="item.kind === 'input'"
               v-model="item._data.value"
               :label="item._data.label"
               :required="item._data.required"
-              @input="updateInstallCommand"
             />
             <Checkbox
               v-if="item.kind === 'toggle'"
               v-model="item._data.value"
               :label="item._data.label"
               :required="item._data.required"
-              @input="updateInstallCommand"
             />
           </div>
         </div>
@@ -319,7 +338,7 @@ export default {
 }
 
 .placeholder-text {
-  font-family: sans-serif !important;
+  font-family: $body-font;
 }
 
 .token-select ::v-deep #vs2__combobox > div.vs__selected-options > span {
