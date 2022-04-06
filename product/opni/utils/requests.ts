@@ -3,13 +3,16 @@ import day, { Dayjs, UnitType } from 'dayjs';
 import { AreaOfInterestResponse } from '@/product/opni/models/areasOfInterest';
 import { FromTo } from '@/product/opni/models/fromTo';
 import { TokensResponse, Token } from '@/product/opni/models/Token';
-import { Cluster, ClustersResponse } from '@/product/opni/models/Cluster';
+import { CapabilitiesResponse, CapabilityInstallerResponse } from '@/product/opni/models/Capability';
+import { Cluster, ClusterStats, ClusterStatsList, ClustersResponse } from '@/product/opni/models/Cluster';
 import { Breakdowns, BreakdownsResponse } from '~/product/opni/models/overallBreakdown/Breakdowns';
 import { Log } from '~/product/opni/models/log/Log';
 import { Logs, LogsResponse } from '~/product/opni/models/log/Logs';
 import { MatchLabel, Role, RolesResponse } from '~/product/opni/models/Role';
 import { RoleBinding, RoleBindingsResponse } from '~/product/opni/models/RoleBinding';
+import { GatewayConfig, ConfigDocument } from '~/product/opni/models/Config';
 import { LABEL_KEYS } from '~/product/opni/models/shared';
+import { base64Encode } from '~/utils/crypto';
 
 interface UnitCount {
   unit: UnitType,
@@ -158,16 +161,31 @@ export async function getTokens(vue: any) {
   return tokensResponse.map(tokenResponse => new Token(tokenResponse, vue));
 }
 
-export async function createToken(ttlInSeconds: string, name: string) {
+export async function getCapabilities(vue: any) {
+  const capabilitiesResponse = (await axios.get<CapabilitiesResponse>(`opni-api/management/capabilities`)).data.items;
+
+  return capabilitiesResponse;
+}
+
+export async function getCapabilityInstaller(capability: string, token: string, pin: string) {
+  return (await axios.post<CapabilityInstallerResponse>(`opni-api/management/capabilities/${ capability }/installer`, {
+    token,
+    pin,
+  })).data.command;
+}
+
+export async function createToken(ttlInSeconds: string, name: string, capabilities: any[]) {
   (await axios.post<any>(`opni-api/management/tokens`, {
     ttl:               ttlInSeconds,
-    labels: { [LABEL_KEYS.NAME]: name }
+    labels: { [LABEL_KEYS.NAME]: name },
+    capabilities,
   }));
 }
 
 export function deleteToken(id: string): Promise<undefined> {
   return axios.delete(`opni-api/management/tokens/${ id }`);
 }
+
 export interface CertResponse {
   issuer: string;
   subject: string;
@@ -192,12 +210,13 @@ export async function getClusterFingerprint() {
 }
 
 export async function updateCluster(id: string, name: string, labels: { [key: string]: string }) {
+  labels = { ...labels, [LABEL_KEYS.NAME]: name };
+  if (name === '') {
+    delete labels[LABEL_KEYS.NAME];
+  }
   (await axios.put<any>(`opni-api/management/clusters/${ id }`, {
     cluster: { id },
-    labels:  {
-      ...labels,
-      [LABEL_KEYS.NAME]: name
-    }
+    labels
   }));
 }
 
@@ -211,6 +230,12 @@ export async function getClusters(vue: any): Promise<Cluster[]> {
   const clustersResponse = (await axios.get<ClustersResponse>(`opni-api/management/clusters`)).data.items;
 
   return clustersResponse.map( clusterResponse => new Cluster(clusterResponse, vue));
+}
+
+export async function getClusterStats(vue: any): Promise<ClusterStats[]> {
+  const clustersResponse = (await axios.get<ClusterStatsList>(`opni-api/CortexAdmin/all_user_stats`)).data.items;
+
+  return clustersResponse;
 }
 
 export function deleteCluster(id: string): Promise<undefined> {
@@ -247,4 +272,20 @@ export async function createRoleBinding(name: string, roleName: string, subjects
   (await axios.post<any>(`opni-api/management/rolebindings`, {
     id: name, roleId: roleName, subjects
   }));
+}
+
+export async function getGatewayConfig(vue: any): Promise<ConfigDocument[]> {
+  const config = (await axios.get<GatewayConfig>(`opni-api/management/config`)).data;
+
+  return config.documents.map(configDocument => new ConfigDocument(configDocument, vue));
+}
+
+export function updateGatewayConfig(jsonDocuments: string[]): Promise<undefined> {
+  const documents = [];
+
+  for (const jsonDocument of jsonDocuments) {
+    documents.push({ json: base64Encode(jsonDocument) });
+  }
+
+  return axios.put(`opni-api/management/config`, { documents });
 }

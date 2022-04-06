@@ -3,12 +3,21 @@ import { Resource } from './Resource';
 import { deleteToken } from '~/product/opni/utils/requests';
 import { Labels, LABEL_KEYS } from '~/product/opni/models/shared';
 
+export interface TokenCapability{
+  type: string;
+  reference: {
+    id: string;
+  };
+}
+
 export interface TokenMetadata {
   leaseID: string;
   ttl: string;
   usageCount: number;
   labels: Labels;
+  capabilities: TokenCapability[];
 }
+
 export interface TokenResponse {
   tokenID: string;
   secret: string;
@@ -65,8 +74,33 @@ export class Token extends Resource {
       return this.used === 1 ? 'Used 1 time' : `Used ${ this.used } times`;
     }
 
+    get labels(): string[] {
+      return Object.entries(this.base.metadata.labels)
+        .filter(([key]) => !Object.values(LABEL_KEYS).includes(key))
+        .map(([key, value]) => `${ key }=${ value }`);
+    }
+
+    get capabilities(): string[] {
+      return this.base.metadata.capabilities.map((capability) => {
+        if (capability.type === 'join_existing_cluster' && capability.reference.id) {
+          const clusterId = capability.reference.id.slice(0, 8);
+
+          return `join: ${ clusterId }`;
+        }
+
+        return '';
+      }).filter(capability => capability !== '');
+    }
+
     get availableActions(): any[] {
       return [
+        {
+          action:   'copy',
+          label:    'Copy Token',
+          icon:     'icon icon-copy',
+          bulkable: false,
+          enabled:  true,
+        },
         {
           action:     'promptRemove',
           altAction:  'delete',

@@ -2,9 +2,11 @@
 import LabeledInput from '@/components/form/LabeledInput';
 import AsyncButton from '@/components/AsyncButton';
 import { createRole, getClusters } from '@/product/opni/utils/requests';
+import { exceptionToErrorsArray } from '@/utils/error';
 import Loading from '@/components/Loading';
 import Tab from '@/components/Tabbed/Tab';
 import Tabbed from '@/components/Tabbed';
+import Banner from '@/components/Banner';
 import ArrayListSelect from '@/components/form/ArrayListSelect';
 import KeyValue from '@/components/form/KeyValue';
 import MatchExpressions from '@/components/form/MatchExpressions';
@@ -18,16 +20,21 @@ export default {
     Loading,
     MatchExpressions,
     Tab,
-    Tabbed
+    Tabbed,
+    Banner,
   },
 
   async fetch() {
     const clusters = await getClusters();
 
-    this.$set(this, 'clusterIdOptions', clusters.map(cluster => ({
-      label: cluster.nameDisplay,
-      value: cluster.id,
-    })));
+    this.$set(
+      this,
+      'clusterIdOptions',
+      clusters.map(cluster => ({
+        label: cluster.nameDisplay,
+        value: cluster.id,
+      }))
+    );
   },
 
   data() {
@@ -39,26 +46,41 @@ export default {
       clusterIds:       [],
       clusterIdOptions: [],
       matchLabels:      {},
-      matchExpressions: []
+      matchExpressions: [],
+      error:            '',
     };
   },
 
   methods: {
-    async save() {
-      await createRole(this.name, this.clusterIds, this.matchLabelsToSave);
+    async save(buttonCallback) {
+      if (this.name === '') {
+        this.$set(this, 'error', 'Name is required');
+        buttonCallback(false);
 
+        return;
+      }
+      try {
+        await createRole(this.name, this.clusterIds, this.matchLabelsToSave);
+      } catch (err) {
+        this.$set(this, 'error', exceptionToErrorsArray(err).join('; '));
+        buttonCallback(false);
+
+        return;
+      }
+      this.$set(this, 'error', '');
+      buttonCallback(true);
       this.$router.replace({ name: 'roles' });
-    }
+    },
   },
 
   computed: {
     matchLabelsToSave() {
       return {
         matchLabels:      this.matchLabels,
-        matchExpressions: this.matchExpressions
+        matchExpressions: this.matchExpressions,
       };
-    }
-  }
+    },
+  },
 };
 </script>
 <template>
@@ -66,7 +88,11 @@ export default {
   <div v-else>
     <div class="row mb-20">
       <div class="col span-12">
-        <LabeledInput v-model="name" label="Name" />
+        <LabeledInput
+          v-model="name"
+          label="Name"
+          :required="true"
+        />
       </div>
     </div>
     <Tabbed :side-tabs="true" class="mb-20">
@@ -79,7 +105,9 @@ export default {
         <ArrayListSelect
           v-model="clusterIds"
           :options="clusterIdOptions"
-          :array-list-props="{ addLabel: t('opni.monitoring.role.tabs.clusters.add') }"
+          :array-list-props="{
+            addLabel: t('opni.monitoring.role.tabs.clusters.add'),
+          }"
         />
       </Tab>
       <Tab
@@ -104,16 +132,19 @@ export default {
         <MatchExpressions
           v-model="matchExpressions"
           :initial-empty-row="false"
+          type="pod"
         />
       </Tab>
     </Tabbed>
     <div class="resource-footer">
-      <AsyncButton
-        mode="edit"
-        @click="save"
-      >
-      </asyncbutton>
+      <AsyncButton mode="edit" @click="save">
+      </AsyncButton>
     </div>
+    <Banner
+      v-if="error"
+      color="error"
+      :label="error"
+    />
   </div>
 </template>
 

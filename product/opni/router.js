@@ -25,7 +25,7 @@ export const NAVIGATION = {
       name:      'clusters',
       path:      '/clusters',
       labelKey:  'opni.nav.clusters',
-      icon:      'globe',
+      icon:      'cluster-management',
       component: Clusters
     },
     {
@@ -48,7 +48,7 @@ export const NAVIGATION = {
       name:      'tokens',
       path:      '/tokens',
       labelKey:  'opni.nav.tokens',
-      icon:      'globe',
+      icon:      'unlock',
       component: Tokens
     },
     {
@@ -63,7 +63,7 @@ export const NAVIGATION = {
       name:      'roles',
       path:      '/roles',
       labelKey:  'opni.nav.roles',
-      icon:      'globe',
+      icon:      'show',
       component: Roles
     },
     {
@@ -86,16 +86,16 @@ export const NAVIGATION = {
       name:      'roleBindings',
       path:      '/role-bindings',
       labelKey:  'opni.nav.roleBindings',
-      icon:      'globe',
+      icon:      'user',
       component: RoleBindings
     },
     {
       name:      'configuration',
       path:      '/configuration',
       labelKey:  'opni.nav.configuration',
-      icon:      'globe',
+      icon:      'gear',
       component: Configuration,
-      display:   false
+      display:   true
     },
     // {
     //   name:      'preempt',

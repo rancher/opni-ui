@@ -3,10 +3,12 @@ import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import AsyncButton from '@/components/AsyncButton';
 import { createRoleBinding, getRoles } from '@/product/opni/utils/requests';
+import { exceptionToErrorsArray } from '@/utils/error';
 import Loading from '@/components/Loading';
 import Tab from '@/components/Tabbed/Tab';
 import Tabbed from '@/components/Tabbed';
 import ArrayList from '@/components/form/ArrayList';
+import Banner from '@/components/Banner';
 
 export default {
   components: {
@@ -16,7 +18,8 @@ export default {
     Loading,
     Tab,
     Tabbed,
-    ArrayList
+    ArrayList,
+    Banner,
   },
 
   async fetch() {
@@ -31,13 +34,34 @@ export default {
       roleName:  '',
       subjects:  [],
       roles:     [],
+      error:    '',
     };
   },
 
   methods: {
-    async save() {
-      await createRoleBinding(this.name, this.roleName, this.subjects);
+    async save(buttonCallback) {
+      if (this.name === '') {
+        this.$set(this, 'error', 'Name is required');
+        buttonCallback(false);
 
+        return;
+      }
+      if (this.roleName === '') {
+        this.$set(this, 'error', 'Role is required');
+        buttonCallback(false);
+
+        return;
+      }
+      try {
+        await createRoleBinding(this.name, this.roleName, this.subjects);
+      } catch (err) {
+        this.$set(this, 'error', exceptionToErrorsArray(err).join('; '));
+        buttonCallback(false);
+
+        return;
+      }
+      this.$set(this, 'error', '');
+      buttonCallback(true);
       this.$router.replace({ name: 'roleBindings' });
     }
   },
@@ -57,7 +81,11 @@ export default {
   <div v-else>
     <div class="row">
       <div class="col span-6">
-        <LabeledInput v-model="name" label="Name" />
+        <LabeledInput
+          v-model="name"
+          label="Name"
+          :required="true"
+        />
       </div>
       <div class="col span-6">
         <LabeledSelect
@@ -65,6 +93,7 @@ export default {
           class="mb-20"
           :label="t('opni.monitoring.roleBindings.role')"
           :options="roleOptions"
+          :required="true"
         />
       </div>
     </div>
@@ -86,9 +115,13 @@ export default {
       <AsyncButton
         mode="edit"
         @click="save"
-      >
-      </asyncbutton>
+      />
     </div>
+    <Banner
+      v-if="error"
+      color="error"
+      :label="error"
+    />
   </div>
 </template>
 

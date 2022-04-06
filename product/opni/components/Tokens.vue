@@ -19,11 +19,26 @@ export default {
       clusters: [],
       headers:  [
         {
-          name:      'nameDisplay',
-          labelKey:  'tableHeaders.name',
-          sort:      ['nameDisplay'],
-          value:     'nameDisplay',
-          width:     undefined
+          name:          'nameDisplay',
+          labelKey:      'tableHeaders.token',
+          sort:          ['nameDisplay'],
+          value:         'nameDisplay',
+          width:         undefined,
+          formatter:     'Token',
+        },
+        {
+          name:          'labels',
+          labelKey:      'tableHeaders.labels',
+          sort:          ['labels'],
+          value:         'labels',
+          formatter:     'ListBubbles'
+        },
+        {
+          name:      'capabilities',
+          labelKey:  'tableHeaders.capabilities',
+          sort:      ['capabilities'],
+          value:     'capabilities',
+          formatter: 'ListBubbles'
         },
         {
           name:          'used',
@@ -50,10 +65,12 @@ export default {
 
   created() {
     this.$on('remove', this.onTokenDelete);
+    this.$on('copy', this.copyToken);
   },
 
   beforeDestroy() {
     this.$off('remove');
+    this.$off('copy');
   },
 
   methods: {
@@ -63,14 +80,23 @@ export default {
 
     openCreateDialog(ev) {
       ev.preventDefault();
-      this.$refs.dialog.open();
+      this.$refs.dialog.open(this.clusters);
+    },
+
+    copyToken(token) {
+      this.$copyText(token.id);
     },
 
     async load() {
       try {
         this.loading = true;
-        await this.$set(this, 'tokens', await getTokens(this));
-        await this.$set(this, 'clusters', await getClusters(this));
+        const [clusters, tokens] = await Promise.all([
+          getClusters(),
+          getTokens(),
+        ]);
+
+        this.$set(this, 'tokens', tokens);
+        this.$set(this, 'clusters', clusters);
       } finally {
         this.loading = false;
       }
