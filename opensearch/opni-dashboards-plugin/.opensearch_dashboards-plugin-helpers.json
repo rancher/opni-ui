@@ -1,0 +1,10 @@
+{
+  "serverSourcePatterns": [
+    "package.json",
+    "yarn.lock",
+    ".yarnrc",
+    "{lib,server,webpackShims,translations,utils}/**/*",
+    "!test",
+    "!__tests__"
+  ]
+}

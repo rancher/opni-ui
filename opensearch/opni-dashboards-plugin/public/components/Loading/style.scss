@@ -1,0 +1,13 @@
+.loading {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+
+    height: 100%;
+    width: 100%;
+
+    .euiLoadingChart {
+        align-self: center;
+    }
+}

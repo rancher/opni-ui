@@ -1,0 +1,20 @@
+.bubble {
+    display: inline-block;
+    padding: 0px 4px;
+
+    border: 1px solid;
+    border-radius: 4px;
+    color: #000;
+
+    &.anomaly {
+        $color: #f64747;
+        border-color: $color;
+        background-color: rgba($color, 0.4);
+    }
+
+    &.suspicious {
+        $color: #dac342;
+        border-color: $color;
+        background-color: rgba($color, 0.4);
+    }
+}
