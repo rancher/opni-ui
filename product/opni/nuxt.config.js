@@ -6,6 +6,9 @@ const baseConfig = require('../../nuxt.config');
 module.exports = {
   ...baseConfig,
 
+  publicRuntimeConfig: { dev: baseConfig.dev },
+
+  target:   'static',
   buildDir: baseConfig.dev ? 'product/opni/.nuxt' : 'product/opni/.nuxt-prod',
 
   buildModules: [

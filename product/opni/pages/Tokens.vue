@@ -1,17 +1,17 @@
 <script>
 import Main from '../components/Main';
-import Logging from '../components/Logging';
+import Tokens from '../components/Tokens';
 
 export default {
-  components: { Logging, Main },
+  components: { Tokens, Main },
   layout:     'standalone',
   head() {
-    return { title: 'Opni - Overview' };
+    return { title: 'Opni - Tokens' };
   }
 };
 </script>
 <template>
   <Main>
-    <Logging />
+    <Tokens />
   </Main>
 </template>

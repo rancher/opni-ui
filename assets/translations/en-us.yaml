@@ -2453,6 +2453,12 @@ monitoring:
   clusterType:
     label: Cluster Type
     placeholder: Select cluster type
+  token:
+    label: Token
+    placeholder: Select token
+  clusterCapability:
+    label: Cluster Capability
+    placeholder: Select cluster capability
   createDefaultRoles:
     label: Create Default Monitoring Cluster Roles
     tip: 'Creates <code>monitoring-admin</code>, <code>monitoring-edit</code>, and <code>monitoring-view</code> ClusterRoles that can be assigned to users to provide permissions to CRDs installed by the Monitoring chart.'
@@ -4078,6 +4084,7 @@ tableHeaders:
   bundlesReady: Bundles
   bundleDeploymentsReady: Deployments
   builtin: Built-In
+  capabilities: Capabilities
   chart: Chart
   clusterCreatorDefault: Cluster Creator Default
   clusterFlow: Cluster Flow
@@ -4105,6 +4112,7 @@ tableHeaders:
   download: Download
   effect: Effect
   endpoints: Endpoints
+  expiration: Expiration
   flow: Flow
   gitRepos: Git Repos
   host: |-
@@ -4121,6 +4129,7 @@ tableHeaders:
   jobs: Jobs
   key: Key
   keys: Data
+  labels: Labels
   lastUpdated: Last Updated
   lastSeen: Last Seen
   level: Level
@@ -4130,6 +4139,8 @@ tableHeaders:
   machineNodeName: Node
   manual: Manual
   matches: Matches
+  matchExpressions: Match Expressions
+  matchLabels: Match Labels
   maxKubernetesVersion: Max Kubernetes Version
   message: Message
   minKubernetesVersion: Min Kubernetes Version
@@ -4142,9 +4153,11 @@ tableHeaders:
   namespaceNameUnlinked: Name
   node: Node
   nodeName: Name
+  nodes: Nodes
   nodesReady: Nodes Ready
   nodePort: Node Port
   normal: Normal
+  numSeries: Series Count
   object: Object
   operatingSystem: OS
   output: Output
@@ -4179,6 +4192,8 @@ tableHeaders:
   restarts: Restarts
   role: Role
   roles: Roles
+  rulesRate: Rule Ingestion Rate
+  sampleRate: Sample Ingestion Rate
   scale: Scale
   scope: Scope
   selector: Selector
@@ -4191,6 +4206,7 @@ tableHeaders:
   status: Status
   storage_class_provisioner: Provisioner
   subject: Subject
+  subjects: Subjects
   subType: Kind
   success: Success
   summary: Summary
@@ -4199,10 +4215,12 @@ tableHeaders:
   target: Target
   targetKind: Target Type
   targetPort: Target
+  token: Token
   type: Type
   updated: Updated
   upgrade: Upgradable
   url: URL
+  used: Used
   userDisplayName: Display Name
   userId: ID
   userStatus: Status
@@ -6104,9 +6122,41 @@ opni:
     title: Logging
   logsDrawer:
     title: Logs
+  monitoring:
+    clusters:
+      tabs:
+        target:
+          label: Target
+          token: Token
+          capability: Capability
+        labels:
+          label: Labels
+    roleBindings:
+      role: Role
+      tabs:
+        subjects:
+          label: Subjects
+        taints:
+          label: Taints
+    role:
+      tabs:
+        clusters:
+          label: Clusters
+          add: Add Cluster
+        matchLabels:
+          label: Match Labels
+        matchExpressions:
+          label: Match Expressions
   nav:
-    respond: Overview
+    configuration: Configuration
+    clusters: Clusters
+    rbac: RBAC
+    roles: Roles
+    roleBindings: Role Bindings
+    tokens: Tokens
   workloadVsControlPlaneChart:
     workload: Workload
     controlPlane: Control Plane
+
+    
 
