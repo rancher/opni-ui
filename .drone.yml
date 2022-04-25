@@ -1,4 +1,22 @@
 kind: pipeline
+name: plugin-tag
+
+trigger:
+  event:
+  - tag
+  ref:
+  - "refs/tags/plugin-*"
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: plugin-zip
+  commands:
+  - echo "test"
+---
+kind: pipeline
 name: docker-tag
 
 trigger:
@@ -20,3 +38,4 @@ steps:
       from_secret: docker_username
     password:
       from_secret: docker_password
+---
