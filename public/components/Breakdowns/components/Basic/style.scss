@@ -1,0 +1,22 @@
+.basic-breakdown {
+    padding: 15px;
+
+    .bubble {
+        cursor: pointer;
+    }
+
+    a {
+        color: #000;
+    }
+
+    div.normal {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100px;
+        div {
+            white-space: nowrap;
+        }
+    }
+}
