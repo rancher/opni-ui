@@ -1,9 +1,0 @@
-{
-  "id": "opniDashboards",
-  "version": "0.1",
-  "opensearchDashboardsVersion": "1.1.0",
-  "configPath": ["opni_dashboards"],
-  "requiredPlugins": [],
-  "server": false,
-  "ui": true
-}
