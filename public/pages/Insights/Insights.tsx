@@ -3,13 +3,13 @@ import { CoreConsumer } from '../../utils/CoreContext';
 import InsightsChart from '../../components/InsightsChart';
 import Selector from '../../components/Selector';
 import Breakdowns from '../../components/Breakdowns';
-import moment from 'moment';
 import { DEFAULT_SETTINGS, Settings } from '../../components/Selector/Selector';
-import { roundTime, Range, Granularity } from '../../utils/time';
+import { Range, Granularity } from '../../utils/time';
 import AnomalyChart from '../../components/AnomalyChart';
 import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { getClusterIds } from '../../utils/requests';
 import Loading from '../../components/Loading';
+import dateMath from '@elastic/datemath';
 
 interface MainState {
   settings: Settings,
@@ -28,19 +28,16 @@ class Main extends Component<any, MainState> {
       settings: { ...DEFAULT_SETTINGS },
       clustersRequest: new Promise(() => {}),
       clusters: [],
-      range: this.getAbsoluteRange(),
+      range: this.getAbsoluteRange(DEFAULT_SETTINGS.range),
       granularity: DEFAULT_SETTINGS.granularity,
       cluster: DEFAULT_SETTINGS.cluster
     };
   }
 
-  getAbsoluteRange = (): Range => {
-    const now = moment();
-    const end = roundTime(now, moment.duration(30, 'm'));
-
+  getAbsoluteRange = (range: { start: string; end: string;}): Range => {
     return {
-      start: end.clone().subtract(this.state?.settings.range || DEFAULT_SETTINGS.range, 'ms'),
-      end
+      start: dateMath.parse(range.start),
+      end: dateMath.parse(range.end)
     }
   }
 
@@ -53,8 +50,9 @@ class Main extends Component<any, MainState> {
   }
 
   onRefresh = () => {
+    console.log('goober');
     this.setState({ 
-      range: this.getAbsoluteRange(),
+      range: this.getAbsoluteRange(this.state.settings.range),
       cluster: this.state.settings.cluster,
       granularity: this.state.settings.granularity
     });

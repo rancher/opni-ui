@@ -44,7 +44,6 @@ export default class InsightsChart extends Component<InsightsChartProps, Insight
   }
 
   componentDidUpdate(prevProps: Readonly<InsightsChartProps>): void {
-    console.log('pr', prevProps, this.props);
     if (this.props.granularity !== prevProps.granularity || !isSameRange(this.props.range, prevProps.range) || this.props.clusterId !== prevProps.clusterId) {
       this.load();
     }

@@ -129,8 +129,6 @@ export async function getAnomalies(range: Range, granularity: Granularity, clust
   const byComponent: AnomalyByComponent = {};
   const buckets = results.rawResponse?.aggregations?.histogram?.buckets;
 
-  console.log('bbb', buckets);
-
   buckets.forEach(bucket => {
     const timestamp = bucket.key;
     const components = bucket.filtered.buckets.anomaly.component.buckets;

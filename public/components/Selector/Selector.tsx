@@ -6,12 +6,16 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiButton,
+  EuiSuperDatePicker
 } from '@elastic/eui';
 import { Settings } from '@elastic/charts';
 import { Granularity } from '../../utils/time';
 
 export interface Settings {
-  range: number;
+  range: {
+    start: string;
+    end: string;
+  };
   granularity: Granularity;
   cluster: string;
 }
@@ -21,21 +25,6 @@ export interface SelectorProps {
   onChange: (Settings) => void;
   onRefresh: () => void;
 };
-
-const RANGE_OPTIONS = [
-  {
-    value: 86400000, //ms
-    text: '24h'
-  },
-  {
-    value: 43200000, //ms
-    text: '12h'
-  },
-  {
-    value: 3600000, //ms
-    text: '1h'
-  }
-];
 
 const GRANULARITY_OPTIONS: {text: string, value: Granularity}[] = [
   {
@@ -60,7 +49,10 @@ const CLUSTER_OPTIONS = [
 ];
 
 export const DEFAULT_SETTINGS: Settings = {
-  range: RANGE_OPTIONS[0].value,
+  range: {
+    start: 'now-24h',
+    end: 'now'
+  },
   granularity: GRANULARITY_OPTIONS[0].value,
   cluster: CLUSTER_OPTIONS[0].value
 };
@@ -78,6 +70,11 @@ export default class Selector extends Component<SelectorProps> {
   render() {
     const { range, granularity, cluster } = this.props.settings;
     const clusterOptions = [...CLUSTER_OPTIONS, ...this.props.clusterIds.map(id => ({ value: id, text: id}))];
+    const onTimeChange = (newRange) => {
+      this.onChange('range')({start: newRange.start, end: newRange.end});
+      setTimeout(() => this.props.onRefresh());
+    };
+
     return (
       <EuiFlexGroup style={{ padding: '0 15px' }} className="selector" >
         <EuiFlexItem>
@@ -85,9 +82,14 @@ export default class Selector extends Component<SelectorProps> {
         </EuiFlexItem>
         <EuiFlexItem>
           <EuiFlexGroup justifyContent="flexEnd" className="right">
-            <EuiFlexItem><EuiSelect options={RANGE_OPTIONS} prepend="Range" value={range} onChange={this.onChange('range', 'number')} /></EuiFlexItem>
             <EuiFlexItem><EuiSelect options={GRANULARITY_OPTIONS} prepend="Period" value={granularity} onChange={this.onChange('granularity')} /></EuiFlexItem>
-            <EuiFlexItem><EuiButton iconType="refresh" onClick={this.props.onRefresh}>Refresh</EuiButton></EuiFlexItem>
+            <EuiFlexItem>
+            <EuiSuperDatePicker
+              start={range.start}
+              end={range.end}
+              onTimeChange={onTimeChange}
+            />
+            </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexItem>
       </EuiFlexGroup>
