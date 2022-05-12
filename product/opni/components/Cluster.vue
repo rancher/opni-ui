@@ -42,6 +42,7 @@ export default {
     const placeholderText = 'Select a capability and token to view install command';
 
     return {
+      isManualOpen:         false,
       tokens:               [],
       token:                null,
       capabilities:         [],
@@ -218,6 +219,12 @@ export default {
         label: capability,
         value: capability
       }));
+    },
+    url() {
+      return window.location.origin;
+    },
+    manualIcon() {
+      return this.isManualOpen ? 'icon-chevron-up' : 'icon-chevron-down';
     }
   }
 };
@@ -322,6 +329,37 @@ export default {
         </Banner>
       </div>
     </Card>
+    <Card class="m-0 mt-20 manual-install" :show-highlight-border="false" :show-actions="false">
+      <h4 slot="title" class="text-default-text" @click="isManualOpen = !isManualOpen">
+        <span>Manual Install Information</span><i class="icon" :class="manualIcon" />
+      </h4>
+      <div slot="body">
+        <div v-if="isManualOpen">
+          <div v-if="!token || !pin" class="mt-10">
+            <CopyCode class="placeholder-text">
+              {{ placeholderText }}
+            </CopyCode>
+          </div>
+          <div v-else>
+            <div class="mt-10">
+              Token ID: <CopyCode class="ml-5">
+                {{ token }}
+              </CopyCode>
+            </div>
+            <div class="mt-10">
+              Cert PIN: <CopyCode class="ml-5">
+                {{ pin }}
+              </CopyCode>
+            </div>
+            <div class="mt-10">
+              URL: <CopyCode class="ml-5">
+                {{ url }}
+              </CopyCode>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
   </div>
 </template>
 
@@ -350,6 +388,28 @@ export default {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+}
+
+::v-deep {
+  .manual-install {
+    &.card-container {
+      min-height: initial;
+    }
+
+    h4 {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      width: 100%;
+      cursor: pointer;
+      margin-bottom: 0;
+
+      i {
+        font-size: 30px;
+        line-height: 20px;
+      }
+    }
+  }
 }
 
 .options {
