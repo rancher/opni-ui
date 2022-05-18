@@ -82,7 +82,7 @@ export default class Selector extends Component<SelectorProps> {
         </EuiFlexItem>
         <EuiFlexItem>
           <EuiFlexGroup justifyContent="flexEnd" className="right">
-            <EuiFlexItem><EuiSelect options={GRANULARITY_OPTIONS} prepend="Period" value={granularity} onChange={this.onChange('granularity')} /></EuiFlexItem>
+            <EuiFlexItem><EuiSelect className="period" options={GRANULARITY_OPTIONS} prepend="Period" value={granularity} onChange={this.onChange('granularity')} /></EuiFlexItem>
             <EuiFlexItem>
             <EuiSuperDatePicker
               start={range.start}
