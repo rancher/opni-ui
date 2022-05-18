@@ -214,13 +214,13 @@ function getInsightsQuery(range: Range, granularity: Granularity, clusterId: str
   return {
     "query": {
       "bool": {
-        "filter": [{ "range": { "timestamp": { "gte": range.start.format(), "lte": range.end.format() } } }],
+        "filter": [{ "range": { "time": { "gte": range.start.format(), "lte": range.end.format() } } }],
         "must": must(clusterId),
       }
     },
     "aggs": {
       "granularity_results": {
-        "date_histogram": { "field": "timestamp", "fixed_interval": granularity },
+        "date_histogram": { "field": "time", "fixed_interval": granularity },
         "aggs": { "anomaly_level": { "terms": { "field": "anomaly_level.keyword" } } },
       }
     },
@@ -288,8 +288,8 @@ function getControlPlaneBreakdownQuery(range: Range, clusterId: string) {
   return {
     "query": {
         "bool": {
-            "filter": [{"range": {"timestamp": {"gte": range.start, "lte": range.end}}}],
-            "must": [...must(clusterId), {"match": {"is_control_plane_log": "true"}}],
+            "filter": [{"range": {"time": {"gte": range.start, "lte": range.end}}}],
+            "must": [...must(clusterId), {"match": {"log_type": "controlplane"}}],
         }
     },
     "aggs": {
@@ -307,8 +307,9 @@ function getNamespaceBreakdownQuery(range: Range, clusterId: string) {
   return {
     "query": {
         "bool": {
-            "must": [...must(clusterId), {"match": {"is_control_plane_log": "false"}}, {"regexp": {"kubernetes.namespace_name": ".+"}}],
-            "filter": [{"range": {"timestamp": {"gte": range.start, "lte": range.end}}}],
+            "must": [...must(clusterId), {"regexp": {"kubernetes.namespace_name": ".+"}}],
+            "must_not": [{"match": {"log_type": "controlplane"}}],
+            "filter": [{"range": {"time": {"gte": range.start, "lte": range.end}}}],
         }
     },
     "aggs": {
@@ -319,7 +320,7 @@ function getNamespaceBreakdownQuery(range: Range, clusterId: string) {
             },
             "aggs": {
               "sparkLine": {
-                "date_histogram": { "field": "timestamp", "fixed_interval": "10m" },
+                "date_histogram": { "field": "time", "fixed_interval": "10m" },
                 "aggs": { "anomaly_level": { "terms": { "field": "anomaly_level.keyword" } } },
               }
             }
@@ -333,8 +334,9 @@ function getPodBreakdownQuery(range: Range, clusterId: string) {
     "size": 0,
     "query": {
         "bool": {
-            "must": [...must(clusterId), {"match": {"is_control_plane_log": "false"}}, {"regexp": {"kubernetes.namespace_name": ".+"}}],
-            "filter": [{"range": {"timestamp": {"gte": range.start, "lte": range.end}}}],
+            "must": [...must(clusterId), {"regexp": {"kubernetes.namespace_name": ".+"}}],
+            "must_not": [{"match": {"log_type": "controlplane"}}],
+            "filter": [{"range": {"time": {"gte": range.start, "lte": range.end}}}],
         }
     },
     "aggs": {
@@ -345,7 +347,7 @@ function getPodBreakdownQuery(range: Range, clusterId: string) {
             },
             "aggs": {
               "sparkLine": {
-                "date_histogram": { "field": "timestamp", "fixed_interval": "10m" },
+                "date_histogram": { "field": "time", "fixed_interval": "10m" },
                 "aggs": { "anomaly_level": { "terms": { "field": "anomaly_level.keyword" } } },
               }
             }
