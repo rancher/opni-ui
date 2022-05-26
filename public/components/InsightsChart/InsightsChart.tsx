@@ -13,7 +13,7 @@ import {
 } from '@elastic/charts';
 import { COLORS } from '../../utils/colors';
 import moment from 'moment';
-import { getInsights, Insight } from '../../utils/requests';
+import { Insight } from '../../utils/requests';
 import Loading from '../Loading/Loading';
 import { Granularity, isSameRange, Range } from '../../utils/time';
 import { formatShort } from '../../utils/format';
@@ -22,6 +22,7 @@ export interface InsightsChartProps {
   range: Range;
   granularity: Granularity; 
   clusterId: string;
+  insightsProvider(range: Range, granularity: Granularity, clusterId: string): Promise<Insight[]>;
 };
 
 export interface InsightsChartState {
@@ -50,7 +51,7 @@ export default class InsightsChart extends Component<InsightsChartProps, Insight
   }
 
   load = async () => {
-    const insightsRequest = getInsights(this.props.range, this.props.granularity, this.props.clusterId);
+    const insightsRequest = this.props.insightsProvider(this.props.range, this.props.granularity, this.props.clusterId);
     this.setState({
       insightsRequest
     });
