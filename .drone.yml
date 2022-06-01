@@ -10,11 +10,13 @@ platform:
   arch: amd64
 
 steps:
+  - name: clone
+    image: alpine/git
+    commands:
+      - git clone -b 1.3 --single-branch https://github.com/opensearch-project/OpenSearch-Dashboards.git .
+      - mkdir -p OpenSearch-Dashboards/plugins/opni-dashboards-plugin
+      - git clone -b plugin --single-branch https://github.com/rancher/opni-ui.git OpenSearch-Dashboards/plugins/opni-dashboards-plugin
   - name: plugin-zip
     image: docker
     commands:
-    - cd ..
-    - mkdir -p plugins/opni-dashboards-plugin
-    - mv src/* plugins/opni-dashboards-plugin
-    - git clone -b 1.3 --single-branch https://github.com/opensearch-project/OpenSearch-Dashboards.git
     - ls
