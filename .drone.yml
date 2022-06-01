@@ -20,5 +20,5 @@ steps:
     image: node:10
     commands:
     - cd OpenSearch-Dashboards/plugins/opni-dashboards-plugin
-    - npm install
-    - npm build
+    - yarn install
+    - yarn build
