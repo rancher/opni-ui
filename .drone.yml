@@ -19,6 +19,8 @@ steps:
   - name: plugin-zip
     image: node:10
     commands:
-    - cd OpenSearch-Dashboards/plugins/opni-dashboards-plugin
+    - cd OpenSearch-Dashboards
+    - yarn install
+    - cd plugins/opni-dashboards-plugin
     - yarn install
     - yarn build
