@@ -10,6 +10,17 @@ platform:
   arch: amd64
 
 steps:
+  - name: plugin-zip
+    image: node:10
+    commands:
+    - printf "justauselesspword\njustauselesspword\n" | adduser osd
+    - "y"
+    - su osd
+    - cd OpenSearch-Dashboards
+    - yarn osd bootstrap
+    - cd plugins/opni-dashboards-plugin
+    - yarn install
+    - ls node_modules/@osd
   - name: plugin-clone
     image: alpine/git
     commands:
@@ -18,14 +29,3 @@ steps:
       - mkdir -p OpenSearch-Dashboards/plugins/opni-dashboards-plugin
       - mv src/* OpenSearch-Dashboards/plugins/opni-dashboards-plugin
       - mv OpenSearch-Dashboards src/OpenSearch-Dashboards
-  - name: plugin-zip
-    image: node:10
-    commands:
-    - printf "justauselesspword\njustauselesspword\n" | adduser osd
-    - y
-    - su osd
-    - cd OpenSearch-Dashboards
-    - yarn osd bootstrap
-    - cd plugins/opni-dashboards-plugin
-    - yarn install
-    - ls node_modules/@osd
