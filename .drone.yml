@@ -24,6 +24,7 @@ steps:
     - printf "justauselesspword\njustauselesspword\ny\n" | adduser osd
     - echo "y\n"
     - usermod -aG sudo osd
+    - chmod 777 OpenSearch-Dashboards
     - cd OpenSearch-Dashboards
     - su osd -c yarn osd bootstrap
     - cd plugins/opni-dashboards-plugin
