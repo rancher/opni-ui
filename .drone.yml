@@ -14,3 +14,7 @@ steps:
     image: docker
     commands:
     - echo "test"
+    - mkdir -p plugins/opni-dashboards-plugin
+    - mv * plugins/opni-dashboards-plugin
+    - ls
+    - ls plugins/opni-dashboards-plugin
