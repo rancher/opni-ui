@@ -1,0 +1,17 @@
+kind: pipeline
+name: plugin-tag
+
+trigger:
+  event:
+  - tag
+  ref:
+  - "refs/tags/plugin-*"
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+  - name: plugin-zip
+    commands:
+    - echo "test"
