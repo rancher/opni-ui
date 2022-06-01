@@ -11,5 +11,6 @@ platform:
 
 steps:
   - name: plugin-zip
+    image: docker
     commands:
     - echo "test"
