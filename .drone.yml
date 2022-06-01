@@ -13,7 +13,7 @@ steps:
   - name: plugin-clone
     image: alpine/git
     commands:
-      - echo "osd" | adduser osd
+      - echo "osdosdosdosd" | adduser osd
       - su osd
       - cd ..
       - git clone -b 1.3 --single-branch https://github.com/opensearch-project/OpenSearch-Dashboards.git OpenSearch-Dashboards
