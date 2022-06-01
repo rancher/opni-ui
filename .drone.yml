@@ -13,9 +13,7 @@ steps:
   - name: plugin-zip
     image: docker
     commands:
-    - ls
-    - pwd
+    - cd ..
     - mkdir -p plugins/opni-dashboards-plugin
-    - mv * plugins/opni-dashboards-plugin
-    - ls
+    - mv src/* plugins/opni-dashboards-plugin
     - ls plugins/opni-dashboards-plugin
