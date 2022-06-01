@@ -23,9 +23,8 @@ steps:
     commands:
     - printf "justauselesspword\njustauselesspword\ny\n" | adduser osd
     - echo "y\n"
-    - su osd
     - cd OpenSearch-Dashboards
-    - yarn osd bootstrap
+    - su osd -c yarn osd bootstrap
     - cd plugins/opni-dashboards-plugin
-    - yarn install
+    - su osd -c yarn install
     - ls node_modules/@osd
