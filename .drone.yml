@@ -13,8 +13,6 @@ steps:
   - name: plugin-clone
     image: alpine/git
     commands:
-      - printf "justauselesspword\njustauselesspword" | adduser osd
-      - su osd
       - cd ..
       - git clone -b 1.3 --single-branch https://github.com/opensearch-project/OpenSearch-Dashboards.git OpenSearch-Dashboards
       - mkdir -p OpenSearch-Dashboards/plugins/opni-dashboards-plugin
@@ -22,6 +20,7 @@ steps:
   - name: plugin-zip
     image: node:10
     commands:
+    - printf "justauselesspword\njustauselesspword" | adduser osd
     - su osd
     - cd OpenSearch-Dashboards
     - yarn osd bootstrap
