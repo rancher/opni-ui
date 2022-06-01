@@ -17,6 +17,8 @@ steps:
       - mkdir -p OpenSearch-Dashboards/plugins/opni-dashboards-plugin
       - git clone -b plugin --single-branch https://github.com/rancher/opni-ui.git OpenSearch-Dashboards/plugins/opni-dashboards-plugin
   - name: plugin-zip
-    image: docker
+    image: node:10
     commands:
-    - ls
+    - cd OpenSearch-Dashboards/plugins/opni-dashboards-plugin
+    - npm install
+    - npm build
