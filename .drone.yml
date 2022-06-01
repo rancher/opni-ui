@@ -20,8 +20,10 @@ steps:
   - name: plugin-zip
     image: node:10
     commands:
+    - pwd
     - printf "justauselesspword\njustauselesspword" | adduser osd
     - su osd
+    - pwd
     - cd OpenSearch-Dashboards
     - yarn osd bootstrap
     - cd plugins/opni-dashboards-plugin
