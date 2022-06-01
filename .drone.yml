@@ -21,7 +21,7 @@ steps:
   - name: plugin-zip
     image: node:10
     commands:
-    - printf "justauselesspword\njustauselesspword\ny\n" | adduser osd
+    - printf "justauselesspword\njustauselesspword\ny\n" | adduser osd sudo
     - echo "y\n"
     - cd OpenSearch-Dashboards
     - su osd -c yarn osd bootstrap
