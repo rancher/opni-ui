@@ -22,6 +22,7 @@ steps:
   - name: plugin-zip
     image: node:10
     commands:
+    - su osd
     - cd OpenSearch-Dashboards
     - yarn osd bootstrap
     - cd plugins/opni-dashboards-plugin
