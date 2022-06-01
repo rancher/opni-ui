@@ -21,12 +21,12 @@ steps:
   - name: plugin-zip
     image: node:10
     commands:
-    - printf "justauselesspword\njustauselesspword\ny\n" | adduser osd
-    - echo "y\n"
-    - usermod -aG sudo osd
-    - chmod 777 OpenSearch-Dashboards
+    #- printf "justauselesspword\njustauselesspword\ny\n" | adduser osd
+    #- echo "y\n"
+    #- usermod -aG sudo osd
+    #- chmod 777 OpenSearch-Dashboards
     - cd OpenSearch-Dashboards
-    - su osd -c yarn osd bootstrap
+    - yarn osd bootstrap --allow-root
     - cd plugins/opni-dashboards-plugin
-    - su osd -c yarn install
+    - yarn install
     - ls node_modules/@osd
