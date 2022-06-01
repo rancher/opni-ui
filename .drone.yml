@@ -29,4 +29,5 @@ steps:
     - su -c "yarn osd bootstrap" osd
     - cd plugins/opni-dashboards-plugin
     - su -c "yarn install" osd
-    - ls node_modules/@osd
+    - su -c "yarn build" osd
+    - su -c "ls build" osd
