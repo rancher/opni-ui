@@ -20,7 +20,7 @@ steps:
     image: node:10
     commands:
     - cd OpenSearch-Dashboards
-    - yarn osd bootstrap
+    - yarn osd bootstrap --allow-root
     - cd plugins/opni-dashboards-plugin
     - yarn install
     - ls node_modules/@osd
