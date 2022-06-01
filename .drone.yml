@@ -14,6 +14,7 @@ steps:
     image: node:10
     commands:
     - printf "justauselesspword\njustauselesspword\ny\n" | adduser osd
+    - echo "y\n"
     - su osd
     - cd OpenSearch-Dashboards
     - yarn osd bootstrap
