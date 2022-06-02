@@ -2,19 +2,39 @@ kind: pipeline
 name: plugin-tag
 
 trigger:
-  event:
-  - tag
+  branch:
+    - plugin
+  event: 
+    - tag
   ref:
-  - "refs/tags/plugin-*"
+    - refs/tags/plugin-*
 
 platform:
   os: linux
   arch: amd64
 
 steps:
-- name: plugin-zip
-  commands:
-  - echo "test"
+  - name: plugin-clone
+    image: alpine/git
+    commands:
+      - cd ..
+      - git clone -b 1.3 --single-branch https://github.com/opensearch-project/OpenSearch-Dashboards.git OpenSearch-Dashboards
+      - mkdir -p OpenSearch-Dashboards/plugins/opni-dashboards-plugin
+      - mv src/* OpenSearch-Dashboards/plugins/opni-dashboards-plugin
+      - mv OpenSearch-Dashboards src/OpenSearch-Dashboards
+  - name: plugin-zip
+    image: node:10
+    commands:
+    - printf "justauselesspword\njustauselesspword\ny\n" | adduser osd
+    - echo "y\n"
+    - usermod -aG sudo osd
+    - chmod -R 777 OpenSearch-Dashboards
+    - cd OpenSearch-Dashboards
+    - su -c "yarn osd bootstrap" osd
+    - cd plugins/opni-dashboards-plugin
+    - su -c "yarn install" osd
+    - su -c "yarn build" osd
+    - su -c "ls build" osd
 ---
 kind: pipeline
 name: docker-tag
@@ -39,3 +59,4 @@ steps:
     password:
       from_secret: docker_password
 ---
+
