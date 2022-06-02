@@ -6,8 +6,6 @@ trigger:
     - plugin
   event: 
     - tag
-  ref:
-    - refs/tags/plugin-*
 
 platform:
   os: linux
