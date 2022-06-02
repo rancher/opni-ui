@@ -2,12 +2,8 @@ kind: pipeline
 name: plugin-tag
 
 trigger:
-  branch:
-    - plugin
   event: 
     - tag
-  ref:
-    - refs/tags/plugin-*
 
 platform:
   os: linux
