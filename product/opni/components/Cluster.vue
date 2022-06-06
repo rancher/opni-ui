@@ -221,7 +221,7 @@ export default {
       }));
     },
     url() {
-      return window.location.origin;
+      return this.installCommand.match(/address=.+ /s)?.[0].replace('address=', '').replace('"  ', '') || '';
     },
     manualIcon() {
       return this.isManualOpen ? 'icon-chevron-up' : 'icon-chevron-down';
@@ -342,17 +342,17 @@ export default {
           </div>
           <div v-else>
             <div class="mt-10">
-              Token ID: <CopyCode class="ml-5">
+              Bootstrap Token: <CopyCode class="ml-5">
                 {{ token }}
               </CopyCode>
             </div>
             <div class="mt-10">
-              Cert PIN: <CopyCode class="ml-5">
+              Certificate Pin: <CopyCode class="ml-5">
                 {{ pin }}
               </CopyCode>
             </div>
             <div class="mt-10">
-              URL: <CopyCode class="ml-5">
+              Gateway URL: <CopyCode class="ml-5">
                 {{ url }}
               </CopyCode>
             </div>
