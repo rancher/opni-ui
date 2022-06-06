@@ -4,7 +4,9 @@ import { AreaOfInterestResponse } from '@/product/opni/models/areasOfInterest';
 import { FromTo } from '@/product/opni/models/fromTo';
 import { TokensResponse, Token } from '@/product/opni/models/Token';
 import { CapabilitiesResponse, CapabilityInstallerResponse } from '@/product/opni/models/Capability';
-import { Cluster, ClusterStats, ClusterStatsList, ClustersResponse } from '@/product/opni/models/Cluster';
+import {
+  Cluster, ClusterStats, ClusterStatsList, ClustersResponse, HealthResponse
+} from '@/product/opni/models/Cluster';
 import { Breakdowns, BreakdownsResponse } from '~/product/opni/models/overallBreakdown/Breakdowns';
 import { Log } from '~/product/opni/models/log/Log';
 import { Logs, LogsResponse } from '~/product/opni/models/log/Logs';
@@ -228,8 +230,9 @@ export async function createAgent(tokenId: string) {
 
 export async function getClusters(vue: any): Promise<Cluster[]> {
   const clustersResponse = (await axios.get<ClustersResponse>(`opni-api/management/clusters`)).data.items;
+  const healthResponses = await Promise.all(clustersResponse.map( clustersResponse => axios.get<HealthResponse>(`opni-api/management/clusters/${ clustersResponse.id }/health`)));
 
-  return clustersResponse.map( clusterResponse => new Cluster(clusterResponse, vue));
+  return clustersResponse.map( (clusterResponse, i) => new Cluster(clusterResponse, healthResponses[i].data, vue));
 }
 
 export async function getClusterStats(vue: any): Promise<ClusterStats[]> {

@@ -20,6 +20,13 @@ export default {
       clusters:      [],
       headers:       [
         {
+          name:          'status',
+          labelKey:      'tableHeaders.status',
+          sort:          ['status.message'],
+          value:         'status',
+          formatter:     'StatusBadge'
+        },
+        {
           name:          'nameDisplay',
           labelKey:      'tableHeaders.name',
           sort:          ['nameDisplay'],

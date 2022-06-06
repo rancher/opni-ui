@@ -46,5 +46,6 @@ export default {
 <style lang="scss" scoped>
   .copy {
     cursor: pointer;
+    word-wrap: break-word;
   }
 </style>
