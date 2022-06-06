@@ -23,7 +23,9 @@ export function createColumns(type, range, clusterId, showNormalSparkline, showA
       case 'controlPlane':
         return `_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'${from}',to:'${to}'))&_a=(columns:!(_source),filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,key:log_type,negate:!f,params:(query:controlplane),type:phrase),query:(match_phrase:(log_type:controlplane))),${clusterQuery}('$state':(store:appState),meta:(alias:!n,disabled:!f,key:kubernetes_component,negate:!f,params:(query:${value}),type:phrase),query:(match_phrase:(kubernetes_component:${value}))),('$state':(store:appState),meta:(alias:!n,disabled:!f,key:anomaly_level.keyword,negate:!f,params:(query:${severity}),type:phrase),query:(match_phrase:(anomaly_level.keyword:${severity})))),interval:auto,query:(language:kuery,query:''),sort:!())`;
       case 'namespace':
-        return `_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'${from}',to:'${to}'))&_a=(columns:!(_source),filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,key:kubernetes.namespace_name,negate:!f,params:(query:${value}),type:phrase),query:(match_phrase:(kubernetes.namespace_name:${value}))),${clusterQuery}('$state':(store:appState),meta:(alias:!n,disabled:!f,key:anomaly_level.keyword,negate:!f,params:(query:${severity}),type:phrase),query:(match_phrase:(anomaly_level.keyword:${severity})))),interval:auto,query:(language:kuery,query:''),sort:!())`;
+        return `_g=(filters:(),refreshInterval:(pause:!t,value:0),time:(from:'${from}',to:'${to}'))&_a=(columns:!(_source),filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,key:kubernetes.namespace_name,negate:!f,params:(query:${value}),type:phrase),query:(match_phrase:(kubernetes.namespace_name:${value}))),${clusterQuery}('$state':(store:appState),meta:(alias:!n,disabled:!f,key:anomaly_level.keyword,negate:!f,params:(query:${severity}),type:phrase),query:(match_phrase:(anomaly_level.keyword:${severity})))),interval:auto,query:(language:kuery,query:''),sort:!())`;
+      case 'rancher':
+        return `_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'${from}',to:'${to}'))&_a=(columns:!(_source),filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,key:kubernetes.pod_name,negate:!f,params:(query:${value}),type:phrase),query:(match_phrase:(kubernetes.pod_name:${value}))),${clusterQuery}('$state':(store:appState),meta:(alias:!n,disabled:!f,key:anomaly_level.keyword,negate:!f,params:(query:${severity}),type:phrase),query:(match_phrase:(anomaly_level.keyword:${severity}))),('$state':(store:appState),meta:(alias:!n,disabled:!f,key:log_type.keyword,negate:!f,params:(query:rancher),type:phrase),query:(match_phrase:(log_type.keyword:rancher)))),interval:auto,query:(language:kuery,query:''),sort:!())`
       default:
         return '';
       }
@@ -51,16 +53,23 @@ export function createColumns(type, range, clusterId, showNormalSparkline, showA
       field: 'normal',
       name: 'Normal',
       render: (count, row) => {
-        const sparkLine = showNormalSparkline ? <SparkLine data={row.normalSparkline} yMax={undefined} /> : null;
+        const sparkLine = showNormalSparkline && row.normalSparkline ? <SparkLine data={row.normalSparkline} yMax={undefined} /> : null;
         return <div className="normal"><div><a href={getUrl(row, 'Normal')} target="_blank"><Bubble severity="normal">{formatShort(count)}</Bubble></a></div>{sparkLine}</div>;
       }
     }
   ];
 }
 
+function getRowProps(item: Group) {
+  return item.group ? { className: 'group' } : {};
+}
+
+export type Group = { group?: true, name: string };
+export type Item = BasicBreakdown | Group;
+
 export interface BreakdownProps {
   type: string;
-  breakdown: BasicBreakdown[];
+  breakdown: Item[];
   range: Range;
   clusterId: string;
   showNormalSparkline: boolean;
@@ -70,14 +79,14 @@ export interface BreakdownProps {
 export default class Breakdown extends Component<BreakdownProps> {
   render() {
     const columns = createColumns(this.props.type, this.props.range, this.props.clusterId, this.props.showNormalSparkline, this.props.showAnomaly);
-    const sorted = sortBy(this.props.breakdown, ['anomaly', 'normal']).reverse();
 
     return (
         <div className="basic-breakdown">
           <EuiBasicTable
             tableCaption={this.props.type}
-            items={sorted}
+            items={this.props.breakdown}
             columns={columns}
+            rowProps={getRowProps}
           />
         </div>
     );

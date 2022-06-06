@@ -7,7 +7,7 @@ import { DEFAULT_SETTINGS, Settings } from '../../components/Selector/Selector';
 import { Range, Granularity } from '../../utils/time';
 import AnomalyChart from '../../components/AnomalyChart';
 import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
-import { getClusterIds } from '../../utils/requests';
+import { getClusterIds, getInsights } from '../../utils/requests';
 import Loading from '../../components/Loading';
 import dateMath from '@elastic/datemath';
 
@@ -78,10 +78,10 @@ class Main extends Component<any, MainState> {
               <div style={{ padding: '15px 0px', width: '100%' }}>
                 <Selector settings={this.state.settings} onChange={this.onSettingsChange} clusterIds={this.state.clusters} onRefresh={this.onRefresh}/>
                 <EuiFlexGroup style={{ padding: '0 15px' }} className="selector">
-                  <EuiFlexItem><InsightsChart range={this.state.range} granularity={this.state.granularity} clusterId={this.state.cluster} /></EuiFlexItem>
+                  <EuiFlexItem><InsightsChart range={this.state.range} granularity={this.state.granularity} clusterId={this.state.cluster} insightsProvider={getInsights} /></EuiFlexItem>
                   <EuiFlexItem><AnomalyChart range={this.state.range} granularity={this.state.granularity} clusterId={this.state.cluster} /></EuiFlexItem>
                 </EuiFlexGroup>
-                <Breakdowns range={this.state.range} clusterId={this.state.cluster} />
+                <Breakdowns granularity={this.state.granularity} range={this.state.range} clusterId={this.state.cluster} />
               </div>
             </Loading>
           )
