@@ -35,11 +35,10 @@ steps:
     - su -c "yarn install" osd
     - su -c "yarn build" osd
     - su -c "ls build" osd
-   - name: plugin-upload-zip
-     image: plugins/github-release
-     settings:
-      api_key:
-        from_secret: github_token
-      prerelease: true
-      files:
-      - "OpenSearch-Dashboards/plugins/opni-dashboards-plugin/build/*"
+  - name: plugin-upload-zip
+    image: plugins/github-release
+    settings:
+     api_key:
+       from_secret: github_token
+     files:
+     - "OpenSearch-Dashboards/plugins/opni-dashboards-plugin/build/*"
