@@ -38,8 +38,7 @@ steps:
   - name: plugin-upload-zip
     image: plugins/github-release
     settings:
-     api_key:
-       from_secret: github_token
+     secrets: [github_token]
      files:
      - "OpenSearch-Dashboards/plugins/opni-dashboards-plugin/build/*"
      title: Test
