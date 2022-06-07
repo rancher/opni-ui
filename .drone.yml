@@ -4,6 +4,8 @@ name: plugin-tag
 trigger:
   event: 
     - tag
+  branch:
+    - plugin
 
 platform:
   os: linux
