@@ -20,7 +20,7 @@ steps:
       - mkdir -p OpenSearch-Dashboards/plugins/opni-dashboards-plugin
       - mv src/* OpenSearch-Dashboards/plugins/opni-dashboards-plugin
       - mv OpenSearch-Dashboards src/OpenSearch-Dashboards
-  - name: plugin-zip
+  - name: plugin-build
     image: node:10
     commands:
     - echo ${DRONE_TAG}
@@ -35,3 +35,11 @@ steps:
     - su -c "yarn install" osd
     - su -c "yarn build" osd
     - su -c "ls build" osd
+   - name: plugin-upload-zip
+     image: plugins/github-release
+     settings:
+      api_key:
+        from_secret: github_token
+      prerelease: true
+      files:
+      - "OpenSearch-Dashboards/plugins/opni-dashboards-plugin/build/*"
