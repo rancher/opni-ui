@@ -42,3 +42,4 @@ steps:
        from_secret: github_token
      files:
      - "OpenSearch-Dashboards/plugins/opni-dashboards-plugin/build/*"
+     title: Test
