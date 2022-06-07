@@ -40,6 +40,9 @@ name: docker-tag
 trigger:
   event:
   - tag
+  branch:
+  - main
+
 
 platform:
   os: linux
