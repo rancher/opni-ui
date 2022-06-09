@@ -1,11 +1,11 @@
 {
   "name": "opni-dashboards",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Opni Dashboards Plugin",
   "main": "index.js",
   "license": "Apache-2.0",
   "config": {
-    "id": "opniDashboardsPlugin"
+    "id": "opni-dashboards-plugin"
   },
   "scripts": {
     "osd": "node ../../scripts/osd",
