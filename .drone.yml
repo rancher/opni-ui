@@ -20,7 +20,8 @@ steps:
       from_secret: github_token
      files:
      - "package.json"
-     title: Test
+     overwrite: true
+     title: ${DRONE_TAG}
   - name: plugin-clone
     image: alpine/git
     commands:
