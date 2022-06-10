@@ -18,9 +18,9 @@ steps:
     settings:
      overwrite: true
      api_key:
-      from_secret: github_token
+       from_secret: github_token
      files:
-     - "package.json"
+       - "package.json"
   - name: plugin-clone
     image: alpine/git
     commands:
