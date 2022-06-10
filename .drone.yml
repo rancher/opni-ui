@@ -16,12 +16,11 @@ steps:
     image: plugins/github-release
     pull: always
     settings:
+     overwrite: true
      api_key:
       from_secret: github_token
      files:
      - "package.json"
-     overwrite: true
-     title: ${DRONE_TAG}
   - name: plugin-clone
     image: alpine/git
     commands:
