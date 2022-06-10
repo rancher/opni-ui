@@ -16,7 +16,7 @@ steps:
     image: plugins/github-release
     pull: always
     settings:
-      title: ${DRONE_TAG}
+      title: plugin-ddd
       overwrite: true
       api_key:
         from_secret: github_token
