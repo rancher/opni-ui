@@ -16,7 +16,7 @@ steps:
     image: plugins/github-release
     pull: always
     settings:
-      title: plugin-ddd
+      title: "plugin-dddd"
       overwrite: true
       api_key:
         from_secret: github_token
