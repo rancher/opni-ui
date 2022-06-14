@@ -37,7 +37,7 @@ steps:
     - cd plugins/opni-dashboards-plugin
     - su -c "yarn install" osd
     - su -c "yarn build" osd
-    - su -C "mv build/*.zip build/opni-dashboards-plugin-${DRONE_TAG/plugin-/}.zip" osd
+    - su -c "mv build/*.zip build/opni-dashboards-plugin-${DRONE_TAG/plugin-/}.zip" osd
   - name: plugin-upload-zip
     image: plugins/github-release
     pull: always
