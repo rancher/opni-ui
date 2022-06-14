@@ -12,15 +12,6 @@ platform:
   arch: amd64
 
 steps:
-  - name: plugin-upload-zip
-    image: plugins/github-release
-    pull: always
-    settings:
-     overwrite: true
-     api_key:
-       from_secret: github_token
-     files:
-       - "package.json"
   - name: plugin-clone
     image: alpine/git
     commands:
@@ -44,4 +35,13 @@ steps:
     - su -c "yarn install" osd
     - su -c "yarn build" osd
     - su -c "ls build" osd
+  - name: plugin-upload-zip
+    image: plugins/github-release
+    pull: always
+    settings:
+     overwrite: true
+     api_key:
+       from_secret: github_token
+     files:
+       - "OpenSearch-Dashboards/plugins/opni-dashboards-plugin/build/*.zip"
 
