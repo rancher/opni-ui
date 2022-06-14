@@ -20,11 +20,14 @@ steps:
       - mkdir -p OpenSearch-Dashboards/plugins/opni-dashboards-plugin
       - mv src/* OpenSearch-Dashboards/plugins/opni-dashboards-plugin
       - mv OpenSearch-Dashboards src/OpenSearch-Dashboards
+  - name: plugin-replace-versions
+    image: node:10
+    commands:
+    - cd OpenSearch-Dashboards/plugins/opni-dashboards-plugin
+    - sed -i "s/{VERSION}/${DRONE_TAG/plugin-/}/g" package.json opensearch_dashboards.json
   - name: plugin-build
     image: node:10
     commands:
-    - echo ${DRONE_TAG}
-    - echo ${DRONE_TAG/plugin-/}
     - printf "justauselesspword\njustauselesspword\ny\n" | adduser osd
     - echo "y\n"
     - usermod -aG sudo osd
@@ -34,7 +37,7 @@ steps:
     - cd plugins/opni-dashboards-plugin
     - su -c "yarn install" osd
     - su -c "yarn build" osd
-    - su -c "ls build" osd
+    - su -C "mv build/*.zip build/opni-dashboards-plugin-${DRONE_TAG/plugin-/}.zip
   - name: plugin-upload-zip
     image: plugins/github-release
     pull: always
