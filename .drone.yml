@@ -27,7 +27,9 @@ steps:
     - sed -i "s/{VERSION}/${DRONE_TAG/plugin-/}/g" package.json opensearch_dashboards.json
   - name: plugin-build
     image: node:10
-    commands:
+    commands: 
+    # The reason for the user/su usage is because opensearch plugins disallow you 
+    # from using root when building and by default we're executing as root
     - printf "justauselesspword\njustauselesspword\ny\n" | adduser osd
     - echo "y\n"
     - usermod -aG sudo osd
