@@ -81,12 +81,12 @@ export async function getClusterIds() {
     }
   });
 
-  return results.rawResponse.aggregations.clusters.buckets.map(bucket => bucket.key);
+  return results.rawResponse.aggregations?.clusters.buckets.map(bucket => bucket.key) || [];
 }
 
 export async function getControlPlaneBreakdown(range: Range, clusterId: string): Promise<BasicBreakdown[]> {
   const results = await search(getControlPlaneBreakdownQuery(range, clusterId));
-  const clusters = results.rawResponse?.aggregations?.cluster_id?.buckets;
+  const clusters = results.rawResponse?.aggregations?.cluster_id?.buckets || [];
 
   return clusters.flatMap(cluster => {
     const buckets = cluster.component_name?.buckets || [];
@@ -103,7 +103,7 @@ export async function getControlPlaneBreakdown(range: Range, clusterId: string):
 
 export async function getRancherBreakdown(range: Range, clusterId: string): Promise<BasicBreakdown[]> {
   const results = await search(getRancherBreakdownQuery(range, clusterId));
-  const clusters = results.rawResponse?.aggregations?.cluster_id?.buckets;
+  const clusters = results.rawResponse?.aggregations?.cluster_id?.buckets || [];
 
   return clusters.flatMap(cluster => {
     const buckets = cluster.pod_name?.buckets || [];
@@ -155,7 +155,7 @@ export async function getPodBreakdown(range: Range, clusterId: string): Promise<
 
 export async function getLogTypes(): Promise<String[]> {
   const results = await search(getLogTypeQuery());
-  return results.rawResponse.aggregations?.log_type?.buckets.map(b => b.key);
+  return results.rawResponse.aggregations?.log_type?.buckets.map(b => b.key) || [];
 }
 
 export function getLogTypeQuery() {
@@ -195,7 +195,7 @@ export async function getNamespaceBreakdown(range: Range, clusterId: string): Pr
 export async function getAnomalies(range: Range, granularity: Granularity, clusterId: string): Promise<AnomalyByComponent> {
   const results = await search(getAnomaliesQuery(range, granularity, clusterId));
   const byComponent: AnomalyByComponent = {};
-  const buckets = results.rawResponse?.aggregations?.histogram?.buckets;
+  const buckets = results.rawResponse?.aggregations?.histogram?.buckets || [];
 
   buckets.forEach(bucket => {
     const timestamp = bucket.key;
