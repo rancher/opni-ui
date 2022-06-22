@@ -230,9 +230,20 @@ export async function createAgent(tokenId: string) {
 
 export async function getClusters(vue: any): Promise<Cluster[]> {
   const clustersResponse = (await axios.get<ClustersResponse>(`opni-api/management/clusters`)).data.items;
-  const healthResponses = await Promise.all(clustersResponse.map( clustersResponse => axios.get<HealthResponse>(`opni-api/management/clusters/${ clustersResponse.id }/health`)));
+  const healthResponses = await Promise.allSettled(clustersResponse.map(clustersResponse => axios.get<HealthResponse>(`opni-api/management/clusters/${ clustersResponse.id }/health`)));
 
-  return clustersResponse.map( (clusterResponse, i) => new Cluster(clusterResponse, healthResponses[i].data, vue));
+  const notConnected = {
+    status: { connected: false },
+    health: { ready: false, conditions: [] }
+  };
+
+  return clustersResponse.map((clusterResponse, i) => {
+    if (healthResponses[i].status === 'fulfilled') {
+      return new Cluster(clusterResponse, (healthResponses[i] as PromiseFulfilledResult<any>).value, vue);
+    }
+
+    return new Cluster(clusterResponse, notConnected, vue);
+  });
 }
 
 export async function getClusterStats(vue: any): Promise<ClusterStats[]> {
