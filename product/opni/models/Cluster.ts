@@ -72,7 +72,7 @@ export class Cluster extends Resource {
     if (!this.healthBase.health.ready) {
       return {
         state:   'warning',
-        message: capitalize(this.healthBase.health.conditions[0] || '')
+        message: this.healthBase.health.conditions.join(', ')
       };
     }
 
