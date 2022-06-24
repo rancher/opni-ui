@@ -60,7 +60,7 @@ export default {
     @closed="close()"
   >
     <Card
-      class="prompt-restore"
+      class="edit-cluster-card"
       :show-highlight-border="false"
       title="Edit Cluster"
     >
@@ -94,9 +94,22 @@ export default {
   </modal>
 </template>
 <style lang='scss' scoped>
-.prompt-restore {
+.edit-cluster-card {
   margin: 0;
+
+  ::v-deep {
+    .kv-container {
+      max-height: 500px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .kv-item.key {
+      padding-left: 1px;
+    }
+  }
 }
+
 .buttons {
   display: flex;
   justify-content: flex-end;
