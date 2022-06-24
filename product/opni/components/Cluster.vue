@@ -220,8 +220,16 @@ export default {
         value: capability
       }));
     },
+    gatewayUrl() {
+      return this.installCommand.match(/gateway-url=.+/s)?.[0]?.replace('gateway-url=', '').replace('"  ', '');
+    },
+    addressUrl() {
+      return this.installCommand.match(/address=.+ /s)?.[0]?.replace('address=', '').replace('"  ', '');
+    },
     url() {
-      return this.installCommand.match(/address=.+ /s)?.[0].replace('address=', '').replace('"  ', '') || '';
+      const extractedUrl = this.addressUrl || this.gatewayUrl || '';
+
+      return extractedUrl ? new URL(extractedUrl).host : '';
     },
     manualIcon() {
       return this.isManualOpen ? 'icon-chevron-up' : 'icon-chevron-down';
