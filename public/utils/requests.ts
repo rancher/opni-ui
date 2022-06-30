@@ -71,7 +71,7 @@ export async function getClusterIds() {
     "size": 0,
     "aggs" : {
         "clusters" : {
-            "terms" : { "field" : "cluster_id.keyword" }
+            "terms" : { "field" : "cluster_id" }
         }
     }
   });
@@ -147,7 +147,7 @@ export function getLogTypeQuery() {
     "size": 0,
     "aggs" : {
         "log_type" : {
-            "terms" : { "field" : "log_type.keyword",  "size" : 500 }
+            "terms" : { "field" : "log_type",  "size" : 500 }
         }
     }
   };
@@ -262,11 +262,11 @@ function must(clusterId, logType?: LogType) {
   const musts = [];
 
   if (clusterId !== 'all') {
-    musts.push({match: {"cluster_id.keyword": clusterId}});
+    musts.push({match: {"cluster_id": clusterId}});
   }
 
   if (logType) {
-    musts.push({match: {"log_type.keyword": logType}})
+    musts.push({match: {"log_type": logType}})
   }
 
   return musts;
@@ -283,7 +283,7 @@ function getInsightsQuery(range: Range, granularity: Granularity, clusterId: str
     "aggs": {
       "granularity_results": {
         "date_histogram": { "field": "time", "fixed_interval": granularity },
-        "aggs": { "anomaly_level": { "terms": { "field": "anomaly_level.keyword" } } },
+        "aggs": { "anomaly_level": { "terms": { "field": "anomaly_level" } } },
       }
     },
   }
@@ -357,12 +357,12 @@ function getControlPlaneBreakdownQuery(range: Range, clusterId: string) {
     },
     "aggs": {
         "cluster_id": {
-          "terms": {"field": "cluster_id.keyword"},
+          "terms": {"field": "cluster_id"},
           "aggs": {
             "component_name": {
               "terms": {"field": "kubernetes_component.keyword"},
                 "aggs": {
-                    "anomaly_level": {"terms": {"field": "anomaly_level.keyword"}}
+                    "anomaly_level": {"terms": {"field": "anomaly_level"}}
                 },
             }
           }
@@ -381,12 +381,12 @@ function getRancherBreakdownQuery(range: Range, clusterId: string) {
     },
     "aggs": {
       "cluster_id": {
-        "terms": {"field": "cluster_id.keyword"},
+        "terms": {"field": "cluster_id"},
         "aggs": {
           "pod_name": {
             "terms": {"field": "kubernetes.pod_name.keyword"},
             "aggs": {
-              "anomaly_level": {"terms": {"field": "anomaly_level.keyword"}}
+              "anomaly_level": {"terms": {"field": "anomaly_level"}}
             },
           }
         }
@@ -407,12 +407,12 @@ function getNamespaceBreakdownQuery(range: Range, clusterId: string) {
         "bucket": {
             "composite": {
                 "size": 1000,
-                "sources": [{"cluster_id": {"terms": {"field":"cluster_id.keyword"}}}, {"namespace_name": {"terms": {"field":"kubernetes.namespace_name.keyword"}}}, {"anomaly_level": {"terms": {"field": "anomaly_level.keyword"}}}],
+                "sources": [{"cluster_id": {"terms": {"field":"cluster_id"}}}, {"namespace_name": {"terms": {"field":"kubernetes.namespace_name.keyword"}}}, {"anomaly_level": {"terms": {"field": "anomaly_level"}}}],
             },
             "aggs": {
               "sparkLine": {
                 "date_histogram": { "field": "time", "fixed_interval": "10m" },
-                "aggs": { "anomaly_level": { "terms": { "field": "anomaly_level.keyword" } } },
+                "aggs": { "anomaly_level": { "terms": { "field": "anomaly_level" } } },
               }
             }
         }
@@ -433,12 +433,12 @@ function getPodBreakdownQuery(range: Range, clusterId: string) {
       "bucket": {
         "composite": {
             "size": 1000,
-            "sources": [{"cluster_id": {"terms": {"field":"cluster_id.keyword"}}}, {"namespace_name": {"terms": {"field":"kubernetes.namespace_name.keyword"}}}, {"pod_name": {"terms": {"field": "kubernetes.pod_name.keyword"}}}, {"anomaly_level": {"terms": {"field": "anomaly_level.keyword"}}}],
+            "sources": [{"cluster_id": {"terms": {"field":"cluster_id"}}}, {"namespace_name": {"terms": {"field":"kubernetes.namespace_name.keyword"}}}, {"pod_name": {"terms": {"field": "kubernetes.pod_name.keyword"}}}, {"anomaly_level": {"terms": {"field": "anomaly_level"}}}],
         },
         "aggs": {
           "sparkLine": {
             "date_histogram": { "field": "time", "fixed_interval": "10m" },
-            "aggs": { "anomaly_level": { "terms": { "field": "anomaly_level.keyword" } } },
+            "aggs": { "anomaly_level": { "terms": { "field": "anomaly_level" } } },
           }
         }
       }
