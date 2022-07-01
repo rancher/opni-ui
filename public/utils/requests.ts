@@ -318,7 +318,7 @@ function getAnomaliesQuery(range: Range, granularity: Granularity, clusterId: st
             "aggs": {
               "component": {
                 "terms": {
-                  "field": "kubernetes_component.keyword",
+                  "field": "kubernetes_component",
                   "order": {
                     "_count": "asc"
                   },
@@ -331,8 +331,8 @@ function getAnomaliesQuery(range: Range, granularity: Granularity, clusterId: st
     },
     "query": {
       "bool": {
-        "must": [...must(clusterId), {"exists": { "field": "kubernetes_component.keyword"}}],
-        "must_not": [{"term": {"kubernetes_component.keyword": ""}}],
+        "must": [...must(clusterId), {"exists": { "field": "kubernetes_component"}}],
+        "must_not": [{"term": {"kubernetes_component": ""}}],
         "filter": [{
           "range": {
             "time": {
@@ -360,7 +360,7 @@ function getControlPlaneBreakdownQuery(range: Range, clusterId: string) {
           "terms": {"field": "cluster_id"},
           "aggs": {
             "component_name": {
-              "terms": {"field": "kubernetes_component.keyword"},
+              "terms": {"field": "kubernetes_component"},
                 "aggs": {
                     "anomaly_level": {"terms": {"field": "anomaly_level"}}
                 },
