@@ -33,6 +33,11 @@ export interface WorkloadBreakdown extends BasicBreakdown {
   namespace: string;
 }
 
+export interface PodBreakdown extends BasicBreakdown {
+  eventNormal: number;
+  eventWarning: number;
+}
+
 
 export interface Log {
   id: number;
@@ -42,7 +47,7 @@ export interface Log {
   component: string;
 }
 
-export type LogType = 'workload' | 'controlplane' | 'rancher';
+export type LogType = 'workload' | 'controlplane' | 'rancher' | 'event';
 
 export async function getInsights(range: Range, granularity: Granularity, clusterId: string, logType?: LogType): Promise<Insight[]> {
   const results = await search(getInsightsQuery(range, granularity, clusterId, logType));
@@ -112,22 +117,33 @@ export async function getRancherBreakdown(range: Range, clusterId: string): Prom
   });
 }
 
-export async function getPodBreakdown(range: Range, clusterId: string): Promise<BasicBreakdown[]> {
+export async function getPodBreakdown(range: Range, clusterId: string): Promise<PodBreakdown[]> {
   const results = await search(getPodBreakdownQuery(range, clusterId));
-  const breakdownLookup: { [key: string]: BasicBreakdown } = {};
+  const breakdownLookup: { [key: string]: PodBreakdown } = {};
   const buckets = results.rawResponse?.aggregations?.bucket?.buckets || [];
+  
   let globalMax = 0;
 
   buckets.forEach((bucket) => {
     const key = bucket.key.pod_name;
     const clusterId = bucket.key.cluster_id;
-    const level = bucket.key.anomaly_level.toLowerCase();
-    const count = bucket.doc_count
+    const count = bucket.logs?.buckets[0].doc_count;
 
-    breakdownLookup[key] = breakdownLookup[key] || { name: key, anomaly: 0, suspicious: 0, normal: 0, normalSparkline: [], normalSparklineGlobalMax: 0, clusterId };
-    breakdownLookup[key][level] = count;
-    breakdownLookup[key].normalSparkline = bucket.sparkLine.buckets.map(b => b.doc_count);
+    breakdownLookup[key] = breakdownLookup[key] || { name: key, anomaly: 0, suspicious: 0, normal: 0, eventNormal: 0, eventWarning: 0, normalSparkline: [], normalSparklineGlobalMax: 0, clusterId };
+    breakdownLookup[key]["normal"] = count;
+    breakdownLookup[key].normalSparkline = bucket.logs?.buckets[0].sparkLine.buckets.map(b => b.doc_count);
     globalMax = Math.max(globalMax, ...breakdownLookup[key].normalSparkline);
+
+    const events = bucket.events?.buckets || [];
+    if (events.size > 0) {
+      const eventLevels = bucket.events?.buckets[0].level?.buckets || [];
+      eventLevels.forEach((level) => {
+        const eventKey = "event" + level.key;
+        const eventCount = level.doc_count;
+
+        breakdownLookup[key][eventKey] = eventCount;
+      });
+    }
   });
 
 
@@ -425,7 +441,9 @@ function getPodBreakdownQuery(range: Range, clusterId: string) {
     "size": 0,
     "query": {
         "bool": {
-            "must": [...must(clusterId), {"regexp": {"kubernetes.namespace_name": ".+"}}, {"match": {"log_type": "workload"}}],
+            "must": [...must(clusterId), {"regexp": {"pod_name": ".+"}}],
+            "should": [{"match": {"log_type": "workload"}},{"match": {"log_type": "event"}}],
+            "minimum_should_match": 1,
             "filter": [{"range": {"time": {"gte": range.start, "lte": range.end}}}],
         }
     },
@@ -433,12 +451,25 @@ function getPodBreakdownQuery(range: Range, clusterId: string) {
       "bucket": {
         "composite": {
             "size": 1000,
-            "sources": [{"cluster_id": {"terms": {"field":"cluster_id"}}}, {"namespace_name": {"terms": {"field":"kubernetes.namespace_name.keyword"}}}, {"pod_name": {"terms": {"field": "kubernetes.pod_name.keyword"}}}, {"anomaly_level": {"terms": {"field": "anomaly_level"}}}],
+            "sources": [{"cluster_id": {"terms": {"field":"cluster_id"}}}, {"pod_name": {"terms": {"field": "kubernetes.pod_name.keyword"}}}],
         },
         "aggs": {
-          "sparkLine": {
-            "date_histogram": { "field": "time", "fixed_interval": "10m" },
-            "aggs": { "anomaly_level": { "terms": { "field": "anomaly_level" } } },
+          "logs": {
+            "terms": {"field": "log_type", "include": "workload"},
+            "aggs": {
+              "sparkLine": {
+                "date_histogram": { "field": "time", "fixed_interval": "10m" },
+                "aggs": { "anomaly_level": { "terms": { "field": "anomaly_level" } } },
+              }
+            }
+          },
+          "events": {
+            "terms": {"field": "log_type", "include": "event"},
+            "aggs": {
+              "level": {
+                "terms": {"field": "type.keyword"}
+              }
+            }
           }
         }
       }
