@@ -92,7 +92,7 @@ export default {
         this.loading = true;
         const [clusters, tokens] = await Promise.all([
           getClusters(),
-          getTokens(),
+          getTokens(this),
         ]);
 
         this.$set(this, 'tokens', tokens);
