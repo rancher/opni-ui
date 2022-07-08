@@ -8,13 +8,14 @@ export interface PodProps {
   breakdown: BasicBreakdown[];
   range: Range;
   clusterId: string;
+  keywords: string[];
 }
 
 
 export default class Pod extends Component<PodProps> {
   render() {
     return (
-        <Basic type="pod"  breakdown={getGroupBreakdown(this.props.breakdown)} range={this.props.range} clusterId={this.props.clusterId} showNormalSparkline={true} showAnomaly={false} />
+        <Basic type="pod"  breakdown={getGroupBreakdown(this.props.breakdown)} range={this.props.range} clusterId={this.props.clusterId} showNormalSparkline={true} showAnomaly={false} keywords={this.props.keywords} />
     );
   }
 }

@@ -1,15 +1,16 @@
 import './style.scss';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { string } from 'prop-types';
 
 const propTypes = {
+    className: string,
     severity: PropTypes.oneOf(['anomaly', 'suspicious', 'normal']).isRequired,
 };
 
 
 class Bubble extends Component {
     className() {
-        return ['bubble', this.props.severity].join(' ');
+        return ['bubble', this.props.severity, this.props.className].join(' ').trim();
     }
 
     render() {

@@ -10,6 +10,7 @@ import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { getClusterIds, getInsights } from '../../utils/requests';
 import Loading from '../../components/Loading';
 import dateMath from '@elastic/datemath';
+import Cookies from 'js-cookie';
 
 interface MainState {
   settings: Settings,
@@ -18,19 +19,27 @@ interface MainState {
   range: Range;
   granularity: Granularity,
   cluster: string;
+  keywords: string[];
 };
+
+const COOKIE_KEY = 'opni-keywords';
 
 class Main extends Component<any, MainState> {
   constructor(props) {
     super(props);
 
+    const keywords = Cookies.get(COOKIE_KEY) ? JSON.parse(Cookies.get(COOKIE_KEY) as string): DEFAULT_SETTINGS.keywords;
     this.state = {
-      settings: { ...DEFAULT_SETTINGS },
+      settings: { 
+        ...DEFAULT_SETTINGS,
+        keywords
+      },
       clustersRequest: new Promise(() => {}),
       clusters: [],
       range: this.getAbsoluteRange(DEFAULT_SETTINGS.range),
       granularity: DEFAULT_SETTINGS.granularity,
-      cluster: DEFAULT_SETTINGS.cluster
+      cluster:  DEFAULT_SETTINGS.cluster,
+      keywords
     };
   }
 
@@ -50,11 +59,12 @@ class Main extends Component<any, MainState> {
   }
 
   onRefresh = () => {
-    console.log('goober');
+    Cookies.set(COOKIE_KEY, JSON.stringify(this.state.settings.keywords));
     this.setState({ 
       range: this.getAbsoluteRange(this.state.settings.range),
       cluster: this.state.settings.cluster,
-      granularity: this.state.settings.granularity
+      granularity: this.state.settings.granularity,
+      keywords: this.state.settings.keywords
     });
   };
 
@@ -78,10 +88,10 @@ class Main extends Component<any, MainState> {
               <div style={{ padding: '15px 0px', width: '100%' }}>
                 <Selector settings={this.state.settings} onChange={this.onSettingsChange} clusterIds={this.state.clusters} onRefresh={this.onRefresh}/>
                 <EuiFlexGroup style={{ padding: '0 15px' }} className="selector">
-                  <EuiFlexItem><InsightsChart range={this.state.range} granularity={this.state.granularity} clusterId={this.state.cluster} insightsProvider={getInsights} /></EuiFlexItem>
+                  <EuiFlexItem><InsightsChart range={this.state.range} granularity={this.state.granularity} clusterId={this.state.cluster} insightsProvider={getInsights} keywords={this.state.keywords} /></EuiFlexItem>
                   <EuiFlexItem><AnomalyChart range={this.state.range} granularity={this.state.granularity} clusterId={this.state.cluster} /></EuiFlexItem>
                 </EuiFlexGroup>
-                <Breakdowns granularity={this.state.granularity} range={this.state.range} clusterId={this.state.cluster} />
+                <Breakdowns granularity={this.state.granularity} range={this.state.range} clusterId={this.state.cluster} keywords={this.state.keywords} />
               </div>
             </Loading>
           )

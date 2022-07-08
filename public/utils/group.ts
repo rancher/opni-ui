@@ -14,9 +14,9 @@ export function getGroupBreakdown(breakdown: BasicBreakdown[]): Item[] {
     });
 
     const groupingArray = Object.entries(grouping)
-        .map(([clusterId, values]) => [{group: true, name: `Cluster: ${clusterId}`}, ...(values as any)]);
+        .map(([clusterId, values]) => [{ group: true, name: `Cluster: ${clusterId}` }, ...(values as any)]);
 
-    const sortedGroupingArray = sortBy(groupingArray, (group) => (group[1].anomaly || 0), (group) => (group[1].normal || 0)).reverse();
+    const sortedGroupingArray = sortBy(groupingArray, (group) => (group[1].anomaly || 0), (group) => (group[1].keywords || 0), (group) => (group[1].normal || 0)).reverse();
 
     return sortedGroupingArray.flat() as Item[];
 }

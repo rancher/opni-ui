@@ -2584,6 +2584,11 @@ isstream@~0.1.2:
   resolved "https://registry.yarnpkg.com/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
   integrity sha1-R+Y/evVa+m+S4VAOaQ64uFKcCZo=
 
+js-cookie@2.0:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-2.0.4.tgz#5f43d1872118aaf5e7a16029b70976eb7315c6a5"
+  integrity sha512-Awk/KbHf6RLMxcBcOwc0WFMS5e6qcz6E/n2XrNPASmxq3nw/Ck8t0WSY5VOoj9ZuiTsj/O6CPlOy/mSXnGGuUw==
+
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"

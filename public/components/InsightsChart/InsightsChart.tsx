@@ -22,7 +22,8 @@ export interface InsightsChartProps {
   range: Range;
   granularity: Granularity; 
   clusterId: string;
-  insightsProvider(range: Range, granularity: Granularity, clusterId: string): Promise<Insight[]>;
+  keywords: string[];
+  insightsProvider(range: Range, granularity: Granularity, clusterId: string, keywords: string[]): Promise<Insight[]>;
 };
 
 export interface InsightsChartState {
@@ -45,13 +46,13 @@ export default class InsightsChart extends Component<InsightsChartProps, Insight
   }
 
   componentDidUpdate(prevProps: Readonly<InsightsChartProps>): void {
-    if (this.props.granularity !== prevProps.granularity || !isSameRange(this.props.range, prevProps.range) || this.props.clusterId !== prevProps.clusterId) {
+    if (this.props.granularity !== prevProps.granularity || !isSameRange(this.props.range, prevProps.range) || this.props.clusterId !== prevProps.clusterId || this.props.keywords !== prevProps.keywords) {
       this.load();
     }
   }
 
   load = async () => {
-    const insightsRequest = this.props.insightsProvider(this.props.range, this.props.granularity, this.props.clusterId);
+    const insightsRequest = this.props.insightsProvider(this.props.range, this.props.granularity, this.props.clusterId, this.props.keywords);
     this.setState({
       insightsRequest
     });
@@ -65,6 +66,18 @@ export default class InsightsChart extends Component<InsightsChartProps, Insight
     function xFormat(ms) {
       return moment(ms).format('HH:MM');
     }
+
+    const keywords = this.props.keywords.length > 0 
+      ? <AreaSeries
+            id="keywords"
+            name="Keywords"
+            groupId="left"
+            data={this.state.insights}
+            xAccessor={'timestamp'}
+            yAccessors={['keywords']}
+            color={COLORS.suspicious}
+        />
+      : null;
 
     return (
         <div className="insights-chart">
@@ -81,6 +94,7 @@ export default class InsightsChart extends Component<InsightsChartProps, Insight
                           yAccessors={['anomaly']}
                           color={COLORS.anomalous}
                       />
+                      {keywords}
                       <AreaSeries
                           id="normal"
                           name="Normal"
