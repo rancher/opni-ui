@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import day, { Dayjs, UnitType } from 'dayjs';
 import { AreaOfInterestResponse } from '@/product/opni/models/areasOfInterest';
 import { FromTo } from '@/product/opni/models/fromTo';
@@ -232,14 +232,14 @@ export async function getClusters(vue: any): Promise<Cluster[]> {
   const clustersResponse = (await axios.get<ClustersResponse>(`opni-api/management/clusters`)).data.items;
   const healthResponses = await Promise.allSettled(clustersResponse.map(clustersResponse => axios.get<HealthResponse>(`opni-api/management/clusters/${ clustersResponse.id }/health`)));
 
-  const notConnected = {
+  const notConnected: HealthResponse = {
     status: { connected: false },
     health: { ready: false, conditions: [] }
   };
 
   return clustersResponse.map((clusterResponse, i) => {
     if (healthResponses[i].status === 'fulfilled') {
-      return new Cluster(clusterResponse, (healthResponses[i] as PromiseFulfilledResult<any>).value, vue);
+      return new Cluster(clusterResponse, (healthResponses[i] as PromiseFulfilledResult<AxiosResponse<HealthResponse>>).value.data, vue);
     }
 
     return new Cluster(clusterResponse, notConnected, vue);
