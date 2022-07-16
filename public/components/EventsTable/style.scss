@@ -1,0 +1,23 @@
+.events-table {
+    $size: 10px;
+
+    .euiToolTipAnchor {
+        width: $size;
+        height: $size;
+    }
+
+    .circle {
+        display: inline-block;
+        background-color: #3d98d3;
+        border-radius: 50%;
+
+        width: $size;
+        height: $size;
+
+        user-select: none;
+
+        &.Warning {
+            background-color: #dac342;
+        }
+    }
+}

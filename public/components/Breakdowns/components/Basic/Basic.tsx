@@ -1,11 +1,10 @@
 import './style.scss';
 
-import React, { Component, Fragment, createRef } from 'react';
+import React, { Component } from 'react';
 import {
   EuiBasicTable
 } from '@elastic/eui';
 import Bubble from '../../../Bubble';
-import { sortBy } from 'lodash';
 import { BasicBreakdown } from '../../../../utils/requests';
 import { formatShort } from '../../../../utils/format';
 import { Range } from '../../../../utils/time';
@@ -17,7 +16,7 @@ export function createColumns(type, range, clusterId, showNormalSparkline, showA
     const to = range.end.format();
     const value = row.name;
     const query = keywords.length > 0 && severity === 'null'
-      ? `query:(language:kuery,query:'${keywords.map(k => `log: ${k}`).join(' or ')}')`
+      ? `query:(language:kuery,query:'${keywords.map(k => `log: "${k}"`).join(' or ')}')`
       : `query:(language:kuery,query:'')`;
     const severityQuery = severity !== 'null'
       ? `,('$state':(store:appState),meta:(alias:!n,disabled:!f,key:anomaly_level,negate:!f,params:(query:${severity}),type:phrase),query:(match_phrase:(anomaly_level:${severity})))`

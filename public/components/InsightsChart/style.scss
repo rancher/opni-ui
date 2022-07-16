@@ -25,3 +25,26 @@
         }
     }
 }
+
+.event-tooltip {
+    background-color: #414141;
+    font-size: 12px;
+    color: #FFF;
+    border: 1px solid darken(#414141, 15%);
+    border-radius: 4px;
+    max-width: 450px;
+
+    .time,
+    .content {
+        padding: 4px 6px;
+
+        .source {
+            font-weight: bold;
+        }
+    }
+
+    .time {
+        font-weight: bold;
+        border-bottom: 1px solid #6c6c6c;
+    }
+}

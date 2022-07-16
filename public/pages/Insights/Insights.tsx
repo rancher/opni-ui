@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { CoreConsumer } from '../../utils/CoreContext';
 import InsightsChart from '../../components/InsightsChart';
 import Selector from '../../components/Selector';
 import Breakdowns from '../../components/Breakdowns';
@@ -7,10 +6,11 @@ import { DEFAULT_SETTINGS, Settings } from '../../components/Selector/Selector';
 import { Range, Granularity } from '../../utils/time';
 import AnomalyChart from '../../components/AnomalyChart';
 import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
-import { getClusterIds, getInsights } from '../../utils/requests';
-import Loading from '../../components/Loading';
+import { getClusterIds, getInsights, getK8sEvents } from '../../utils/requests';
 import dateMath from '@elastic/datemath';
 import Cookies from 'js-cookie';
+import PrimaryLayout from '../../components/Layout/PrimaryLayout';
+import { Moment } from 'moment';
 
 interface MainState {
   settings: Settings,
@@ -45,8 +45,8 @@ class Main extends Component<any, MainState> {
 
   getAbsoluteRange = (range: { start: string; end: string;}): Range => {
     return {
-      start: dateMath.parse(range.start),
-      end: dateMath.parse(range.end)
+      start: dateMath.parse(range.start) as Moment,
+      end: dateMath.parse(range.end) as Moment
     }
   }
 
@@ -81,22 +81,14 @@ class Main extends Component<any, MainState> {
 
   render() {
     return (
-      <CoreConsumer>
-        {(core) =>
-          core && (
-            <Loading promise={this.state.clustersRequest}>
-              <div style={{ padding: '15px 0px', width: '100%' }}>
-                <Selector settings={this.state.settings} onChange={this.onSettingsChange} clusterIds={this.state.clusters} onRefresh={this.onRefresh}/>
-                <EuiFlexGroup style={{ padding: '0 15px' }} className="selector">
-                  <EuiFlexItem><InsightsChart range={this.state.range} granularity={this.state.granularity} clusterId={this.state.cluster} insightsProvider={getInsights} keywords={this.state.keywords} /></EuiFlexItem>
-                  <EuiFlexItem><AnomalyChart range={this.state.range} granularity={this.state.granularity} clusterId={this.state.cluster} /></EuiFlexItem>
-                </EuiFlexGroup>
-                <Breakdowns granularity={this.state.granularity} range={this.state.range} clusterId={this.state.cluster} keywords={this.state.keywords} />
-              </div>
-            </Loading>
-          )
-        }
-      </CoreConsumer>
+      <PrimaryLayout loadingPromise={this.state.clustersRequest}>
+        <Selector settings={this.state.settings} onChange={this.onSettingsChange} clusterIds={this.state.clusters} onRefresh={this.onRefresh}/>
+        <EuiFlexGroup style={{ padding: '0 15px' }} className="selector">
+          <EuiFlexItem><InsightsChart range={this.state.range} granularity={this.state.granularity} clusterId={this.state.cluster} insightsProvider={getInsights} eventsProvider={(range, clusterId) => getK8sEvents(range, clusterId, 'Warning')} keywords={this.state.keywords} /></EuiFlexItem>
+          <EuiFlexItem><AnomalyChart range={this.state.range} granularity={this.state.granularity} clusterId={this.state.cluster} /></EuiFlexItem>
+        </EuiFlexGroup>
+        <Breakdowns granularity={this.state.granularity} range={this.state.range} clusterId={this.state.cluster} keywords={this.state.keywords} />
+      </PrimaryLayout>
     );
   }
 }

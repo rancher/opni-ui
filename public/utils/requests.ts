@@ -19,6 +19,15 @@ export interface Insight {
   timestamp: number
 };
 
+export interface K8SEvent {
+  type: EventType;
+  cause: string;
+  summary: string;
+  source: string;
+  details: string;
+  timestamp: number;
+}
+
 export interface BasicBreakdown {
   clusterId: string;
   name: string;
@@ -44,6 +53,7 @@ export interface Log {
 }
 
 export type LogType = 'workload' | 'controlplane' | 'rancher';
+export type EventType = 'Normal' | 'Warning';
 
 export async function getInsights(range: Range, granularity: Granularity, clusterId: string, keywords: string[], logType?: LogType): Promise<Insight[]> {
   const insightsPromise = search(getInsightsQuery(range, granularity, clusterId, logType));
@@ -64,6 +74,20 @@ export async function getInsights(range: Range, granularity: Granularity, cluste
   });
 
   return result;
+}
+
+export async function getK8sEvents(range: Range, clusterId: string, type?: EventType): Promise<K8SEvent[]> {
+  const results = await search(getK8sEventsQuery(range, clusterId, type));
+
+  const hits = results.rawResponse?.hits?.hits || [];
+
+  return hits.map(h => ({
+    cause: h._source.reason,
+    summary: h._source.message,
+    timestamp: moment(h._source.time).valueOf(),
+    type: h._source.type,
+    source: `${h._source.involvedObject.kind}: ${h._source.involvedObject.namespace}/${h._source.involvedObject.name}`
+  }));
 }
 
 export async function getRancherInsights(range: Range, granularity: Granularity, clusterId: string, keywords: string[]): Promise<Insight[]> {
@@ -440,6 +464,19 @@ function getControlPlaneBreakdownQuery(range: Range, clusterId: string) {
   }
 }
 
+function getK8sEventsQuery(range: Range, clusterId: string, type?: EventType) {
+  const typeMatch = type ? [{ "match": { "type": type } }] : [];
+  return {
+    "query": {
+      "bool": {
+        "filter": [{ "range": { "time": { "gte": range.start, "lte": range.end } } }],
+        "must": [...must(clusterId), { "match": { "log_type": 'event' } }, ...typeMatch],
+      }
+    },
+    size: 1000
+  }
+}
+
 function getControlPlaneKeywordsBreakdownQuery(range: Range, clusterId: string, keywords: string[]) {
   return {
     "query": {
@@ -458,7 +495,7 @@ function getControlPlaneKeywordsBreakdownQuery(range: Range, clusterId: string, 
         "terms": { "field": "cluster_id" },
         "aggs": {
           "component_name": {
-            "terms": { "field": "kubernetes_component.keyword" },
+            "terms": { "field": "kubernetes_component" },
           }
         }
       }
@@ -520,7 +557,7 @@ function getNamespaceBreakdownQuery(range: Range, clusterId: string) {
   return {
     "query": {
       "bool": {
-        "must": [...must(clusterId), { "regexp": { "kubernetes.namespace_name": ".+" } }, { "match": { "log_type": "workload" } }],
+        "must": [...must(clusterId), { "regexp": { "kubernetes.namespace_name.keyword": ".+" } }, { "match": { "log_type": "workload" } }],
         "filter": [{ "range": { "time": { "gte": range.start, "lte": range.end } } }],
       }
     },
@@ -548,7 +585,7 @@ function getNamespaceKeywordsBreakdownQuery(range: Range, clusterId: string, key
         "must": [
           ...must(clusterId),
           ...mustKeywords(keywords),
-          { "regexp": { "kubernetes.namespace_name": ".+" } },
+          { "regexp": { "kubernetes.namespace_name.keyword": ".+" } },
           { "match": { "log_type": "workload" } }
         ],
         "filter": [{ "range": { "time": { "gte": range.start, "lte": range.end } } }],
@@ -570,7 +607,7 @@ function getPodBreakdownQuery(range: Range, clusterId: string) {
     "size": 0,
     "query": {
       "bool": {
-        "must": [...must(clusterId), { "regexp": { "kubernetes.namespace_name": ".+" } }, { "match": { "log_type": "workload" } }],
+        "must": [...must(clusterId), { "regexp": { "kubernetes.namespace_name.keyword": ".+" } }, { "match": { "log_type": "workload" } }],
         "filter": [{ "range": { "time": { "gte": range.start, "lte": range.end } } }],
       }
     },
@@ -599,7 +636,7 @@ function getPodKeywordsBreakdownQuery(range: Range, clusterId: string, keywords:
         "must": [
           ...must(clusterId),
           ...mustKeywords(keywords),
-          { "regexp": { "kubernetes.namespace_name": ".+" } },
+          { "regexp": { "kubernetes.namespace_name.keyword": ".+" } },
           { "match": { "log_type": "workload" } }
         ],
         "filter": [{ "range": { "time": { "gte": range.start, "lte": range.end } } }],
