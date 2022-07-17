@@ -18,6 +18,7 @@ export interface BreakdownsProps {
   range: Range;
   clusterId: string;
   granularity: Granularity;
+  keywords: string[];
 };
 
 export interface BreakdownState {
@@ -62,10 +63,10 @@ export default class Breakdowns extends Component<BreakdownsProps, BreakdownStat
 }
 
   load = async () => {
-    const controlPlaneBreakdownRequest =  getControlPlaneBreakdown(this.props.range, this.props.clusterId);
-    const podBreakdownRequest =  getPodBreakdown(this.props.range, this.props.clusterId);
-    const namespaceBreakdownRequest =  getNamespaceBreakdown(this.props.range, this.props.clusterId);
-    const rancherBreakdownRequest = getRancherBreakdown(this.props.range, this.props.clusterId);
+    const controlPlaneBreakdownRequest =  getControlPlaneBreakdown(this.props.range, this.props.clusterId, this.props.keywords);
+    const podBreakdownRequest =  getPodBreakdown(this.props.range, this.props.clusterId, this.props.keywords);
+    const namespaceBreakdownRequest =  getNamespaceBreakdown(this.props.range, this.props.clusterId, this.props.keywords);
+    const rancherBreakdownRequest = getRancherBreakdown(this.props.range, this.props.clusterId, this.props.keywords);
     const logTypesRequest = getLogTypes();
     
     this.setState({
@@ -91,17 +92,17 @@ export default class Breakdowns extends Component<BreakdownsProps, BreakdownStat
       {
         id: 'control-plane',
         name: 'Control Plane',
-        content: <ControlPlane breakdown={this.state.controlPlaneBreakdown} range={this.props.range} clusterId={this.props.clusterId} granularity={this.props.granularity} />,
+        content: <ControlPlane breakdown={this.state.controlPlaneBreakdown} range={this.props.range} clusterId={this.props.clusterId} granularity={this.props.granularity} keywords={this.props.keywords} />,
       },
       {
         id: 'pod',
         name: 'Pod',
-        content: <Pod breakdown={this.state.podBreakdown} range={this.props.range} clusterId={this.props.clusterId} />
+        content: <Pod breakdown={this.state.podBreakdown} range={this.props.range} clusterId={this.props.clusterId} keywords={this.props.keywords} />
       },
       {
         id: 'namespace',
         name: 'Namespace',
-        content: <Namespace breakdown={this.state.namespaceBreakdown} range={this.props.range} clusterId={this.props.clusterId} />
+        content: <Namespace breakdown={this.state.namespaceBreakdown} range={this.props.range} clusterId={this.props.clusterId} keywords={this.props.keywords} />
       }
     ];
 
@@ -109,7 +110,7 @@ export default class Breakdowns extends Component<BreakdownsProps, BreakdownStat
       tabs.push({
         id: 'rancher',
         name: 'Rancher',
-        content: <Rancher breakdown={this.state.rancherBreakdown} range={this.props.range} clusterId={this.props.clusterId} granularity={this.props.granularity} />
+        content: <Rancher breakdown={this.state.rancherBreakdown} range={this.props.range} clusterId={this.props.clusterId} granularity={this.props.granularity} keywords={this.props.keywords} />
       });
     }
     return (

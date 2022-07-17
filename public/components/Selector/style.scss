@@ -1,9 +1,39 @@
 .selector {
+    padding: 15px;
+    padding-top: 0;
+
+    &>.euiPanel {
+        padding: 0;
+        padding-top: 12px;
+    }
+
     .right {
         min-width: 540px;
     }
 
     .period {
         min-width: 100px;
+    }
+
+    .more-filters-button {
+        margin-top: 0;
+
+        .handle {
+            font-size: 10px;
+            text-align: center;
+            padding-top: 8px;
+            height: 30px;
+            background-color: #fafbfd;
+            border-top: 1px solid #d3dae6;
+            color: #006bb4;
+            box-shadow: inset 0 10px 10px -10px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            font-weight: bold;
+            cursor: pointer;
+
+            &:hover {
+                box-shadow: inset 0 10px 10px -10px rgba(0, 0, 0, 0.3);
+            }
+        }
     }
 }

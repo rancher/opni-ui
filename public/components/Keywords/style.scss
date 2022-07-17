@@ -1,0 +1,39 @@
+.keywords-filter {
+    .bubble {
+        &.editing {
+            background: none;
+        }
+
+        font-size: 11px;
+        margin-left: 5px;
+        padding-right: 0;
+
+        .euiButtonIcon {
+            scale: 0.75;
+        }
+
+        .typing-caret {
+            animation: blinker 1s step-start infinite;
+            user-select: none;
+
+            @keyframes blinker {
+                50% {
+                    visibility: hidden;
+                }
+            }
+        }
+    }
+
+    input {
+        position: fixed;
+        left: -1000px;
+    }
+
+    .focus-capture {
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+    }
+}
