@@ -1,4 +1,3 @@
-import capitalize from 'lodash/capitalize';
 import { Resource } from './Resource';
 import { deleteCluster } from '~/product/opni/utils/requests';
 import { LABEL_KEYS } from '~/product/opni/models/shared';
@@ -121,7 +120,7 @@ export class Cluster extends Resource {
   }
 
   get sampleRate(): number | undefined {
-    return this.clusterStats?.ingestionRate;
+    return Math.floor(this.clusterStats?.ingestionRate || 0);
   }
 
   get rulesRate(): number | undefined {
