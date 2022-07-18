@@ -4157,7 +4157,7 @@ tableHeaders:
   nodesReady: Nodes Ready
   nodePort: Node Port
   normal: Normal
-  numSeries: Series Count
+  numSeries: Distinct Prometheus Metrics
   object: Object
   operatingSystem: OS
   output: Output
@@ -4193,7 +4193,7 @@ tableHeaders:
   role: Role
   roles: Roles
   rulesRate: Rule Ingestion Rate
-  sampleRate: Sample Ingestion Rate
+  sampleRate: Metrics Ingestion Rate
   scale: Scale
   scope: Scope
   selector: Selector
