@@ -5,6 +5,7 @@ import { CoreConsumer } from '../../utils/CoreContext';
 
 import ClusterConfig from '../ClusterConfig';
 import Insights from '../Insights';
+import Events from '../Events';
 
 class Main extends Component {
   render() {
@@ -18,6 +19,12 @@ class Main extends Component {
                   path={'/cluster-config'}
                   render={(props) => (
                     <ClusterConfig />
+                  )}
+                />
+                <Route
+                path="/events"
+                  render={(props) => (
+                    <Events />
                   )}
                 />
                 <Route

@@ -60,7 +60,7 @@ export default class Breakdowns extends Component<BreakdownsProps, BreakdownStat
     if (!isSameRange(prevProps.range, this.props.range) || this.props.clusterId !== prevProps.clusterId) {
       this.load();
     }
-}
+  }
 
   load = async () => {
     const controlPlaneBreakdownRequest =  getControlPlaneBreakdown(this.props.range, this.props.clusterId, this.props.keywords);
@@ -115,11 +115,11 @@ export default class Breakdowns extends Component<BreakdownsProps, BreakdownStat
     }
     return (
         <div style={{ padding: '15px 15px' }} className="breakdowns">
-            <EuiPanel>
-              <Loading promise={this.state.allRequests}>
-                <EuiTabbedContent tabs={tabs} initialSelectedTab={tabs[0]} />
-              </Loading>
-            </EuiPanel>
+          <EuiPanel>
+            <Loading promise={this.state.allRequests}>
+              <EuiTabbedContent tabs={tabs} initialSelectedTab={tabs[0]} />
+            </Loading>
+          </EuiPanel>
         </div>
     );
   }
