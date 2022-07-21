@@ -24,6 +24,10 @@ export default {
     loading: {
       type:    Boolean,
       default: false
+    },
+    searchable: {
+      type:    Boolean,
+      default: false
     }
   },
   computed:   {
@@ -40,7 +44,7 @@ export default {
   methods: {
     updateRow(index, value) {
       this.value.splice(index, 1, value);
-      this.$emit(value);
+      this.$emit(value || []);
     },
     calculateOptions(value) {
       const valueOption = this.options.find(o => o.value === value);
@@ -65,7 +69,7 @@ export default {
     @input="$emit('input', $event)"
   >
     <template v-slot:columns="scope">
-      <Select :value="scope.row.value" v-bind="selectProps" :options="calculateOptions(scope.row.value)" @input="updateRow(scope.i, $event)" />
+      <Select :value="scope.row.value" v-bind="selectProps" :options="calculateOptions(scope.row.value)" :searchable="searchable" @input="updateRow(scope.i, $event)" />
     </template>
   </ArrayList>
 </template>
