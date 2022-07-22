@@ -221,15 +221,13 @@ export default {
       }));
     },
     gatewayUrl() {
-      return this.installCommand.match(/gateway-url=.+/s)?.[0]?.replace('gateway-url=', '').replace('"  ', '');
+      return this.installCommand.match(/gateway-url=.+/s)?.[0]?.replace('gateway-url=', '').replace('"  ', '').replace('https://', '').replace('http://', '');
     },
     addressUrl() {
-      return this.installCommand.match(/address=.+ /s)?.[0]?.replace('address=', '').replace('"  ', '');
+      return this.installCommand.match(/address=.+ /s)?.[0]?.replace('address=', '').replace('"  ', '').replace('https://', '').replace('http://', '');
     },
     url() {
-      const extractedUrl = this.addressUrl || this.gatewayUrl || '';
-
-      return extractedUrl ? new URL(extractedUrl).host : '';
+      return this.addressUrl || this.gatewayUrl || '';
     },
     manualIcon() {
       return this.isManualOpen ? 'icon-chevron-up' : 'icon-chevron-down';
