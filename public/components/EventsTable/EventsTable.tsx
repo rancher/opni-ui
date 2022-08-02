@@ -77,7 +77,7 @@ export default class EventsTable extends Component<EventsTableProps, EventsTable
       {
         field: 'cause',
         name: 'Cause',
-        width: '115px'
+        width: '195px'
       },
       {
         field: 'timestamp',

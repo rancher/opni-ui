@@ -6,6 +6,7 @@ import { CoreConsumer } from '../../utils/CoreContext';
 import ClusterConfig from '../ClusterConfig';
 import Insights from '../Insights';
 import Events from '../Events';
+import Templates from '../Templates';
 
 class Main extends Component {
   render() {
@@ -22,9 +23,15 @@ class Main extends Component {
                   )}
                 />
                 <Route
-                path="/events"
+                  path="/events"
                   render={(props) => (
                     <Events />
+                  )}
+                />
+                <Route
+                  path="/templates"
+                  render={(props) => (
+                    <Templates />
                   )}
                 />
                 <Route

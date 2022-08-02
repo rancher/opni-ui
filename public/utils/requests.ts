@@ -28,6 +28,13 @@ export interface K8SEvent {
   timestamp: number;
 }
 
+export interface LogTemplate {
+  template: string;
+  templateId: number;
+  count: number;
+  log: string;
+}
+
 export interface BasicBreakdown {
   clusterId: string;
   name: string;
@@ -189,6 +196,17 @@ export async function getPodBreakdown(range: Range, clusterId: string, keywords:
   Object.values(breakdownLookup).forEach(breakdown => breakdown.normalSparklineGlobalMax = globalMax);
 
   return Object.values(breakdownLookup);
+}
+
+export async function getLogTemplates(range: Range, clusterId: string): Promise<LogTemplate[]> {
+  const response = await search(getLogTemplatesQuery(range, clusterId));
+
+  return response.rawResponse.aggregations.templates.buckets.map(bucket => ({
+    template: bucket.include_source.hits.hits[0]._source.template_matched,
+    templateId: bucket.key,
+    count: bucket.doc_count,
+    log: bucket.include_source.hits.hits[0]._source.log
+  }));
 }
 
 export async function getLogTypes(): Promise<String[]> {
@@ -523,6 +541,33 @@ function getRancherBreakdownQuery(range: Range, clusterId: string) {
           }
         }
       }
+    },
+  }
+}
+
+function getLogTemplatesQuery(range: Range, clusterId: string) {
+  return {
+    "query": {
+      "bool": {
+        "filter": [{ "range": { "time": { "gte": range.start, "lte": range.end } } }],
+        "must": [...must(clusterId), { "match": { "log_type": "rancher" } }],
+      }
+    },
+    "size": 0,
+    "aggs": {
+      "templates": {
+        "terms": { "field": "template_cluster_id", "size": 1000 },
+        "aggs": {
+          "include_source": {
+            "top_hits": {
+              "size": 1,
+              "_source": {
+                "includes": ["template_matched", "log"]
+              }
+            }
+          }
+        }
+      },
     },
   }
 }

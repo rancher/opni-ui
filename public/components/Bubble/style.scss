@@ -23,4 +23,10 @@
         border-color: $color;
         background-color: rgba($color, 0.4);
     }
+
+    &.neutral {
+        $color: #cccccc;
+        border-color: $color;
+        background-color: rgba($color, 0.4);
+    }
 }
