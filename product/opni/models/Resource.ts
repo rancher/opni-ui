@@ -1,5 +1,5 @@
 export class Resource {
-  private vue: any;
+  protected vue: any;
 
   constructor(vue: any) {
     this.vue = vue;
@@ -23,5 +23,9 @@ export class Resource {
 
   public remove() {
     this.vue.$emit('remove');
+  }
+
+  public clone() {
+    this.vue.$emit('clone');
   }
 }

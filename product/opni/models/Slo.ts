@@ -1,0 +1,164 @@
+import { Resource } from './Resource';
+import { SloService, SloServiceResponse } from '~/product/opni/models/SloService';
+import { cloneSLO, deleteSLO, getSLOStatus } from '~/product/opni/utils/requests/slo';
+
+type SloStatusStateResponse = 'NoData' | 'Ok' | 'Warning' | 'Breaching' | 'InternalError';
+
+export interface SloStatusResponse {
+  sloSLOStatusState: SloStatusStateResponse;
+}
+
+export interface SloAlertResponse {
+    name: string,
+    notificationTarget: string,
+    notificationDescription: string,
+    description: string,
+    conditionType: string,
+    thresholdType: string,
+    onNoData: boolean,
+    onCreate: boolean,
+    onBreach: boolean,
+    onResolved: boolean
+}
+
+export interface SloTagResponse {
+  name: string;
+}
+
+export interface SloTargetResponse {
+    value: number;
+}
+
+export interface SloMetadataResponse {
+    name: string,
+    datasource: string,
+    metricName: string,
+    monitorWindow: string,
+    budgetingInterval: string,
+    target: SloTargetResponse,
+    labels: SloTagResponse[],
+    alerts: SloAlertResponse[]
+}
+
+export interface SloResponse {
+    id: string,
+    SLO: SloMetadataResponse,
+    service: SloServiceResponse
+}
+
+export interface SlosResponse {
+    items: SloResponse[];
+}
+
+export class Slo extends Resource {
+    private base: SloResponse;
+    private state: SloStatusStateResponse;
+
+    constructor(base: SloResponse, vue: any) {
+      super(vue);
+      this.base = base;
+      this.state = 'Ok';
+    }
+
+    get nameDisplay(): string {
+      return this.name;
+    }
+
+    get name(): string {
+      return this.base.SLO.name;
+    }
+
+    get id(): string {
+      return this.base.id;
+    }
+
+    get metadata(): SloMetadataResponse {
+      return this.base.SLO;
+    }
+
+    get metric(): string {
+      return this.base.SLO.metricName;
+    }
+
+    get service(): SloService {
+      return new SloService(this.base.service, [], this.vue);
+    }
+
+    get period(): string {
+      return this.base.SLO.monitorWindow;
+    }
+
+    get status(): any {
+      const stateMap = {
+        NoData:        'error',
+        Ok:            'success',
+        Warning:       'warning',
+        Breaching:     'error',
+        InternalError: 'error'
+      };
+
+      return { state: stateMap[this.state] || 'error', message: this.state };
+    }
+
+    async updateStatus(): Promise<void> {
+      this.state = (await getSLOStatus(this.base.id)).sloSLOStatusState || 'InternalError';
+    }
+
+    get tags(): string[] {
+      return (this.base.SLO?.labels || []).map(l => l.name);
+    }
+
+    get threshold(): number {
+      return this.base.SLO.target.value;
+    }
+
+    get budgetingInterval(): string {
+      return `${ Number.parseInt(this.base.SLO.budgetingInterval) / 60 }m`;
+    }
+
+    get availableActions(): any[] {
+      return [
+        {
+          action:    'edit',
+          altAction: 'edit',
+          label:     'Edit',
+          icon:      'icon icon-edit',
+          enabled:   true,
+        },
+        {
+          action:    'clone',
+          altAction: 'clone',
+          label:     'Clone',
+          icon:      'icon icon-copy',
+          enabled:   true,
+        },
+        {
+          action:     'promptRemove',
+          altAction:  'delete',
+          label:      'Delete',
+          icon:       'icon icon-trash',
+          bulkable:   true,
+          enabled:    true,
+          bulkAction: 'promptRemove',
+          weight:     -10, // Delete always goes last
+        }
+      ];
+    }
+
+    edit() {
+      this.vue.$router.replace({
+        name:   'slo',
+        params: { id: this.base.id }
+      });
+    }
+
+    async remove() {
+      await deleteSLO(this.base.id);
+      super.remove();
+    }
+
+    async clone() {
+      await cloneSLO(this.base.id);
+      super.clone();
+    }
+}

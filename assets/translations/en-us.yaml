@@ -4162,6 +4162,7 @@ tableHeaders:
   operatingSystem: OS
   output: Output
   p95: 95%tile
+  period: Period
   persistentVolumeClaim: Persistent Volume Claim
   persistentVolumeSource: Source
   podImages: Image
@@ -4211,6 +4212,7 @@ tableHeaders:
   success: Success
   summary: Summary
   suspicious: Suspicious
+  tags: Tags
   taints: Taints
   target: Target
   targetKind: Target Type
@@ -6154,6 +6156,7 @@ opni:
     roles: Roles
     roleBindings: Role Bindings
     tokens: Tokens
+    slos: SLOs
   workloadVsControlPlaneChart:
     workload: Workload
     controlPlane: Control Plane

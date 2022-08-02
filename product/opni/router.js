@@ -11,6 +11,8 @@ import Role from './pages/Role';
 import RoleBindings from './pages/RoleBindings';
 import RoleBinding from './pages/RoleBinding';
 import Configuration from './pages/Configuration';
+import SLOs from './pages/SLOs';
+import SLO from './pages/SLO';
 
 Vue.use(Router);
 
@@ -97,20 +99,30 @@ export const NAVIGATION = {
       component: Configuration,
       display:   true
     },
-    // {
-    //   name:      'preempt',
-    //   path:      '/preempt',
-    //   labelKey:  'opni.nav.preempt',
-    //   icon:      'globe',
-    //   component: Preempt
-    // },
-    // {
-    //   path:      '/metrics',
-    //   labelKey:  'opni.nav.metrics',
-    //   icon:      'globe',
-    //   display:   false,
-    //   component: Metrics
-    // }
+    {
+      name:      'slos',
+      path:      '/slos',
+      labelKey:  'opni.nav.slos',
+      icon:      'alert',
+      component: SLOs,
+      display:   true
+    },
+    {
+      name:      'slo',
+      path:      '/slo/:id',
+      labelKey:  'opni.nav.slos',
+      icon:      'globe',
+      component: SLO,
+      display:   false
+    },
+    {
+      name:      'slo-create',
+      path:      '/slo/create',
+      labelKey:  'opni.nav.slos',
+      icon:      'globe',
+      component: SLO,
+      display:   false
+    },
   ]
 };
 
