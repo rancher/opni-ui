@@ -126,7 +126,7 @@ export default {
     },
     valueMultiline: {
       type:    Boolean,
-      default: true,
+      default: false,
     },
     valueTrim: {
       type:    Boolean,
@@ -313,7 +313,7 @@ export default {
   },
 
   created() {
-    this.queueUpdate = debounce(this.update, 500);
+    this.queueUpdate = this.update;
   },
 
   methods: {
@@ -368,6 +368,7 @@ export default {
     },
 
     update() {
+      console.log('got here yo');
       let out;
 
       if ( this.asMap ) {
