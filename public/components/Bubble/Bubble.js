@@ -4,7 +4,7 @@ import PropTypes, { string } from 'prop-types';
 
 const propTypes = {
     className: string,
-    severity: PropTypes.oneOf(['anomaly', 'suspicious', 'normal']).isRequired,
+    severity: PropTypes.oneOf(['anomaly', 'suspicious', 'normal', 'neutral']).isRequired,
 };
 
 

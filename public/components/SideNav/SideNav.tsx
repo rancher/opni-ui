@@ -17,17 +17,24 @@ export default class SideNav extends Component {
                 items: [
                   {
                     name: 'Insights',
-                    id: htmlIdGenerator('basicExample')(),
+                    id: htmlIdGenerator('insights')(),
                     href: `${core.http.basePath.basePath}/app/opni#/`,
                     icon: <EuiIcon type="reporter" />,
                     isSelected: window.location.href.endsWith('opni#/')
                   },
                   {
                     name: 'Events',
-                    id: htmlIdGenerator('basicExample')(),
+                    id: htmlIdGenerator('events')(),
                     href: `${core.http.basePath.basePath}/app/opni#/events`,
                     icon: <EuiIcon type="clock" />,
                     isSelected: window.location.href.endsWith('opni#/events')
+                  },
+                  {
+                    name: 'Log Templates',
+                    id: htmlIdGenerator('templates')(),
+                    href: `${core.http.basePath.basePath}/app/opni#/templates`,
+                    icon: <EuiIcon type="documents" />,
+                    isSelected: window.location.href.endsWith('opni#/templates')
                   }
                 ],
               },
