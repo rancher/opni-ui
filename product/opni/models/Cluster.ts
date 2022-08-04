@@ -1,5 +1,5 @@
 import { Resource } from './Resource';
-import { deleteCluster } from '~/product/opni/utils/requests';
+import { deleteCluster, getCluster, uninstallCapabilityStatus } from '~/product/opni/utils/requests';
 import { LABEL_KEYS } from '~/product/opni/models/shared';
 
 export interface ClusterResponse {
@@ -45,10 +45,36 @@ export interface ClusterStatsList {
   items: ClusterStats[];
 }
 
+export interface CapabilityLog {
+  capability: string;
+  state: string;
+  message: string;
+}
+
+export interface CapabilityStatusLogResponse {
+  msg: string;
+  level: number;
+  timestamp: string;
+}
+
+export interface CapabilityStatusTransitionResponse {
+  state: string;
+  timestamp: string;
+}
+
+export interface CapabilityStatusResponse {
+  state: string;
+  progress: null;
+  metadata: 'string';
+  logs: CapabilityStatusLogResponse[];
+  transitions: CapabilityStatusTransitionResponse[];
+}
+
 export class Cluster extends Resource {
   private base: ClusterResponse;
   private healthBase: HealthResponse;
   private clusterStats: ClusterStats;
+  private capLogs: CapabilityLog[];
 
   constructor(base: ClusterResponse, healthBase: HealthResponse, vue: any) {
     super(vue);
@@ -58,6 +84,7 @@ export class Cluster extends Resource {
       ingestionRate: 0,
       numSeries:     0,
     } as ClusterStats;
+    this.capLogs = [];
   }
 
   get status(): Status {
@@ -135,7 +162,64 @@ export class Cluster extends Resource {
     this.clusterStats = stats;
   }
 
+  get capabilityLogs(): CapabilityLog[] {
+    return this.capLogs;
+  }
+
+  async updateCapabilities(): Promise<void> {
+    const newCluster = await getCluster(this.id, this.vue);
+
+    this.base.metadata.capabilities = newCluster.base.metadata.capabilities;
+  }
+
+  async updateCabilityLogs(): Promise<void> {
+    const logs:CapabilityLog[] = [];
+
+    for (const i in this.capabilities) {
+      try {
+        const capability = this.capabilities[i];
+        const log = await uninstallCapabilityStatus(this.id, capability, this.vue);
+
+        logs.push({
+          capability,
+          state:   log.state,
+          message: (log.logs || []).reverse()[0].msg
+        });
+      } catch (ex) {}
+    }
+
+    this.capLogs = logs;
+
+    await this.updateCapabilities();
+  }
+
   get availableActions(): any[] {
+    const capabilityActions = [
+      { divider: true },
+      {
+        action:   'uninstallMetrics',
+        label:    'Uninstall Metrics',
+        icon:     'icon icon-close',
+        bulkable: false,
+        enabled:  this.capabilities.includes('metrics'),
+      },
+      {
+        action:   'uninstallLogging',
+        label:    'Uninstall Logging',
+        icon:     'icon icon-close',
+        bulkable: false,
+        enabled:  this.capabilities.includes('logging'),
+      },
+      {
+        action:   'uninstallCapabilities',
+        label:    'Uninstall All Capabilities',
+        icon:     'icon icon-close',
+        bulkable: false,
+        enabled:  this.capabilities.length > 0,
+      },
+      { divider: true },
+    ];
+
     return [
       {
         action:   'promptEdit',
@@ -151,6 +235,7 @@ export class Cluster extends Resource {
         bulkable: false,
         enabled:  true,
       },
+      ...(this.capabilities.length > 0 ? capabilityActions : []),
       {
         action:     'promptRemove',
         altAction:  'delete',
@@ -164,8 +249,28 @@ export class Cluster extends Resource {
     ];
   }
 
+  uninstallMetrics() {
+    this.vue.$emit('uninstallCapabilities', this, ['metrics']);
+  }
+
+  uninstallLogging() {
+    this.vue.$emit('uninstallCapabilities', this, ['logging']);
+  }
+
+  uninstallCapabilities() {
+    this.vue.$emit('uninstallCapabilities', this, this.capabilities);
+  }
+
   async remove() {
     await deleteCluster(this.base.id);
     super.remove();
+  }
+
+  public promptRemove(resources = this) {
+    if (this.capabilities.length > 0) {
+      this.vue.$emit('cantDeleteCluster', this);
+    } else {
+      this.vue.$store.commit('action-menu/togglePromptRemove', resources, { root: true });
+    }
   }
 }

@@ -1,5 +1,4 @@
 <script>
-import debounce from 'lodash/debounce';
 import { typeOf } from '@/utils/sort';
 import { removeAt, removeObject } from '@/utils/array';
 import { asciiLike } from '@/utils/string';
@@ -229,6 +228,10 @@ export default {
       default: false,
       type:    Boolean
     },
+    disabled: {
+      default: false,
+      type:    Boolean
+    }
   },
 
   data() {
@@ -368,7 +371,6 @@ export default {
     },
 
     update() {
-      console.log('got here yo');
       let out;
 
       if ( this.asMap ) {
@@ -523,13 +525,14 @@ export default {
               :clearable="false"
               :taggable="keyTaggable"
               :options="calculateOptions(row[keyName])"
+              :disabled="disabled"
               @input="queueUpdate"
             />
             <input
               v-else
               ref="key"
               v-model="row[keyName]"
-              :disabled="isView || !keyEditable"
+              :disabled="isView || !keyEditable || disabled"
               :placeholder="keyPlaceholder"
               @input="queueUpdate"
               @paste="onPaste(i, $event)"
@@ -560,12 +563,13 @@ export default {
               :placeholder="valuePlaceholder"
               :min-height="61"
               :spellcheck="false"
+              :disabled="disabled"
               @input="queueUpdate"
             />
             <input
               v-else
               v-model="row[valueName]"
-              :disabled="isView"
+              :disabled="isView || disabled"
               :type="valueConcealed ? 'password' : 'text'"
               :placeholder="valuePlaceholder"
               autocorrect="off"
@@ -582,7 +586,7 @@ export default {
 
         <div v-if="removeAllowed" :key="i" class="kv-item remove">
           <slot name="removeButton" :remove="remove" :row="row">
-            <button type="button" :disabled="isView" class="btn role-link" @click="remove(i)">
+            <button type="button" :disabled="isView || disabled" class="btn role-link" @click="remove(i)">
               {{ removeLabel || t('generic.remove') }}
             </button>
           </slot>
@@ -592,12 +596,12 @@ export default {
 
     <div v-if="(addAllowed || readAllowed) && !isView" class="footer">
       <slot name="add" :add="add">
-        <button v-if="addAllowed" type="button" class="btn role-tertiary add" :disabled="loading || (keyOptions && filteredKeyOptions.length === 0)" @click="add()">
+        <button v-if="addAllowed" type="button" class="btn role-tertiary add" :disabled="loading || (keyOptions && filteredKeyOptions.length === 0) || disabled" @click="add()">
           <i v-if="loading" class="mr-5 icon icon-spinner icon-spin icon-lg" /> {{ addLabel }}
         </button>
         <FileSelector
           v-if="readAllowed"
-          :disabled="isView"
+          :disabled="isView || disabled"
           class="role-tertiary"
           :label="t('generic.readFromFile')"
           :include-file-name="true"

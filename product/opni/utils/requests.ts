@@ -5,7 +5,7 @@ import { FromTo } from '@/product/opni/models/fromTo';
 import { TokensResponse, Token } from '@/product/opni/models/Token';
 import { CapabilitiesResponse, CapabilityInstallerResponse } from '@/product/opni/models/Capability';
 import {
-  Cluster, ClusterStats, ClusterStatsList, ClustersResponse, HealthResponse
+  Cluster, ClusterStats, ClusterStatsList, ClustersResponse, HealthResponse, CapabilityStatusResponse, ClusterResponse
 } from '@/product/opni/models/Cluster';
 import { Breakdowns, BreakdownsResponse } from '~/product/opni/models/overallBreakdown/Breakdowns';
 import { Log } from '~/product/opni/models/log/Log';
@@ -169,6 +169,14 @@ export async function getCapabilities(vue: any) {
   return capabilitiesResponse;
 }
 
+export function uninstallCapability(clusterId: string, capability: string, deleteStoredData: boolean, vue: any) {
+  return axios.post<CapabilitiesResponse>(`opni-api/management/clusters/${ clusterId }/capabilities/${ capability }/uninstall`, { options: { initialDelay: '15m', deleteStoredData } });
+}
+
+export async function uninstallCapabilityStatus(clusterId: string, capability: string, vue: any) {
+  return (await axios.get<CapabilityStatusResponse>(`opni-api/management/clusters/${ clusterId }/capabilities/${ capability }/uninstall/status`)).data;
+}
+
 export async function getCapabilityInstaller(capability: string, token: string, pin: string) {
   return (await axios.post<CapabilityInstallerResponse>(`opni-api/management/capabilities/${ capability }/installer`, {
     token,
@@ -244,6 +252,12 @@ export async function getClusters(vue: any): Promise<Cluster[]> {
 
     return new Cluster(clusterResponse, notConnected, vue);
   });
+}
+
+export async function getCluster(id: string, vue: any) {
+  const clusterResponse = (await axios.get<ClusterResponse>(`opni-api/management/clusters/${ id }`)).data;
+
+  return new Cluster(clusterResponse, null as any, vue);
 }
 
 export async function getClusterStats(vue: any): Promise<ClusterStats[]> {

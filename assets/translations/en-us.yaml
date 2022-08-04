@@ -29,6 +29,7 @@ generic:
   none: None
   notFound: Not Found
   number: '{prefix}{value, number}{suffix}'
+  ok: Ok
   overview: Overview
   plusMore: "+ {n} more"
   readFromFile: Read from File
