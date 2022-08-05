@@ -3,10 +3,16 @@ import SortableTable from '@/components/SortableTable';
 import { getClusters, getClusterStats } from '@/product/opni/utils/requests';
 import Loading from '@/components/Loading';
 import EditClusterDialog from './dialogs/EditClusterDialog';
+import UninstallCapabilitiesDialog from './dialogs/UninstallCapabilitiesDialog';
+import CantDeleteClusterDialog from './dialogs/CantDeleteClusterDialog';
 
 export default {
   components: {
-    EditClusterDialog, Loading, SortableTable
+    CantDeleteClusterDialog,
+    EditClusterDialog,
+    Loading,
+    SortableTable,
+    UninstallCapabilitiesDialog
   },
   async fetch() {
     await this.load();
@@ -31,7 +37,7 @@ export default {
           labelKey:      'tableHeaders.name',
           sort:          ['nameDisplay'],
           value:         'nameDisplay',
-          width:         undefined,
+          width:         340,
           formatter:     'TextWithClass',
           formatterOpts: {
             getClass(row, value) {
@@ -82,6 +88,8 @@ export default {
     this.$on('remove', this.onClusterDelete);
     this.$on('edit', this.openEditDialog);
     this.$on('copy', this.copyClusterID);
+    this.$on('uninstallCapabilities', this.openUninstallCapabilitiesDialog);
+    this.$on('cantDeleteCluster', this.openCantDeleteClusterDialog);
     this.statsInterval = setInterval(this.loadStats, 10000);
   },
 
@@ -89,6 +97,8 @@ export default {
     this.$off('remove');
     this.$off('edit');
     this.$off('copy');
+    this.$off('uninstallCapabilities');
+    this.$off('cantDeleteCluster');
     if (this.statsInterval) {
       clearInterval(this.statsInterval);
     }
@@ -101,6 +111,14 @@ export default {
 
     openEditDialog(cluster) {
       this.$refs.dialog.open(cluster);
+    },
+
+    openUninstallCapabilitiesDialog(cluster, capabilities) {
+      this.$refs.capabilitiesDialog.open(cluster, capabilities);
+    },
+
+    openCantDeleteClusterDialog(cluster) {
+      this.$refs.cantDeleteClusterDialog.open(cluster);
     },
 
     copyClusterID(cluster) {
@@ -117,6 +135,8 @@ export default {
     },
     async loadStats() {
       const details = await getClusterStats(this);
+
+      await Promise.all(this.clusters.map(c => c.updateCabilityLogs()));
 
       this.clusters.forEach((cluster) => {
         this.$set(cluster, 'stats', details.find(d => d.userID === cluster.id));
@@ -144,8 +164,24 @@ export default {
       :search="false"
       default-sort-by="expirationDate"
       key-field="id"
-    />
+      :sub-rows="true"
+    >
+      <template #sub-row="{row, fullColspan}">
+        <tr class="sub-row">
+          <td :colspan="fullColspan" class="cluster-status">
+            <div v-for="log in row.capabilityLogs" :key="log.capability" class="capability-status mb-10">
+              <div>Capability uninstall <b>{{ log.capability }}</b> ({{ log.state }}) - <span class="text-muted"> {{ log.message }} </span></div>
+              <a class="">
+                Cancel
+              </a>
+            </div>
+          </td>
+        </tr>
+      </template>
+    </SortableTable>
     <EditClusterDialog ref="dialog" @save="load" />
+    <UninstallCapabilitiesDialog ref="capabilitiesDialog" @save="loadStats" />
+    <CantDeleteClusterDialog ref="cantDeleteClusterDialog" />
   </div>
 </template>
 
@@ -157,6 +193,17 @@ export default {
 
   .monospace {
     font-family: $mono-font;
+  }
+
+  .cluster-status {
+    padding-left: 40px;
+  }
+
+  .capability-status {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
   }
 }
 </style>
