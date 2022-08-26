@@ -291,7 +291,7 @@ export default {
     </div>
     <div v-if="showAdd && !isView" class="footer">
       <slot v-if="showAdd" name="add">
-        <button type="button" class="btn role-tertiary add" :disabled="loading" @click="add()">
+        <button type="button" class="btn role-tertiary add" :disabled="loading || disabled" @click="add()">
           <i v-if="loading" class="mr-5 icon icon-spinner icon-spin icon-lg" />  {{ addLabel }}
         </button>
       </slot>

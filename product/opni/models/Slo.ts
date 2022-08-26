@@ -1,5 +1,5 @@
 import { Resource } from './Resource';
-import { SloService, SloServiceResponse } from '~/product/opni/models/SloService';
+import { SloServiceResponse } from '~/product/opni/models/SloService';
 import { cloneSLO, deleteSLO, getSLOStatus } from '~/product/opni/utils/requests/slo';
 
 type SloStatusStateResponse = 'NoData' | 'Ok' | 'Warning' | 'Breaching' | 'InternalError';
@@ -32,12 +32,17 @@ export interface SloTargetResponse {
 export interface SloMetadataResponse {
     name: string,
     datasource: string,
-    metricName: string,
-    monitorWindow: string,
     budgetingInterval: string,
+    sloPeriod: string;
+    serviceId: string;
+    clusterId: string;
     target: SloTargetResponse,
     labels: SloTagResponse[],
     alerts: SloAlertResponse[]
+    goodEvents: any[];
+    goodMetricName: string;
+    totalEvents?: any[];
+    totalMetricName?: string;
 }
 
 export interface SloResponse {
@@ -76,16 +81,32 @@ export class Slo extends Resource {
       return this.base.SLO;
     }
 
-    get metric(): string {
-      return this.base.SLO.metricName;
+    get serviceId(): string {
+      return this.base.SLO.serviceId;
     }
 
-    get service(): SloService {
-      return new SloService(this.base.service, [], this.vue);
+    get clusterId(): string {
+      return this.base.SLO.clusterId;
     }
 
     get period(): string {
-      return this.base.SLO.monitorWindow;
+      return this.base.SLO.sloPeriod;
+    }
+
+    get goodMetricName(): string {
+      return this.base.SLO.goodMetricName;
+    }
+
+    get goodEvents(): any[] {
+      return this.base.SLO.goodEvents;
+    }
+
+    get totalMetricName(): string {
+      return this.base.SLO.totalMetricName || '';
+    }
+
+    get totalEvents(): any[] {
+      return this.base.SLO.totalEvents || [];
     }
 
     get status(): any {

@@ -2,8 +2,8 @@ import { Resource } from './Resource';
 import { Cluster } from './Cluster';
 
 export interface SloServiceResponse {
-    jobId: string;
-    clusterId: string;
+  serviceId: string;
+  clusterId: string;
 }
 
 export interface SloServicesResponse {
@@ -20,8 +20,8 @@ export class SloService extends Resource {
       this.clusters = clusters;
     }
 
-    get jobId(): string {
-      return this.base.jobId;
+    get id(): string {
+      return this.base.serviceId;
     }
 
     get clusterId(): string {
@@ -30,9 +30,5 @@ export class SloService extends Resource {
 
     get cluster(): Cluster {
       return this.clusters.find(cluster => cluster.id === this.clusterId) as Cluster;
-    }
-
-    get nameDisplay() {
-      return `${ this.jobId } - ${ this.cluster.nameDisplay }`;
     }
 }
