@@ -28,7 +28,13 @@ export default {
     searchable: {
       type:    Boolean,
       default: false
-    }
+    },
+    addLabel: {
+      type: String,
+      default() {
+        return this.$store.getters['i18n/t']('generic.add');
+      },
+    },
   },
   computed:   {
     filteredOptions() {
@@ -66,6 +72,8 @@ export default {
     class="array-list-select"
     :add-allowed="addAllowed || loading"
     :loading="loading"
+    :add-label="addLabel"
+    :disabled="value.length === options.length"
     @input="$emit('input', $event)"
   >
     <template v-slot:columns="scope">

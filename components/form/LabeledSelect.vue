@@ -298,7 +298,7 @@ export default {
     >
       <template #option="option">
         <template v-if="option.kind === 'group'">
-          <b>{{ getOptionLabel(option) }}</b>
+          <b class="upper">{{ getOptionLabel(option) }}</b>
         </template>
         <template v-else-if="option.kind === 'divider'">
           <hr />
@@ -368,6 +368,10 @@ export default {
       right: 3px;
       top: -10px;
     }
+  }
+
+  ::v-deep .upper {
+    text-transform: capitalize;
   }
 
   ::v-deep &.disabled {

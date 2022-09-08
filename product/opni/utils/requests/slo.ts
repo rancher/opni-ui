@@ -1,58 +1,97 @@
 import axios from 'axios';
 import { Slo, SlosResponse, SloStatusResponse } from '~/product/opni/models/Slo';
-import { SloMetric, SloMetricResponse, SloMetricsResponse } from '~/product/opni/models/SloMetric';
+import { SloMetricsResponse } from '~/product/opni/models/SloMetric';
 import { SloService, SloServicesResponse } from '~/product/opni/models/SloService';
 import { getClusters } from '~/product/opni/utils/requests';
 
 export type Datasource = 'monitoring' | 'logging';
 
-export async function getServices(): Promise<SloService[]> {
+export async function getServices(clusterId: string): Promise<SloService[]> {
   const clustersRequest = getClusters(null);
-  const response = (await axios.post<SloServicesResponse>(`opni-api/SLO/services`, { datasource: 'monitoring' }))?.data || { items: [] };
+  const response = (await axios.post<SloServicesResponse>(`opni-api/SLO/services`, { datasource: 'monitoring', clusterId }))?.data || { items: [] };
   const clusters = await clustersRequest;
 
   return response.items.map(item => new SloService(item, clusters, null) );
 }
 
-export async function getMetrics(): Promise<SloMetricResponse[]> {
-  const response = (await axios.post<SloMetricsResponse>(`opni-api/SLO/metrics`))?.data || { items: [] };
+export async function getMetrics(clusterId: string, serviceId: string): Promise<any> {
+  const response = (await axios.post<SloMetricsResponse>(`opni-api/SLO/metrics`, {
+    datasource: 'monitoring', clusterId, serviceId
+  }))?.data || { groupNameToMetrics: {} };
 
-  return response.items.map(item => new SloMetric(item, null));
+  return response;
 }
 
-export function createSLO(name: string, services: SloService[], metric: string, monitorWindow: string, budgetingInterval: string, threshold: number, tags: string[] ) {
+export async function getEvents(clusterId: string, serviceId: string, metricId: string): Promise<any> {
+  const response = (await axios.post<SloMetricsResponse>(`opni-api/SLO/events`, {
+    datasource: 'monitoring', clusterId, serviceId, metricId
+  }))?.data || { items: [] };
+
+  return response.items;
+}
+
+export function createSLO(name: string, cluster: string, service: string, goodMetricName: string, totalMetricName: string, goodEvents: any[], totalEvents: any[], period: string, budgetingInterval: string, targetValue: number, tags: string[]) {
   const body = {
-    SLO: {
+    slo: {
       name,
-      datasource:        'monitoring',
-      monitorWindow,
+      datasource: 'monitoring',
+      clusterId:  cluster,
+      serviceId:  service,
+      goodMetricName,
+      totalMetricName,
+      goodEvents,
+      totalEvents,
+      sloPeriod:  period,
       budgetingInterval,
-      metricName:        metric,
-      target:     { value: threshold },
-      labels:     tags.map(tag => ({ name: tag }))
+      target:     { value: targetValue },
+      labels:     tags.map(t => ({ name: t }))
     },
-    services: services.map(s => ({ jobId: s.jobId, clusterId: s.clusterId })),
   };
 
   return axios.post(`opni-api/SLO/slos`, body);
 }
 
-export function updateSLO(id: string, name: string, services: SloService[], metric: string, monitorWindow: string, budgetingInterval: string, threshold: number, tags: string[]) {
+export function updateSLO(id: string, name: string, cluster: string, service: string, goodMetricName: string, totalMetricName: string, goodEvents: any[], totalEvents: any[], period: string, budgetingInterval: string, targetValue: number, tags: string[]) {
   const body = {
     id,
     SLO: {
       name,
       datasource: 'monitoring',
-      monitorWindow,
+      clusterId:  cluster,
+      serviceId:  service,
+      goodMetricName,
+      totalMetricName,
+      goodEvents,
+      totalEvents,
+      sloPeriod:  period,
       budgetingInterval,
-      metricName: metric,
-      target:     { value: threshold },
-      labels:     tags.map(tag => ({ name: tag }))
+      target:     { value: targetValue },
+      labels:     tags.map(t => ({ name: t }))
     },
-    service: services.map(s => ({ jobId: s.jobId, clusterId: s.clusterId }))[0],
   };
 
-  return axios.put(`opni-api/SLO/slos/${ id }`, body);
+  return axios.put(`opni-api/SLO/slos/${ id }/update`, body);
+}
+
+export async function previewSLO(name: string, cluster: string, service: string, goodMetricName: string, totalMetricName: string, goodEvents: any[], totalEvents: any[], period: string, budgetingInterval: string, targetValue: number, tags: string[]) {
+  const body = {
+    slo: {
+      name,
+      datasource: 'monitoring',
+      clusterId:  cluster,
+      serviceId:  service,
+      goodMetricName,
+      totalMetricName,
+      goodEvents,
+      totalEvents,
+      sloPeriod:  period,
+      budgetingInterval,
+      target:     { value: targetValue },
+      labels:     tags.map(t => ({ name: t }))
+    },
+  };
+
+  return (await axios.post(`opni-api/SLO/slos/preview`, body)).data;
 }
 
 export function deleteSLO(id: string) {
