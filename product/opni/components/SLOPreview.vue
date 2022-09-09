@@ -11,6 +11,7 @@ import {
   CategoryScale,
 } from 'chart.js';
 import day from 'dayjs';
+import annotationPlugin from 'chartjs-plugin-annotation';
 import { previewSLO } from '~/product/opni/utils/requests/slo';
 
 ChartJS.register(
@@ -20,7 +21,8 @@ ChartJS.register(
   LineElement,
   LinearScale,
   PointElement,
-  CategoryScale
+  CategoryScale,
+  annotationPlugin
 );
 
 export default {
@@ -69,16 +71,7 @@ export default {
   },
 
   data() {
-    const chartOptions = {
-      responsive:          true,
-      maintainAspectRatio: false,
-      plugins:             { legend: { position: 'bottom' } },
-      scales:              { y: { suggestedMin: 0 } }
-
-    };
-
     return {
-      chartOptions,
       preview:      null,
       loading:      false
     };
@@ -135,8 +128,12 @@ export default {
       return this.labels.map(() => this.targetValue);
     },
 
+    timestamps() {
+      return this.items.map(item => day(item.timestamp));
+    },
+
     labels() {
-      return this.items.map(item => day(item.timestamp).format('MMM D - h:mm'));
+      return this.timestamps.map(timestamp => timestamp.format('MMM D - h:mm'));
     },
 
     chartData() {
@@ -158,6 +155,82 @@ export default {
             data:            this.thresholdValues
           }
         ]
+      };
+    },
+
+    windows() {
+      return this.preview?.plotVector?.windows || [];
+    },
+
+    windowsWithNearestIndex() {
+      const windows = this.windows.map(w => ({
+        startDelta: Number.MAX_VALUE,
+        startIndex: 0,
+        endDelta:   Number.MAX_VALUE,
+        endIndex:   0,
+        start:      day(w.start),
+        end:        day(w.end),
+        severity:   w.severity
+      }));
+
+      this.timestamps.forEach((timestamp, i) => {
+        windows.forEach((window) => {
+          const startDelta = Math.abs(window.start.diff(timestamp));
+
+          if (startDelta < window.startDelta) {
+            window.startIndex = i;
+            window.startDelta = startDelta;
+          }
+
+          const endDelta = Math.abs(window.end.diff(timestamp));
+
+          if (endDelta < window.endDelta) {
+            window.endIndex = i;
+            window.endDelta = endDelta;
+          }
+        });
+      });
+
+      return windows;
+    },
+
+    maxValue() {
+      const values = this.trackedValues.map(v => v === 'NaN' ? 0 : v);
+
+      return Math.max(...[this.targetValue, values]) + 20;
+    },
+
+    annotations() {
+      const value = {};
+      const max = this.maxValue;
+
+      this.windowsWithNearestIndex.forEach((w, i) => {
+        const color = w.severity === 'critical' ? 'rgba(255, 99, 132, 0.25)' : 'rgba(255, 134, 82, 0.25)';
+
+        value[`box${ i }`] = {
+          type:            'box',
+          xMin:            w.startIndex,
+          xMax:            w.endIndex,
+          yMin:            0,
+          yMax:            max,
+          backgroundColor: color,
+          borderColor:     'rgba(0, 0, 0, 0)',
+        };
+      });
+
+      return value;
+    },
+
+    chartOptions() {
+      return {
+        responsive:          true,
+        maintainAspectRatio: false,
+        plugins:             {
+          legend:     { position: 'bottom' },
+          annotation: { annotations: this.annotations }
+        },
+        scales: { y: { suggestedMin: 0 } }
+
       };
     },
     showNoPreview() {
