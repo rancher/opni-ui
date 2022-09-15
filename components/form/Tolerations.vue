@@ -4,7 +4,6 @@ import LabeledInput from '@/components/form/LabeledInput';
 import Select from '@/components/form/Select';
 import UnitInput from '@/components/form/UnitInput';
 import { _VIEW } from '@/config/query-params';
-import { random32 } from '@/utils/string';
 
 export default {
   components: {
@@ -119,7 +118,7 @@ export default {
     },
 
     addToleration() {
-      this.rules.push({ vKey: random32() });
+      this.rules.push({});
     },
 
     updateEffect(neu, rule) {
@@ -174,7 +173,7 @@ export default {
         />
       </div>
       <div class="col">
-        <UnitInput v-model="rule.tolerationSeconds" :disabled="rule.effect !== 'NoExecute'" :mode="mode" suffix="Seconds" />
+        <UnitInput v-model="rule.tolerationSeconds" :disabled="rule.effect !== 'NoExecute'" :mode="mode" suffix="S" />
       </div>
       <div class="col">
         <button
@@ -201,7 +200,7 @@ export default {
 
 .rule, .toleration-headers{
   display: grid;
-  grid-template-columns: 20% 10% 20% 10% 20% 10%;
+  grid-template-columns: 16% 13% 16% 20% 15% 10%;
   grid-gap: $column-gutter;
   align-items: center;
 }

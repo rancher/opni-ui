@@ -11,6 +11,7 @@ import Role from './pages/Role';
 import RoleBindings from './pages/RoleBindings';
 import RoleBinding from './pages/RoleBinding';
 import Configuration from './pages/Configuration';
+import LoggingConfig from './pages/LoggingConfig';
 import SLOs from './pages/SLOs';
 import SLO from './pages/SLO';
 
@@ -97,6 +98,14 @@ export const NAVIGATION = {
       labelKey:  'opni.nav.configuration',
       icon:      'gear',
       component: Configuration,
+      display:   true
+    },
+    {
+      name:      'logging-config',
+      path:      '/logging-config',
+      labelKey:  'opni.nav.loggingConfig',
+      icon:      'gear',
+      component: LoggingConfig,
       display:   true
     },
     {
