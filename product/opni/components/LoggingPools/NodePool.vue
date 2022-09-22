@@ -83,12 +83,12 @@ export default {
         this.updateRole('data', value);
       }
     },
-    injest: {
+    ingest: {
       get() {
-        return this.getRole('injest');
+        return this.getRole('ingest');
       },
       set(value) {
-        this.updateRole('injest', value);
+        this.updateRole('ingest', value);
       }
     },
     diskSize: {
@@ -145,7 +145,7 @@ export default {
           <div class="role-container">
             <Checkbox v-model="controlplane" label="Controlplane" />
             <Checkbox v-model="data" label="Data" />
-            <Checkbox v-model="injest" label="Injest" />
+            <Checkbox v-model="ingest" label="ingest" />
           </div>
         </div>
       </div>
