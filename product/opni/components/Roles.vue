@@ -92,9 +92,9 @@ export default {
         <h1>Roles</h1>
       </div>
       <div class="actions-container">
-        <a class="btn role-primary" href="/role/create">
+        <n-link class="btn role-primary" :to="{ name: 'role-create' }">
           Create Role
-        </a>
+        </n-link>
       </div>
     </header>
     <SortableTable

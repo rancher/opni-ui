@@ -1,6 +1,8 @@
+import Vue from 'vue';
 import { Resource } from './Resource';
 import { deleteCluster, getCluster, uninstallCapabilityStatus } from '~/product/opni/utils/requests';
 import { LABEL_KEYS } from '~/product/opni/models/shared';
+import { installCapabilityV2 } from '~/product/opni/utils/requests/management';
 
 export interface ClusterResponse {
   id: string;
@@ -70,11 +72,24 @@ export interface CapabilityStatusResponse {
   transitions: CapabilityStatusTransitionResponse[];
 }
 
+export type CapabilityStatusState = 'info' | 'success' | 'warning' | 'error' | null;
+export interface CapabilityStatus {
+  state: CapabilityStatusState;
+  message: string;
+  pending: boolean;
+}
+
+export interface CapabilityStatuses {
+  metrics?: CapabilityStatus;
+  logging?: CapabilityStatus;
+}
+
 export class Cluster extends Resource {
   private base: ClusterResponse;
   private healthBase: HealthResponse;
   private clusterStats: ClusterStats;
   private capLogs: CapabilityLog[];
+  private capabilityStatus: CapabilityStatuses;
 
   constructor(base: ClusterResponse, healthBase: HealthResponse, vue: any) {
     super(vue);
@@ -85,6 +100,8 @@ export class Cluster extends Resource {
       numSeries:     0,
     } as ClusterStats;
     this.capLogs = [];
+    this.capabilityStatus = {};
+    Vue.set(this, 'capabilityStatus', {});
   }
 
   get status(): Status {
@@ -128,9 +145,21 @@ export class Cluster extends Resource {
     return this.base.metadata.labels;
   }
 
+  get hiddenLabels(): any {
+    const labels: any = {};
+
+    Object.entries(this.base.metadata.labels)
+      .filter(([key]) => key.includes('opni.io'))
+      .forEach(([key, value]) => {
+        labels[key] = value;
+      });
+
+    return labels;
+  }
+
   get displayLabels(): string[] {
     return Object.entries(this.base.metadata.labels)
-      .filter(([key]) => !Object.values(LABEL_KEYS).includes(key))
+      .filter(([key]) => !key.includes('opni.io'))
       .map(([key, value]) => `${ key }=${ value }`);
   }
 
@@ -175,15 +204,29 @@ export class Cluster extends Resource {
   async updateCabilityLogs(): Promise<void> {
     const logs:CapabilityLog[] = [];
 
+    function getState(state: string): CapabilityStatusState {
+      switch (state) {
+      case 'Completed':
+        return null;
+      case 'Running':
+      case 'Pending':
+      case 'Cancelled':
+        return 'info';
+      default:
+        return 'error';
+      }
+    }
+
     for (const i in this.capabilities) {
       try {
-        const capability = this.capabilities[i];
+        const capability = this.capabilities[i] as (keyof CapabilityStatuses);
         const log = await uninstallCapabilityStatus(this.id, capability, this.vue);
+        const pending = log.state === 'Pending' || log.state === 'Running' || this.capabilityStatus[capability]?.pending || false;
 
-        logs.push({
-          capability,
-          state:   log.state,
-          message: (log.logs || []).reverse()[0].msg
+        Vue.set(this.capabilityStatus, capability, {
+          state:   getState(log.state),
+          message: (log.logs || []).reverse()[0]?.msg,
+          pending
         });
       } catch (ex) {}
     }
@@ -194,32 +237,6 @@ export class Cluster extends Resource {
   }
 
   get availableActions(): any[] {
-    const capabilityActions = [
-      { divider: true },
-      {
-        action:   'uninstallMetrics',
-        label:    'Uninstall Metrics',
-        icon:     'icon icon-close',
-        bulkable: false,
-        enabled:  this.capabilities.includes('metrics'),
-      },
-      {
-        action:   'uninstallLogging',
-        label:    'Uninstall Logging',
-        icon:     'icon icon-close',
-        bulkable: false,
-        enabled:  this.capabilities.includes('logging'),
-      },
-      {
-        action:   'uninstallCapabilities',
-        label:    'Uninstall All Capabilities',
-        icon:     'icon icon-close',
-        bulkable: false,
-        enabled:  this.capabilities.length > 0,
-      },
-      { divider: true },
-    ];
-
     return [
       {
         action:   'promptEdit',
@@ -235,7 +252,6 @@ export class Cluster extends Resource {
         bulkable: false,
         enabled:  true,
       },
-      ...(this.capabilities.length > 0 ? capabilityActions : []),
       {
         action:     'promptRemove',
         altAction:  'delete',
@@ -249,16 +265,59 @@ export class Cluster extends Resource {
     ];
   }
 
-  uninstallMetrics() {
-    this.vue.$emit('uninstallCapabilities', this, ['metrics']);
-  }
-
-  uninstallLogging() {
-    this.vue.$emit('uninstallCapabilities', this, ['logging']);
-  }
-
   uninstallCapabilities() {
     this.vue.$emit('uninstallCapabilities', this, this.capabilities);
+  }
+
+  get version() {
+    return this.hiddenLabels[LABEL_KEYS.VERSION] || 'v1';
+  }
+
+  isCapabilityInstalled(capability: string) {
+    return this.capabilities.includes(capability);
+  }
+
+  async installCapability(capability: keyof CapabilityStatuses) {
+    Vue.set(this.capabilityStatus, capability, {
+      state:   null,
+      message: 'Currently installing',
+      pending: true
+    });
+
+    const result = await installCapabilityV2(capability, this.id);
+    const statusRaw = result.status;
+    const status = statusRaw === 'Unknown' ? 'Error' : statusRaw;
+
+    Vue.set(this.capabilityStatus, capability, {
+      state:   status.toLowerCase(),
+      message: status === 'success' ? 'Installation succeeded' : `Installation problem: ${ result.message }`,
+      pending: false
+    });
+  }
+
+  clearCapabilityStatus(capabilities: (keyof CapabilityStatuses)[]) {
+    capabilities.forEach((capability) => {
+      Vue.set(this.capabilityStatus, capability, {
+        state:   null,
+        message: null,
+        pending: false
+      });
+    });
+  }
+
+  toggleCapability(capability: keyof CapabilityStatuses) {
+    if (this.isCapabilityInstalled(capability)) {
+      Vue.set(this.capabilityStatus, capability, {
+        state:   null,
+        message: 'Currently uninstalling',
+        pending: true
+      });
+
+      this.vue.$emit('uninstallCapabilities', this, [capability]);
+    }
+
+    this.vue.$emit('installCapabilities', this, [capability]);
+    this.installCapability(capability);
   }
 
   async remove() {

@@ -4158,7 +4158,7 @@ tableHeaders:
   nodesReady: Nodes Ready
   nodePort: Node Port
   normal: Normal
-  numSeries: Distinct Prometheus Metrics
+  numSeries: Distinct Metrics
   object: Object
   operatingSystem: OS
   output: Output
@@ -6151,7 +6151,9 @@ opni:
         matchExpressions:
           label: Match Expressions
   nav:
-    configuration: Configuration
+    alerting: Alerting
+    backends: Backends
+    configuration: Advanced Configuration
     clusters: Clusters
     rbac: RBAC
     roles: Roles
@@ -6159,6 +6161,8 @@ opni:
     tokens: Tokens
     slos: SLOs
     loggingConfig: Logging
+    monitoring: Monitoring
+    management: Management
   workloadVsControlPlaneChart:
     workload: Workload
     controlPlane: Control Plane

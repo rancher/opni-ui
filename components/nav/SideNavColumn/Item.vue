@@ -6,10 +6,6 @@ export default {
     item: {
       type:     Object,
       required: true
-    },
-    depth: {
-      type:    Number,
-      default: 0
     }
   },
   methods: {
@@ -34,7 +30,7 @@ export default {
     :to="item.route"
     tag="li"
     class="child nav-type"
-    :class="{[`depth-${depth}`]: true}"
+    :class="{[`depth-${item.depth}`]: true}"
   >
     <a>
       <span class="label" :class="{'no-icon': !item.icon}">
@@ -125,10 +121,27 @@ A I {
       padding-right: 4px;
     }
 
-    &.nav-type:not(.depth-0) {
+    $leftMultiplier: 6px;
+    &.depth-2 .label {
+      padding-left: $leftMultiplier;
+    }
+
+    &.depth-3 .label {
+      padding-left: $leftMultiplier * 2;
+    }
+
+    &.depth-4 .label {
+      padding-left: $leftMultiplier * 3;
+    }
+
+    & A {
+      padding: 3px 7px 3px 10px;
+    }
+
+    &.nav-type:not(.depth-1) {
       A {
         font-size: 13px;
-        padding: 5.5px 7px 5.5px 10px;
+        padding: 2px 7px 2px 10px;
       }
 
       ::v-deep .label I {

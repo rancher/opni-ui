@@ -96,9 +96,9 @@ export default {
         <h1>SLOs</h1>
       </div>
       <div class="actions-container">
-        <a class="btn role-primary" href="/slo/create">
+        <n-link class="btn role-primary" :to="{name: 'slo-create'}">
           Create SLO
-        </a>
+        </n-link>
       </div>
     </header>
     <SortableTable

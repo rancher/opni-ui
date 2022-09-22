@@ -208,7 +208,7 @@ export default {
         <DashboardDetails v-model="config.Dashboards" @disable="disableDashboard" @enable="enableDashboard" />
       </div>
       <div v-else class="not-enabled">
-        <h4>Logging is not currently enabled. Enabling it will install it on the available agents.</h4>
+        <h4>Logging is not currently enabled. Enabling it will install additional resources on this cluster.</h4>
         <button class="btn role-primary" @click="enable">
           Enable
         </button>

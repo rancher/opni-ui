@@ -15,10 +15,11 @@ export default {
   },
   data() {
     return {
-      id:     '',
-      name:   '',
-      labels: {},
-      errors: [],
+      id:           '',
+      name:         '',
+      labels:       {},
+      hiddenLabels: {},
+      errors:       [],
     };
   },
   methods: {
@@ -29,13 +30,14 @@ export default {
     open(cluster) {
       this.$set(this, 'id', cluster.id);
       this.$set(this, 'name', cluster.name);
-      this.$set(this, 'labels', cluster.labels);
+      this.$set(this, 'labels', cluster.displayLabels);
+      this.$set(this, 'hiddenLabels', cluster.hiddenLabels);
       this.$modal.show('edit-cluster-dialog');
     },
 
     async save(buttonDone) {
       try {
-        await updateCluster(this.id, this.name, this.labels);
+        await updateCluster(this.id, this.name, { ...this.hiddenLabels, ...this.labels });
         buttonDone(true);
         this.$emit('save');
         this.close();

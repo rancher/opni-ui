@@ -3,21 +3,25 @@ import HeaderBar from '@/components/nav/HeaderBar';
 import SideNavColumn from '@/components/nav/SideNavColumn';
 import SideNavColumnItems from '@/components/nav/SideNavColumn/Items';
 import { createNavItemsFromNavigation } from '@/utils/navigation';
+import SideNavColumnItem from '@/components/nav/SideNavColumn/Item';
 import { NAVIGATION } from '../router';
 
 export default {
 
   components: {
-    HeaderBar, SideNavColumn, SideNavColumnItems
+    HeaderBar, SideNavColumn, SideNavColumnItems, SideNavColumnItem
   },
 
   data() {
-    const navItems = createNavItemsFromNavigation(NAVIGATION, this.t.bind(this));
+    const allNavItems = createNavItemsFromNavigation(NAVIGATION, this.t.bind(this));
+    const navItems = allNavItems.slice(0, -1);
+    const configuration = allNavItems[allNavItems.length - 1];
 
     return {
       // Assume home pages have routes where the name is the key to use for string lookup
       name: this.$route.name,
-      navItems
+      navItems,
+      configuration
     };
   },
 
@@ -34,6 +38,7 @@ export default {
       </HeaderBar>
       <SideNavColumn>
         <SideNavColumnItems :items="navItems" />
+        <SideNavColumnItem :item="configuration" />
       </SideNavColumn>
       <main>
         <slot />
