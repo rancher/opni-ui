@@ -29,6 +29,10 @@ export default {
       type:    Boolean,
       default: false
     },
+    taggable: {
+      type:    Boolean,
+      default: false
+    },
     addLabel: {
       type: String,
       default() {
@@ -39,7 +43,7 @@ export default {
   computed:   {
     filteredOptions() {
       return this.options
-        .filter(option => !this.value.includes(option.value));
+        .filter(option => !this.value.find(v => v === option));
     },
 
     addAllowed() {
@@ -70,14 +74,21 @@ export default {
     v-bind="arrayListProps"
     :value="value"
     class="array-list-select"
-    :add-allowed="addAllowed || loading"
+    :add-allowed="!loading"
     :loading="loading"
     :add-label="addLabel"
-    :disabled="value.length === options.length"
+    :disabled="filteredOptions.length === 0"
     @input="$emit('input', $event)"
   >
     <template v-slot:columns="scope">
-      <Select :value="scope.row.value" v-bind="selectProps" :options="calculateOptions(scope.row.value)" :searchable="searchable" @input="updateRow(scope.i, $event)" />
+      <Select
+        :value="scope.row.value"
+        v-bind="selectProps"
+        :options="calculateOptions(scope.row.value)"
+        :searchable="searchable || taggable"
+        :taggable="taggable"
+        @input="updateRow(scope.i, $event)"
+      />
     </template>
   </ArrayList>
 </template>

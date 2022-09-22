@@ -21,20 +21,13 @@ export default {
     disabled: {
       type:    Boolean,
       default: false
-    }
-  },
+    },
 
-  data() {
-    return { test: '', test2: [] };
+    taggable: {
+      type:    Boolean,
+      default: false
+    },
   },
-
-  created() {
-  },
-
-  beforeDestroy() {
-  },
-
-  computed: {},
 
   methods: {
     filteredOptions(selectedKey) {
@@ -78,7 +71,7 @@ export default {
             <LabeledSelect v-model="filter.key" label="Event Key" :options="filteredKeyOptions(filter.key)" :disabled="disabled" />
           </div>
           <div class="col span-6 middle">
-            <ArrayListSelect v-model="filter.vals" :options="filteredValueOptions(filter.key)" add-label="Add Event Value" :disabled="disabled" />
+            <ArrayListSelect v-model="filter.vals" :options="filteredValueOptions(filter.key)" add-label="Add Event Value" :disabled="disabled" :taggable="taggable" />
           </div>
         </div>
         <button class="close btn role-link close btn-sm" :disabled="disabled" @click="() => removeFilter(i)">

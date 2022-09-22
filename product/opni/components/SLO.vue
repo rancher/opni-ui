@@ -331,7 +331,7 @@ export default {
         </div>
         <div class="row bottom mb-20 mt-10">
           <div class="col span-12">
-            <MetricFilter v-model="goodEvents" :options="goodEventOptions" :disabled="!goodMetric" />
+            <MetricFilter v-model="goodEvents" :options="goodEventOptions" :disabled="!goodMetric" :taggable="true" />
           </div>
         </div>
         <div class="row mb-0">
