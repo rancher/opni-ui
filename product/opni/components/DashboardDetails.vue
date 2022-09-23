@@ -20,7 +20,13 @@ export default {
 
     getUnit(key, suffix) {
       try {
-        return get(this, `value.${ key }`).replace(suffix, '');
+        const value = get(this, `value.${ key }`);
+
+        if (value.includes('Gi') && suffix === 'Mi') {
+          return value.replace('Gi', '') * 1024;
+        }
+
+        return value.replace(suffix, '');
       } catch (ex) {
         return '';
       }
