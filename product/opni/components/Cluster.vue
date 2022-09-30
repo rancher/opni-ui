@@ -1,16 +1,14 @@
 <script>
 import LabeledInput from '@/components/form/LabeledInput';
-import LabeledSelect from '@/components/form/LabeledSelect';
 import CopyCode from '@/components/CopyCode';
 import Checkbox from '@/components/form/Checkbox';
 import KeyValue from '@/components/form/KeyValue';
 import {
-  getTokens, createAgent, getClusters, updateCluster, getCapabilities, getClusterFingerprint, getCapabilityInstaller
+  createAgent, getClusters, updateCluster, getClusterFingerprint, createToken
 } from '@/product/opni/utils/requests';
 import Loading from '@/components/Loading';
 import Card from '@/components/Card';
 import Banner from '@/components/Banner';
-import _ from 'lodash';
 
 export default {
   components: {
@@ -18,35 +16,31 @@ export default {
     Card,
     CopyCode,
     LabeledInput,
-    LabeledSelect,
     Loading,
     KeyValue,
     Checkbox,
   },
 
   async fetch() {
-    const [tokens, capabilities, clusters, clusterFingerprint] = await Promise.all([
-      getTokens(),
-      getCapabilities(),
+    const [token, clusters, clusterFingerprint] = await Promise.all([
+      createToken('1800s', '', []),
       getClusters(),
       getClusterFingerprint(),
     ]);
 
-    this.$set(this, 'tokens', tokens);
-    this.$set(this, 'capabilities', capabilities);
+    this.$set(this, 'token', token.id);
     this.$set(this, 'clusterCount', clusters.length);
     this.$set(this, 'pin', clusterFingerprint);
   },
 
   data() {
-    const placeholderText = 'Select a capability and token to view install command';
+    const placeholderText = 'Select a token to view install command';
 
     return {
       isManualOpen:         false,
-      tokens:               [],
       token:                null,
       capabilities:         [],
-      capability:           null,
+      capability:           'metrics',
       labels:               {},
       name:                 '',
       clusterCount:         0,
@@ -55,11 +49,11 @@ export default {
       newClusterFound:      false,
       pin:                  null,
       placeholderText,
-      installCmdData:       {
-        tmpl:   '',
-        args:            [],
-      },
-      error: '',
+      error:                '',
+      agentVersion:         'v2',
+      namespace:            'opni-agent',
+      gatewayAddress:       window.location.host,
+      installPrometheus:    false
     };
   },
 
@@ -98,127 +92,16 @@ export default {
       }
     },
 
-    async fetchInstallCommandTemplate() {
-      if (!this.capability || !this.token) {
-        return;
-      }
-      const cmd = await getCapabilityInstaller(this.capability, this.token, this.pin);
-      // This matches one or more instances of brackets surrounded by
-      // % characters on either side, for example %{"foo": "bar"}%
-      // The string between the % characters is assumed to be a json object.
-      const regex = /\%({.*?\})\%/g;
-      const inputArgs = [];
-
-      let match;
-
-      let parsedCmd = cmd;
-
-      while ((match = regex.exec(cmd)) !== null) {
-        const json = JSON.parse(match[1]);
-        let label;
-
-        switch (json.kind) {
-        case 'input':
-          label = json.input.label;
-          break;
-        case 'select':
-          label = json.select.label;
-          json.select.items = json.select.items.map(item => ({
-            label: item || '(none)',
-            value: item
-          }));
-          break;
-        case 'toggle':
-          label = json.toggle.label;
-          break;
-        }
-        let value;
-        let required = false;
-        let omitEmpty = false;
-        let format = '{{ value }}';
-
-        for (const option of json.options) {
-          switch (option.name) {
-          case 'default':
-            try {
-              value = JSON.parse(option.value);
-            } catch {
-              value = option.value;
-            }
-            break;
-          case 'required':
-            required = true;
-            break;
-          case 'omitEmpty':
-            omitEmpty = true;
-            break;
-          case 'format':
-            format = option.value;
-            break;
-          }
-        }
-        json['_data'] = {
-          label,
-          value,
-          required,
-          omitEmpty,
-          format,
-        };
-        inputArgs.push(json);
-        parsedCmd = parsedCmd.replace(match[0], `{{ ${ label } }}`);
-      }
-
-      this.$set(this, 'installCmdData', {
-        args:     inputArgs,
-        tmpl: parsedCmd,
-      });
-    },
     isArgEmpty(arg) {
       return !arg || arg === 'false';
     },
   },
   computed: {
     installCommand() {
-      if (!this.installCmdData.args || !this.installCmdData.tmpl) {
-        return this.placeholderText;
-      }
+      const prometheus = this.installPrometheus ? '--set kube-prometheus-stack.enabled=true' : '';
 
-      let cmd = this.installCmdData.tmpl;
-
-      for (const input of this.installCmdData.args) {
-        const {
-          label, value, format, omitEmpty
-        } = input._data;
-
-        if (omitEmpty && this.isArgEmpty(value)) {
-          cmd = cmd.replace(`{{ ${ label } }}`, '');
-        } else if (value !== '') {
-          // This evaluates arg template strings as if they were template
-          // literals, using the current value of the arg as the name 'value'
-          // in the template.
-          // For example, if the template string is '--foo={{ value }}' and
-          // the current value is 'bar', the result is '--foo=bar'.
-
-          _.templateSettings.interpolate = /{{([\s\S]+?)}}/g; // use go syntax
-          const tmpl = _.template(format);
-
-          cmd = cmd.replace(`{{ ${ label } }}`, tmpl({ value }));
-        }
-      }
-
-      return cmd;
-    },
-    tokenOptions() {
-      return this.tokens.map(token => ({
-        label: token.nameDisplay,
-        value: token.id
-      }));
-    },
-    capabilityOptions() {
-      return this.capabilities.map(capability => ({
-        label: capability,
-        value: capability
-      }));
+      return `helm -n ${ this.namespace } install opni-agent-crd opni/opni-agent-crd --create-namespace 
+              && helm -n ${ this.namespace } install opni-agent opni/opni-agent ${ prometheus } --set address=${ this.gatewayAddress } --set pin=${ this.pin } --set token=${ this.token } --create-namespace`;
     },
     gatewayUrl() {
       return this.installCommand.match(/gateway-url=.+/s)?.[0]?.replace('gateway-url=', '').replace('"  ', '').replace('https://', '').replace('http://', '');
@@ -239,32 +122,8 @@ export default {
   <Loading v-if="$fetchState.pending" />
   <div v-else>
     <div class="row">
-      <div class="col span-3">
+      <div class="col span-12">
         <LabeledInput v-model="name" label="Name (optional)" />
-      </div>
-      <div class="col span-3">
-        <LabeledSelect
-          v-model="capability"
-          class="mb-20"
-          :label="t('opni.monitoring.clusters.tabs.target.capability')"
-          :placeholder="t('monitoring.clusterCapability.placeholder')"
-          :localized-label="true"
-          :options="capabilityOptions"
-          :required="true"
-          @input="fetchInstallCommandTemplate"
-        />
-      </div>
-      <div class="col span-6">
-        <LabeledSelect
-          v-model="token"
-          class="token-select mb-20"
-          :label="t('opni.monitoring.clusters.tabs.target.token')"
-          :placeholder="t('monitoring.token.placeholder')"
-          :localized-label="true"
-          :options="tokenOptions"
-          :required="true"
-          @input="fetchInstallCommandTemplate"
-        />
       </div>
     </div>
     <div class="mb-20">
@@ -285,26 +144,23 @@ export default {
         Install Command
       </h4>
       <div slot="body">
-        <div v-if="!!installCmdData.args" class="row">
-          <div v-for="item in installCmdData.args" :key="item.key" class="options col span-3 mb-10">
-            <LabeledSelect
-              v-if="item.kind === 'select'"
-              v-model="item._data.value"
-              :label="item._data.label"
-              :required="item._data.required"
-              :options="item.select.items"
-            />
+        <div v-if="token" class="row">
+          <div class="options col span-4 mb-10">
             <LabeledInput
-              v-if="item.kind === 'input'"
-              v-model="item._data.value"
-              :label="item._data.label"
-              :required="item._data.required"
+              v-model="namespace"
+              label="Namespace"
             />
+          </div>
+          <div class="options col span-4 mb-10">
+            <LabeledInput
+              v-model="gatewayAddress"
+              label="Gateway Address"
+            />
+          </div>
+          <div class="options col span-4 mb-10">
             <Checkbox
-              v-if="item.kind === 'toggle'"
-              v-model="item._data.value"
-              :label="item._data.label"
-              :required="item._data.required"
+              v-model="installPrometheus"
+              label="Install Prometheus Operator"
             />
           </div>
         </div>
@@ -359,7 +215,7 @@ export default {
             </div>
             <div class="mt-10">
               Gateway URL: <CopyCode class="ml-5">
-                {{ url }}
+                {{ gatewayAddress }}
               </CopyCode>
             </div>
           </div>

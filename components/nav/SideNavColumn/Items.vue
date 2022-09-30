@@ -18,4 +18,9 @@ export default {
   </div>
 </template>
 <style lang="scss" scoped>
+  .items {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
 </style>

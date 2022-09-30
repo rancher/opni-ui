@@ -54,6 +54,10 @@ export class Token extends Resource {
       return this.name || this.id;
     }
 
+    get nameDisplayShort(): string {
+      return this.name || this.base.tokenID;
+    }
+
     get expirationDate(): string {
       return this.now.add(Number.parseInt(this.ttl), 's').format();
     }

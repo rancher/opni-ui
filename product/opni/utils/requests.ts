@@ -184,12 +184,16 @@ export async function getCapabilityInstaller(capability: string, token: string, 
   })).data.command;
 }
 
-export async function createToken(ttlInSeconds: string, name: string, capabilities: any[]) {
-  (await axios.post<any>(`opni-api/management/tokens`, {
-    ttl:               ttlInSeconds,
-    labels: { [LABEL_KEYS.NAME]: name },
+export async function createToken(ttlInSeconds: string, name: string | null, capabilities: any[]) {
+  const labels = name ? { labels: { [LABEL_KEYS.NAME]: name } } : { labels: {} };
+
+  const raw = (await axios.post<any>(`opni-api/management/tokens`, {
+    ttl: ttlInSeconds,
+    ...labels,
     capabilities,
-  }));
+  })).data;
+
+  return new Token(raw, null);
 }
 
 export function deleteToken(id: string): Promise<undefined> {

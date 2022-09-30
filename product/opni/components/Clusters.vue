@@ -1,30 +1,34 @@
 <script>
 import SortableTable from '@/components/SortableTable';
 import { getClusters, getClusterStats } from '@/product/opni/utils/requests';
+import CapabilityButton from '@/product/opni/components/CapabilityButton';
 import Loading from '@/components/Loading';
+import { getClusterStatus as getMonitoringBackendStatus } from '@/product/opni/utils/requests/monitoring';
 import EditClusterDialog from './dialogs/EditClusterDialog';
 import UninstallCapabilitiesDialog from './dialogs/UninstallCapabilitiesDialog';
 import CantDeleteClusterDialog from './dialogs/CantDeleteClusterDialog';
 
 export default {
   components: {
+    CapabilityButton,
     CantDeleteClusterDialog,
     EditClusterDialog,
     Loading,
     SortableTable,
-    UninstallCapabilitiesDialog
+    UninstallCapabilitiesDialog,
   },
   async fetch() {
+    this.loadStats();
     await this.load();
-    await this.loadStats();
   },
 
   data() {
     return {
-      loading:       false,
-      statsInterval: null,
-      clusters:      [],
-      headers:       [
+      loading:                      false,
+      statsInterval:                null,
+      isMonitoringBackendInstalled: false,
+      clusters:                     [],
+      headers:                      [
         {
           name:          'status',
           labelKey:      'tableHeaders.status',
@@ -50,13 +54,6 @@ export default {
               return uuidRegex.test(value) ? 'monospace' : '';
             }
           }
-        },
-        {
-          name:          'labels',
-          labelKey:      'tableHeaders.labels',
-          sort:          ['labels'],
-          value:         'displayLabels',
-          formatter:     'ListBubbles'
         },
         {
           name:          'capabilities',
@@ -125,6 +122,10 @@ export default {
       this.$copyText(cluster.id);
     },
 
+    cancelCapabilityUninstall(cluster, capabilities) {
+      cluster.clearCapabilityStatus(capabilities);
+    },
+
     async load() {
       try {
         this.loading = true;
@@ -138,10 +139,18 @@ export default {
 
       await Promise.all(this.clusters.map(c => c.updateCabilityLogs()));
 
+      try {
+        const status = await getMonitoringBackendStatus();
+
+        this.$set(this, 'isMonitoringBackendInstalled', status.state !== 'NotInstalled');
+      } catch (ex) {
+        this.$set(this, 'isMonitoringBackendInstalled', false);
+      }
+
       this.clusters.forEach((cluster) => {
         this.$set(cluster, 'stats', details.find(d => d.userID === cluster.id));
       });
-    }
+    },
   },
 };
 </script>
@@ -153,9 +162,9 @@ export default {
         <h1>Clusters</h1>
       </div>
       <div class="actions-container">
-        <a class="btn role-primary" href="/cluster/create">
+        <n-link class="btn role-primary" :to="{ name: 'cluster-create' }">
           Add Cluster
-        </a>
+        </n-link>
       </div>
     </header>
     <SortableTable
@@ -166,27 +175,41 @@ export default {
       key-field="id"
       :sub-rows="true"
     >
+      <template #col:capabilities="{row}">
+        <td>
+          <CapabilityButton label="Metrics" type="metrics" :cluster="row" :is-backend-installed="true" />
+          <CapabilityButton label="Logging" type="logging" :cluster="row" :is-backend-installed="false" />
+        </td>
+      </template>
       <template #sub-row="{row, fullColspan}">
-        <tr class="sub-row">
+        <tr v-if="row.displayLabels.length > 0" class="sub-row">
           <td :colspan="fullColspan" class="cluster-status">
-            <div v-for="log in row.capabilityLogs" :key="log.capability" class="capability-status mb-10">
-              <div>Capability uninstall <b>{{ log.capability }}</b> ({{ log.state }}) - <span class="text-muted"> {{ log.message }} </span></div>
-              <a class="">
-                Cancel
-              </a>
-            </div>
+            Labels:
+            <span v-for="label in row.displayLabels" :key="label" class="bubble ml-5">
+              {{ label }}
+            </span>
           </td>
         </tr>
       </template>
     </SortableTable>
     <EditClusterDialog ref="dialog" @save="load" />
-    <UninstallCapabilitiesDialog ref="capabilitiesDialog" @save="loadStats" />
+    <UninstallCapabilitiesDialog ref="capabilitiesDialog" @save="loadStats" @cancel="cancelCapabilityUninstall" />
     <CantDeleteClusterDialog ref="cantDeleteClusterDialog" />
   </div>
 </template>
 
 <style lang="scss" scoped>
 ::v-deep {
+  .main-row {
+    border-top: 1px solid var(--sortable-table-top-divider);
+  }
+
+  .sub-row {
+    &, td {
+      border-bottom: none;
+    }
+  }
+
   .nowrap {
     white-space: nowrap;
   }

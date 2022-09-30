@@ -23,8 +23,11 @@ export default {
     };
   },
   methods: {
-    close() {
+    close(cancel = true) {
       this.$modal.hide('uninstall-capabilities-dialog');
+      if (cancel) {
+        this.$emit('cancel', this.cluster, this.capabilities);
+      }
     },
 
     open(cluster, capabilities) {
@@ -39,7 +42,7 @@ export default {
         await Promise.all(this.capabilities.map(cap => uninstallCapability(this.cluster.id, cap, this.deleteData)));
         buttonDone(true);
         this.$emit('save');
-        this.close();
+        this.close(false);
       } catch (err) {
         this.errors = exceptionToErrorsArray(err);
         buttonDone(false);

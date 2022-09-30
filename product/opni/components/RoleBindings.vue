@@ -78,9 +78,9 @@ export default {
         <h1>Role Bindings</h1>
       </div>
       <div class="actions-container">
-        <a class="btn role-primary" href="/role-binding/create">
+        <n-link class="btn role-primary" :to="{ name: 'role-binding-create' }">
           Create Role Binding
-        </a>
+        </n-link>
       </div>
     </header>
     <SortableTable
