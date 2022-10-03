@@ -66,6 +66,14 @@ export const NAVIGATION = {
       redirect: { name: 'monitoring' },
       routes:   [
         {
+          name:      'logging-config',
+          path:      '/logging-config',
+          labelKey:  'opni.nav.loggingConfig',
+          icon:      'logging',
+          component: LoggingConfig,
+          display:   true
+        },
+        {
           name:      'monitoring',
           path:      '/monitoring',
           labelKey:  'opni.nav.monitoring',
@@ -98,7 +106,7 @@ export const NAVIGATION = {
                   ]
                 },
                 {
-                  name:      'role-Bindings',
+                  name:      'role-bindings',
                   path:      '/role-bindings',
                   labelKey:  'opni.nav.roleBindings',
                   icon:      'user',
@@ -117,14 +125,6 @@ export const NAVIGATION = {
               ]
             },
           ]
-        },
-        {
-          name:      'logging-config',
-          path:      '/logging-config',
-          labelKey:  'opni.nav.loggingConfig',
-          icon:      'logging',
-          component: LoggingConfig,
-          display:   true
         },
       ]
     },

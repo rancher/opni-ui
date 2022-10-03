@@ -62,7 +62,11 @@ export default {
       }
       this.$set(this, 'error', '');
       buttonCallback(true);
-      this.$router.replace({ name: 'roleBindings' });
+      this.$router.replace({ name: 'role-bindings' });
+    },
+
+    cancel() {
+      this.$router.replace({ name: 'role-bindings' });
     }
   },
 
@@ -112,6 +116,9 @@ export default {
       </Tab>
     </Tabbed>
     <div class="resource-footer">
+      <button class="btn btn-secondary mr-10" @click="cancel">
+        Cancel
+      </button>
       <AsyncButton
         mode="edit"
         @click="save"

@@ -220,6 +220,10 @@ export default {
 
       this.$set(this, 'totalEventOptions', events);
       this.$set(this, 'totalEvents', []);
+    },
+
+    cancel() {
+      this.$router.replace({ name: 'slos' });
     }
   },
 
@@ -425,9 +429,9 @@ export default {
       </Tab>
     </Tabbed>
     <div class="resource-footer">
-      <a class="btn role-secondary mr-10" href="/slos">
+      <button class="btn role-secondary mr-10" @click="cancel">
         Cancel
-      </a>
+      </button>
       <AsyncButton mode="edit" @click="save" />
     </div>
     <Banner
