@@ -71,6 +71,10 @@ export default {
       buttonCallback(true);
       this.$router.replace({ name: 'roles' });
     },
+
+    cancel() {
+      this.$router.replace({ name: 'roles' });
+    }
   },
 
   computed: {
@@ -137,8 +141,10 @@ export default {
       </Tab>
     </Tabbed>
     <div class="resource-footer">
-      <AsyncButton mode="edit" @click="save">
-      </AsyncButton>
+      <button class="btn btn-secondary mr-10" @click="cancel">
+        Cancel
+      </button>
+      <AsyncButton mode="edit" @click="save" />
     </div>
     <Banner
       v-if="error"

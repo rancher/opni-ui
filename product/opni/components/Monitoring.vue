@@ -45,7 +45,7 @@ export default {
       error:            '',
       loading:          false,
       dashboardEnabled: false,
-      enabled:          true,
+      enabled:          false,
       statsInterval:    null,
       modes:            [
         {
@@ -125,11 +125,11 @@ export default {
           kmsEncryptionContext: '',
         },
         http: {
-          idleConnTimeout:       { seconds: 90 },
-          responseHeaderTimeout: { seconds: 120 },
+          idleConnTimeout:       '90s',
+          responseHeaderTimeout: '120s',
           insecureSkipVerify:    false,
-          tlsHandshakeTimeout:   { seconds: 10 },
-          expectContinueTimeout: { seconds: 10 },
+          tlsHandshakeTimeout:   '10s',
+          expectContinueTimeout: '10s',
           maxIdleConns:          100,
           maxIdleConnsPerHost:   0,
           maxConnsPerHost:       100,
@@ -309,7 +309,47 @@ export default {
       default:
         return `error`;
       }
-    }
+    },
+
+    s3IdleConnTimeout: {
+      get() {
+        return Number.parseInt(this.s3?.http?.idleConnTimeout || '0');
+      },
+
+      set(value) {
+        this.$set(this.s3.http, 'idleConnTimeout', `${ value }s`);
+      }
+    },
+
+    s3ResponseHeaderTimeout: {
+      get() {
+        return Number.parseInt(this.s3?.http?.responseHeaderTimeout || '0');
+      },
+
+      set(value) {
+        this.$set(this.s3.http, 'responseHeaderTimeout', `${ value }s`);
+      }
+    },
+
+    s3TlsHandshakeTimeout: {
+      get() {
+        return Number.parseInt(this.s3?.http?.tlsHandshakeTimeout || '0');
+      },
+
+      set(value) {
+        this.$set(this.s3.http, 'tlsHandshakeTimeout', `${ value }s`);
+      }
+    },
+
+    s3ExpectContinueTimeout: {
+      get() {
+        return Number.parseInt(this.s3?.http?.expectContinueTimeout || '0');
+      },
+
+      set(value) {
+        this.$set(this.s3.http, 'expectContinueTimeout', `${ value }s`);
+      }
+    },
   }
 };
 </script>
@@ -358,7 +398,7 @@ export default {
               </div>
               <div class="row mb-10 border">
                 <div class="col span-6">
-                  <LabeledInput v-model="s3.endpoint" label="Enpoint" :required="true" />
+                  <LabeledInput v-model="s3.endpoint" label="Endpoint" :required="true" />
                 </div>
                 <div class="col span-6 middle">
                   <Checkbox v-model="s3.insecure" label="Insecure" />
@@ -395,21 +435,21 @@ export default {
               <h3>Connection</h3>
               <div class="row mb-10">
                 <div class="col span-6">
-                  <UnitInput v-model="s3.http.idleConnTimeout.seconds" label="Idle Connection Timeout" placeholder="e.g. 30, 60" suffix="s" />
+                  <UnitInput v-model="s3IdleConnTimeout" label="Idle Connection Timeout" placeholder="e.g. 30, 60" suffix="s" />
                 </div>
                 <div class="col span-6">
-                  <UnitInput v-model="s3.http.responseHeaderTimeout.seconds" label="Response Header Timeout" placeholder="e.g. 30, 60" suffix="s" />
+                  <UnitInput v-model="s3ResponseHeaderTimeout" label="Response Header Timeout" placeholder="e.g. 30, 60" suffix="s" />
                 </div>
               </div>
               <div class="row mb-10">
                 <div class="col span-4">
-                  <UnitInput v-model="s3.http.tlsHandshakeTimeout.seconds" label="TLS Handshake Timeout" placeholder="e.g. 30, 60" suffix="s" />
+                  <UnitInput v-model="s3TlsHandshakeTimeout" label="TLS Handshake Timeout" placeholder="e.g. 30, 60" suffix="s" />
                 </div>
                 <div class="col span-2 middle">
                   <Checkbox v-model="s3.http.insecureSkipVerify" label="Insecure Skip Verify" />
                 </div>
                 <div class="col span-6">
-                  <UnitInput v-model="s3.http.expectContinueTimeout.seconds" label="Expect Continue Timeout" placeholder="e.g. 30, 60" suffix="s" />
+                  <UnitInput v-model="s3ExpectContinueTimeout" label="Expect Continue Timeout" placeholder="e.g. 30, 60" suffix="s" />
                 </div>
               </div>
               <div class="row mb-10">
