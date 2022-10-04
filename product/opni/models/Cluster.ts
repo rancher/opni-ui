@@ -222,10 +222,11 @@ export class Cluster extends Resource {
         const capability = this.capabilities[i] as (keyof CapabilityStatuses);
         const log = await uninstallCapabilityStatus(this.id, capability, this.vue);
         const pending = log.state === 'Pending' || log.state === 'Running' || this.capabilityStatus[capability]?.pending || false;
+        const state = getState(log.state);
 
         Vue.set(this.capabilityStatus, capability, {
-          state:   getState(log.state),
-          message: (log.logs || []).reverse()[0]?.msg,
+          state,
+          message: state === null ? '' : (log.logs || []).reverse()[0]?.msg,
           pending
         });
       } catch (ex) {}
@@ -290,7 +291,7 @@ export class Cluster extends Resource {
 
     Vue.set(this.capabilityStatus, capability, {
       state:   status.toLowerCase(),
-      message: status === 'success' ? 'Installation succeeded' : `Installation problem: ${ result.message }`,
+      message: status === 'Success' ? 'Installation succeeded' : `Installation problem: ${ result.message }`,
       pending: false
     });
   }
@@ -313,7 +314,7 @@ export class Cluster extends Resource {
         pending: true
       });
 
-      this.vue.$emit('uninstallCapabilities', this, [capability]);
+      return this.vue.$emit('uninstallCapabilities', this, [capability]);
     }
 
     this.vue.$emit('installCapabilities', this, [capability]);

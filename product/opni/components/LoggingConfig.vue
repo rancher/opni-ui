@@ -50,9 +50,11 @@ export default {
       upgradeable:      false,
       config:           {
         ExternalURL:   '',
-        DataRetention: '',
+        DataRetention: '7d',
         NodePools:     [createEmptyPool(1)],
-        Dashboards:    { Enabled: false, Resources: { Limits: {}, Requests: {} } },
+        Dashboards:    {
+          Enabled: false, Replicas: 1, Resources: { Limits: {}, Requests: {} }
+        },
       }
     };
   },
@@ -63,11 +65,13 @@ export default {
     },
 
     async disable() {
-      this.$set(this, 'enabled', false);
       this.$set(this, 'error', '');
       try {
         await deleteLoggingCluster();
-      } catch (ex) {}
+        this.$set(this, 'enabled', false);
+      } catch (err) {
+        this.$set(this, 'error', exceptionToErrorsArray(err).join('; '));
+      }
     },
 
     enableDashboard() {
@@ -214,9 +218,9 @@ export default {
         </button>
       </div>
       <div v-if="enabled" class="resource-footer">
-        <a class="btn role-secondary mr-10" href="/slos">
+        <n-link class="btn role-secondary mr-10" :to="{name: 'clusters'}">
           Cancel
-        </a>
+        </n-link>
         <AsyncButton mode="edit" @click="save" />
       </div>
       <Banner

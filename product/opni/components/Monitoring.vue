@@ -172,6 +172,7 @@ export default {
         this.$set(this, 'error', '');
         await uninstallCluster();
         this.$set(this, 'enabled', false);
+        this.$set(this, 's3.secretAccessKey', '');
         buttonCallback(true);
       } catch (err) {
         buttonCallback(false);
@@ -235,21 +236,21 @@ export default {
     updateEndpoint() {
       const endpoints = {
         'us-east-2':      's3.us-east-2.amazonaws.com',
-        'us-east-1':      's3-us-east-1.amazonaws.com',
-        'us-west-1':      's3-us-west-1.amazonaws.com',
-        'us-west-2':      's3-us-west-2.amazonaws.com',
+        'us-east-1':      's3.us-east-1.amazonaws.com',
+        'us-west-1':      's3.us-west-1.amazonaws.com',
+        'us-west-2':      's3.us-west-2.amazonaws.com',
         'af-south-1':     's3.af-south-1.amazonaws.com',
         'ap-east-1':      's3.ap-east-1.amazonaws.com',
         'ap-south-1':     's3.ap-south-1.amazonaws.com',
         'ap-northeast-3': 's3.ap-northeast-3.amazonaws.com',
         'ap-northeast-2': 's3.ap-northeast-2.amazonaws.com',
-        'ap-southeast-1': 's3-ap-southeast-1.amazonaws.com',
-        'ap-southeast-2': 's3-ap-southeast-2.amazonaws.com',
-        'ap-northeast-1': 's3-ap-northeast-1.amazonaws.com',
+        'ap-southeast-1': 's3.ap-southeast-1.amazonaws.com',
+        'ap-southeast-2': 's3.ap-southeast-2.amazonaws.com',
+        'ap-northeast-1': 's3.ap-northeast-1.amazonaws.com',
         'ca-central-1':   's3.ca-central-1.amazonaws.com',
         'cn-northwest-1': 's3.cn-northwest-1.amazonaws.com.cn',
         'eu-central-1':   's3.eu-central-1.amazonaws.com',
-        'eu-west-1':      's3-eu-west-1.amazonaws.com',
+        'eu-west-1':      's3.eu-west-1.amazonaws.com',
         'eu-west-2':      's3.eu-west-2.amazonaws.com',
         'eu-south-1':     's3.eu-south-1.amazonaws.com',
         'eu-west-3':      's3.eu-west-3.amazonaws.com',
@@ -257,9 +258,9 @@ export default {
         'ap-southeast-3': 's3.ap-southeast-3.amazonaws.com',
         'me-south-1':     's3.me-south-1.amazonaws.com',
         'me-central-1':   's3.me-central-1.amazonaws.com',
-        'sa-east-1':      's3-sa-east-1.amazonaws.com',
+        'sa-east-1':      's3.sa-east-1.amazonaws.com',
         'us-gov-east-1':  's3.us-gov-east-1.amazonaws.com',
-        'us-gov-west-1':  's3-us-gov-west-1.amazonaws.com',
+        'us-gov-west-1':  's3.us-gov-west-1.amazonaws.com',
       };
       const template = '<bucket>.s3.<region>.amazonaws.com';
 
@@ -475,6 +476,9 @@ export default {
         </button>
       </div>
       <div v-if="enabled" class="resource-footer">
+        <n-link class="btn role-secondary mr-10" :to="{name: 'clusters'}">
+          Cancel
+        </n-link>
         <AsyncButton mode="edit" :disabled="!enabled || !(status === 'Installed' || status === 'NotInstalled')" @click="save" />
       </div>
       <Banner

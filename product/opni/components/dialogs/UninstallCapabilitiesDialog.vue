@@ -17,6 +17,7 @@ export default {
     return {
       errors:       [],
       capabilities: [],
+      labels:       [],
       deleteData:   false,
       cluster:      null,
       confirm:      ''
@@ -33,6 +34,7 @@ export default {
     open(cluster, capabilities) {
       this.$set(this, 'cluster', cluster);
       this.$set(this, 'capabilities', capabilities);
+      this.$set(this, 'labels', capabilities.map(c => ({ metrics: 'Metrics', logs: 'Logging' }[c])));
       this.$set(this, 'confirm', '');
       this.$modal.show('uninstall-capabilities-dialog');
     },
@@ -73,7 +75,7 @@ export default {
       :show-highlight-border="false"
     >
       <div slot="body" class="pt-10">
-        <h4 class="text-default-text pt-4 mb-20" v-html="`Uninstall <b>${capabilities.join(' and ')}</b> from <b>${ clusterName }</b>`" />
+        <h4 class="text-default-text pt-4 mb-20" v-html="`Uninstall <b>${labels.join(' and ')}</b> from <b>${ clusterName }</b>`" />
         <div class="row">
           <div class="col span-12">
             <RadioGroup
@@ -88,9 +90,9 @@ export default {
         <div class="row">
           <div class="col span-12">
             <Banner color="warning">
-              Uninstalling capabilities will permentantly remove them. Are you sure you want to uninstall <b>{{ capabilities.join(' and ') }}</b>?
+              Uninstalling capabilities will permentantly remove them. Are you sure you want to uninstall <b>{{ labels.join(' and ') }}</b>?
             </Banner>
-            To confirm uninstall enter <b>{{ capabilities[0] }}</b> below:
+            To confirm uninstall enter <b>{{ labels[0] }}</b> below:
             <input v-model="confirm" class="no-label mt-5" type="text" />
           </div>
         </div>
@@ -100,7 +102,7 @@ export default {
           {{ t("generic.cancel") }}
         </button>
 
-        <AsyncButton mode="edit" :disabled="capabilities[0] !== confirm" @click="save" />
+        <AsyncButton mode="edit" :disabled="labels[0] !== confirm" @click="save" />
       </div>
     </Card>
   </modal>

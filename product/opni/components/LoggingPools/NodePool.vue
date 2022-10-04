@@ -85,10 +85,10 @@ export default {
     },
     injest: {
       get() {
-        return this.getRole('injest');
+        return this.getRole('ingest');
       },
       set(value) {
-        this.updateRole('injest', value);
+        this.updateRole('ingest', value);
       }
     },
     diskSize: {
