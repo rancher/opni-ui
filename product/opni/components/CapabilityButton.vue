@@ -36,7 +36,7 @@ export default {
     tooltip() {
       const status = this.cluster.capabilityStatus[this.type];
 
-      if (status) {
+      if (status?.message) {
         return status.message;
       }
 

@@ -4,6 +4,8 @@ import { getClusters, getClusterStats } from '@/product/opni/utils/requests';
 import CapabilityButton from '@/product/opni/components/CapabilityButton';
 import Loading from '@/components/Loading';
 import { getClusterStatus as getMonitoringBackendStatus } from '@/product/opni/utils/requests/monitoring';
+import { getLoggingCluster } from '@/product/opni/utils/requests/logging';
+import { isEmpty } from 'lodash';
 import EditClusterDialog from './dialogs/EditClusterDialog';
 import UninstallCapabilitiesDialog from './dialogs/UninstallCapabilitiesDialog';
 import CantDeleteClusterDialog from './dialogs/CantDeleteClusterDialog';
@@ -27,6 +29,7 @@ export default {
       loading:                      false,
       statsInterval:                null,
       isMonitoringBackendInstalled: false,
+      isLoggingBackendInstalled:    false,
       clusters:                     [],
       headers:                      [
         {
@@ -135,21 +138,27 @@ export default {
       }
     },
     async loadStats() {
-      const details = await getClusterStats(this);
-
       await Promise.all(this.clusters.map(c => c.updateCabilityLogs()));
 
       try {
-        const status = await getMonitoringBackendStatus();
+        const [monitoringStatus, loggingStatus] = await Promise.all([getMonitoringBackendStatus(), getLoggingCluster()]);
 
-        this.$set(this, 'isMonitoringBackendInstalled', status.state !== 'NotInstalled');
+        this.$set(this, 'isMonitoringBackendInstalled', monitoringStatus.state !== 'NotInstalled');
+        this.$set(this, 'isLoggingBackendInstalled', !isEmpty(loggingStatus));
       } catch (ex) {
         this.$set(this, 'isMonitoringBackendInstalled', false);
+        this.$set(this, 'isLoggingBackendInstalled', false);
       }
 
-      this.clusters.forEach((cluster) => {
-        this.$set(cluster, 'stats', details.find(d => d.userID === cluster.id));
-      });
+      try {
+        if (this.isMonitoringBackendInstalled) {
+          const details = await getClusterStats(this);
+
+          this.clusters.forEach((cluster) => {
+            this.$set(cluster, 'stats', details.find(d => d.userID === cluster.id));
+          });
+        }
+      } catch (ex) {}
     },
   },
 };
@@ -178,7 +187,7 @@ export default {
       <template #col:capabilities="{row}">
         <td>
           <CapabilityButton label="Metrics" type="metrics" :cluster="row" :is-backend-installed="isMonitoringBackendInstalled" />
-          <CapabilityButton label="Logging" type="logging" :cluster="row" :is-backend-installed="false" />
+          <CapabilityButton label="Logging" type="logs" :cluster="row" :is-backend-installed="isLoggingBackendInstalled" />
         </td>
       </template>
       <template #sub-row="{row, fullColspan}">

@@ -6,14 +6,14 @@ import NodePool from '~/product/opni/components/LoggingPools/NodePool.vue';
 export function createEmptyPool(index) {
   return {
     Name:         `pool${ index }`,
-    Roles:        [],
+    Roles:        ['controlplane', 'data', 'ingest'],
     Persistence:  { Enabled: false, StorageClass: '' },
     CPUResources: {
       Request: '',
       Limit:   ''
     },
-    DiskSize:           '',
-    MemoryLimit:        '',
+    DiskSize:           '20Gi',
+    MemoryLimit:        '1024Mi',
     NodeSelector:       {},
     EnableAntiAffinity: false
   };
