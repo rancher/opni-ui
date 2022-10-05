@@ -145,6 +145,18 @@ export class Cluster extends Resource {
     return this.base.metadata.labels;
   }
 
+  get visibleLabels(): { [key: string]: string } {
+    const labels: any = {};
+
+    Object.entries(this.base.metadata.labels)
+      .filter(([key]) => !key.includes('opni.io'))
+      .forEach(([key, value]) => {
+        labels[key] = value;
+      });
+
+    return labels;
+  }
+
   get hiddenLabels(): any {
     const labels: any = {};
 
@@ -158,8 +170,7 @@ export class Cluster extends Resource {
   }
 
   get displayLabels(): string[] {
-    return Object.entries(this.base.metadata.labels)
-      .filter(([key]) => !key.includes('opni.io'))
+    return Object.entries(this.visibleLabels)
       .map(([key, value]) => `${ key }=${ value }`);
   }
 

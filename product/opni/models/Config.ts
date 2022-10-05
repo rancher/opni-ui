@@ -25,4 +25,8 @@ export class ConfigDocument extends Resource {
   get yaml(): string {
     return Buffer.from(this.config.yaml, 'base64').toString();
   }
+
+  get json(): any {
+    return JSON.parse(Buffer.from(this.config.json, 'base64').toString());
+  }
 }

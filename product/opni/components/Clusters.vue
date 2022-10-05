@@ -186,7 +186,7 @@ export default {
     >
       <template #col:capabilities="{row}">
         <td>
-          <CapabilityButton label="Metrics" type="metrics" :cluster="row" :is-backend-installed="isMonitoringBackendInstalled" />
+          <CapabilityButton label="Monitoring" type="metrics" :cluster="row" :is-backend-installed="isMonitoringBackendInstalled" />
           <CapabilityButton label="Logging" type="logs" :cluster="row" :is-backend-installed="isLoggingBackendInstalled" />
         </td>
       </template>

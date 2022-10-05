@@ -30,7 +30,7 @@ export default {
     open(cluster) {
       this.$set(this, 'id', cluster.id);
       this.$set(this, 'name', cluster.name);
-      this.$set(this, 'labels', cluster.displayLabels);
+      this.$set(this, 'labels', cluster.visibleLabels);
       this.$set(this, 'hiddenLabels', cluster.hiddenLabels);
       this.$modal.show('edit-cluster-dialog');
     },
