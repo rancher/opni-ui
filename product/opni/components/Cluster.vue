@@ -4,7 +4,7 @@ import CopyCode from '@/components/CopyCode';
 import Checkbox from '@/components/form/Checkbox';
 import KeyValue from '@/components/form/KeyValue';
 import {
-  createAgent, getClusters, updateCluster, getClusterFingerprint, createToken
+  createAgent, getClusters, updateCluster, getClusterFingerprint, createToken, getDefaultImageRepository, getGatewayConfig
 } from '@/product/opni/utils/requests';
 import Loading from '@/components/Loading';
 import Card from '@/components/Card';
@@ -22,38 +22,46 @@ export default {
   },
 
   async fetch() {
-    const [token, clusters, clusterFingerprint] = await Promise.all([
-      createToken('1800s', '', []),
+    const [token, clusters, clusterFingerprint, defaultImageRepository, gatewayConfig] = await Promise.all([
+      createToken('3600s', '', []),
       getClusters(),
       getClusterFingerprint(),
+      getDefaultImageRepository(),
+      getGatewayConfig()
     ]);
+
+    const gatewayAddress = gatewayConfig?.map(g => g.json)?.find(g => g.kind === 'GatewayConfig')?.spec?.hostname;
 
     this.$set(this, 'token', token.id);
     this.$set(this, 'clusterCount', clusters.length);
     this.$set(this, 'pin', clusterFingerprint);
+    this.$set(this, 'defaultImageRepository', defaultImageRepository || '');
+    this.$set(this, 'gatewayAddress', gatewayAddress || '');
   },
 
   data() {
     const placeholderText = 'Select a token to view install command';
 
     return {
-      isManualOpen:         false,
-      token:                null,
-      capabilities:         [],
-      capability:           'metrics',
-      labels:               {},
-      name:                 '',
-      clusterCount:         0,
-      clusterCountInterval: null,
-      newCluster:           null,
-      newClusterFound:      false,
-      pin:                  null,
+      isManualOpen:           false,
+      token:                  null,
+      capabilities:           [],
+      capability:             'metrics',
+      labels:                 {},
+      name:                   '',
+      clusterCount:           0,
+      clusterCountInterval:   null,
+      newCluster:             null,
+      newClusterFound:        false,
+      pin:                    null,
       placeholderText,
-      error:                '',
-      agentVersion:         'v2',
-      namespace:            'opni-agent',
-      gatewayAddress:       window.location.host,
-      installPrometheus:    false
+      error:                  '',
+      agentVersion:           'v2',
+      namespace:              'opni-agent',
+      gatewayAddress:         '',
+      installPrometheus:      false,
+      useOCI:                 false,
+      defaultImageRepository: ''
     };
   },
 
@@ -99,9 +107,12 @@ export default {
   computed: {
     installCommand() {
       const prometheus = this.installPrometheus ? '--set kube-prometheus-stack.enabled=true' : '';
+      const defaultImageRepository = this.defaultImageRepository ? `--set image.repository=${ this.defaultImageRepository }` : '';
+      const imageCrd = this.useOCI ? 'oci://ghcr.io/rancher/opni-agent-crd' : 'opni/opni-agent-crd';
+      const imageMain = this.useOCI ? 'oci://ghcr.io/rancher/opni-agent' : 'opni/opni-agent';
 
-      return `helm -n ${ this.namespace } install opni-agent-crd opni/opni-agent-crd --create-namespace 
-              && helm -n ${ this.namespace } install opni-agent opni/opni-agent ${ prometheus } --set address=${ this.gatewayAddress } --set pin=${ this.pin } --set token=${ this.token } --create-namespace`;
+      return `helm -n ${ this.namespace } install  opni-agent-crd ${ imageCrd } --create-namespace
+              && helm -n ${ this.namespace } install opni-agent ${ imageMain } ${ prometheus } --set address=${ this.gatewayAddress } --set pin=${ this.pin } --set token=${ this.token } --create-namespace ${ defaultImageRepository }`;
     },
     gatewayUrl() {
       return this.installCommand.match(/gateway-url=.+/s)?.[0]?.replace('gateway-url=', '').replace('"  ', '').replace('https://', '').replace('http://', '');
@@ -157,11 +168,19 @@ export default {
               label="Gateway Address"
             />
           </div>
-          <div class="options col span-4 mb-10">
-            <Checkbox
-              v-model="installPrometheus"
-              label="Install Prometheus Operator"
-            />
+          <div class="checkboxes col span-4 mb-10">
+            <div>
+              <Checkbox
+                v-model="installPrometheus"
+                label="Install Prometheus Operator"
+              />
+            </div>
+            <div>
+              <Checkbox
+                v-model="useOCI"
+                label="Use OCI Image"
+              />
+            </div>
           </div>
         </div>
         <CopyCode
@@ -279,5 +298,12 @@ export default {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+}
+
+.checkboxes {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: flex-start;
 }
 </style>

@@ -25,6 +25,16 @@ type Granularity = UnitCount;
 
 type LogLevel = 'Normal' | 'Anomalous' | 'Suspicious';
 
+export interface DashboardGlobalSettings {
+  defaultImageRepository?: string;
+  defaultTokenTtl?: string;
+  defaultTokenLabels?: { [key: string]: string };
+}
+export interface DashboardSettings {
+  global?: DashboardGlobalSettings;
+  user?: { [key: string]: string};
+}
+
 export async function getAreasOfInterest(now: Dayjs, range: UnitCount, granularity: Granularity): Promise<FromTo[]> {
   const from = getStartTime(now, range, granularity);
   const to = now;
@@ -161,6 +171,10 @@ export async function getTokens(vue: any) {
   const tokensResponse = (await axios.get<TokensResponse>(`opni-api/management/tokens`)).data.items;
 
   return tokensResponse.map(tokenResponse => new Token(tokenResponse, vue));
+}
+
+export async function getDefaultImageRepository() {
+  return (await axios.get<DashboardSettings>(`opni-api/management/dashboard/settings`)).data.global?.defaultImageRepository;
 }
 
 export async function getCapabilities(vue: any) {
