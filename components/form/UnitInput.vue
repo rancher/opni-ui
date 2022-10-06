@@ -142,10 +142,11 @@ export default {
     :tooltip="tooltip"
     :tooltip-key="tooltipKey"
     :required="required"
+    :class="{'with-tooltip': tooltip || tooltipKey}"
     @input="update($event)"
   >
     <template #suffix>
-      <div v-if="addon" class="addon" :class="{'with-tooltip': tooltip || tooltipKey}">
+      <div v-if="addon" class="addon">
         {{ addon }}
       </div>
     </template>
@@ -153,8 +154,15 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-  .addon.with-tooltip {
+  ::v-deep {
+    .icon-info {
+      top: 25px;
+      right: 20px;
+    }
+  }
+
+  .with-tooltip .addon {
     position: relative;
-    right: 30px;
+    right: 20px;
   }
 </style>

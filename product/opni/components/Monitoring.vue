@@ -9,7 +9,9 @@ import Checkbox from '@/components/form/Checkbox';
 import UnitInput from '@/components/form/UnitInput';
 import { configureCluster, uninstallCluster, getClusterStatus, getClusterConfig } from '@/product/opni/utils/requests/monitoring';
 import { exceptionToErrorsArray } from '@/utils/error';
-import GrafanaConfig from '~/product/opni/components/GrafanaConfig.vue';
+import GrafanaConfig from '~/product/opni/components/GrafanaConfig';
+
+const SECONDS_IN_DAY = 86400;
 
 export default {
   components: {
@@ -25,7 +27,10 @@ export default {
   },
 
   async fetch() {
-    await this.load();
+    try {
+      await this.load();
+    } catch (ex) {}
+    this.updateEndpoint();
   },
 
   created() {
@@ -41,13 +46,13 @@ export default {
 
   data() {
     return {
-      interval:         null,
-      error:            '',
-      loading:          false,
-      dashboardEnabled: false,
-      enabled:          false,
-      statsInterval:    null,
-      modes:            [
+      interval:                   null,
+      error:                      '',
+      loading:                    false,
+      dashboardEnabled:           false,
+      enabled:                    false,
+      statsInterval:              null,
+      modes:                      [
         {
           label: 'Standalone',
           value: 0
@@ -137,7 +142,7 @@ export default {
       },
       config:           {
         mode:          0,
-        storage:       { backend: 'filesystem' },
+        storage:       { backend: 'filesystem', retentionPeriod: `${ 30 * SECONDS_IN_DAY }s` },
         grafana:       { enabled: false }
       }
     };
@@ -262,19 +267,10 @@ export default {
         'us-gov-east-1':  's3.us-gov-east-1.amazonaws.com',
         'us-gov-west-1':  's3.us-gov-west-1.amazonaws.com',
       };
-      const template = '<bucket>.s3.<region>.amazonaws.com';
 
       if (this.s3.region) {
-        const bucket = this.s3.bucketName || '<bucket>';
-
-        return this.$set(this.s3, 'endpoint', `${ bucket }.${ endpoints[this.s3.region] }`);
+        return this.$set(this.s3, 'endpoint', `${ endpoints[this.s3.region] }`);
       }
-
-      if (this.s3.bucketName) {
-        return this.$set(this.s3, 'endpoint', template.replace('<bucket>', this.s3.bucketName));
-      }
-
-      return this.$set(this.s3, 'endpoint', template);
     },
 
     enableGrafana() {
@@ -312,13 +308,23 @@ export default {
       }
     },
 
+    s3RetentionPeriod: {
+      get() {
+        return Number.parseInt(this.config.storage.retentionPeriod || '0') / SECONDS_IN_DAY;
+      },
+
+      set(value) {
+        this.$set(this.config.storage, 'retentionPeriod', `${ (value || 0) * SECONDS_IN_DAY }s`);
+      }
+    },
+
     s3IdleConnTimeout: {
       get() {
         return Number.parseInt(this.s3?.http?.idleConnTimeout || '0');
       },
 
       set(value) {
-        this.$set(this.s3.http, 'idleConnTimeout', `${ value }s`);
+        this.$set(this.s3.http, 'idleConnTimeout', `${ value || 0 }s`);
       }
     },
 
@@ -328,7 +334,7 @@ export default {
       },
 
       set(value) {
-        this.$set(this.s3.http, 'responseHeaderTimeout', `${ value }s`);
+        this.$set(this.s3.http, 'responseHeaderTimeout', `${ value || 0 }s`);
       }
     },
 
@@ -338,7 +344,7 @@ export default {
       },
 
       set(value) {
-        this.$set(this.s3.http, 'tlsHandshakeTimeout', `${ value }s`);
+        this.$set(this.s3.http, 'tlsHandshakeTimeout', `${ value || 0 }s`);
       }
     },
 
@@ -348,7 +354,7 @@ export default {
       },
 
       set(value) {
-        this.$set(this.s3.http, 'expectContinueTimeout', `${ value }s`);
+        this.$set(this.s3.http, 'expectContinueTimeout', `${ value || 0 }s`);
       }
     },
   }
@@ -386,6 +392,9 @@ export default {
               <div class="col span-6">
                 <LabeledSelect v-model="config.storage.backend" :options="storageOptions" label="Storage Type" />
               </div>
+              <div class="col span-6">
+                <UnitInput v-model="s3RetentionPeriod" class="retention-period" label="Data Retention Period" suffix="days" tooltip="A value of 0 will retain data indefinitely" />
+              </div>
             </div>
             <div v-if="config.storage.backend === 's3'" class="mt-15">
               <h3>Target</h3>
@@ -394,7 +403,7 @@ export default {
                   <LabeledSelect v-model="s3.region" :options="regions" label="Region" @input="updateEndpoint" />
                 </div>
                 <div class="col span-6">
-                  <LabeledInput v-model="s3.bucketName" label="Bucket Name" :required="true" @input="updateEndpoint" />
+                  <LabeledInput v-model="s3.bucketName" label="Bucket Name" :required="true" />
                 </div>
               </div>
               <div class="row mb-10 border">

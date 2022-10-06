@@ -99,6 +99,10 @@
     padding-right: 8px;
   }
 
+  &.suffix.retention-period INPUT {
+    padding-right: 28px;
+  }
+
   .cron-label{
     position: absolute;
     top: 100%;
