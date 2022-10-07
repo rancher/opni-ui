@@ -15,7 +15,7 @@ export default {
 
   methods: {
     updateUnit(key, suffix, value = 0) {
-      set(this, `value.${ key }`, `${ value }${ suffix }`);
+      set(this, `value.${ key }`, `${ value || 0 }${ suffix }`);
     },
 
     getUnit(key, suffix) {
