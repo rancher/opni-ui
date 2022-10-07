@@ -2,10 +2,10 @@ import { Resource } from './Resource';
 import { SloServiceResponse } from '~/product/opni/models/SloService';
 import { cloneSLO, deleteSLO, getSLOStatus } from '~/product/opni/utils/requests/slo';
 
-type SloStatusStateResponse = 'NoData' | 'Ok' | 'Warning' | 'Breaching' | 'InternalError';
+export type SloStatusStateResponse = 'InProgress' | 'Creating' | 'NoData' | 'Ok' | 'Warning' | 'Breaching' | 'PartialDataOk' | 'InternalError';
 
 export interface SloStatusResponse {
-  sloSLOStatusState: SloStatusStateResponse;
+  state: SloStatusStateResponse;
 }
 
 export interface SloAlertResponse {
@@ -111,18 +111,21 @@ export class Slo extends Resource {
 
     get status(): any {
       const stateMap = {
+        InProgress:    'warning',
+        Creating:      'warning',
         NoData:        'error',
         Ok:            'success',
         Warning:       'warning',
-        Breaching:     'error',
-        InternalError: 'error'
+        Breaching:     'warning',
+        PartialDataOk: 'success',
+        InternalError: 'error',
       };
 
       return { state: stateMap[this.state] || 'error', message: this.state };
     }
 
     async updateStatus(): Promise<void> {
-      this.state = (await getSLOStatus(this.base.id)).sloSLOStatusState || 'InternalError';
+      this.state = (await getSLOStatus(this.base.id)) || 'InternalError';
     }
 
     get tags(): string[] {

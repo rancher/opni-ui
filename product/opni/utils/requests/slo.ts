@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { Slo, SlosResponse, SloStatusResponse } from '~/product/opni/models/Slo';
+import { isEmpty } from 'lodash';
+import { Slo, SlosResponse, SloStatusResponse, SloStatusStateResponse } from '~/product/opni/models/Slo';
 import { SloMetricsResponse } from '~/product/opni/models/SloMetric';
 import { SloService, SloServicesResponse } from '~/product/opni/models/SloService';
 import { getClusters } from '~/product/opni/utils/requests';
@@ -8,7 +9,8 @@ export type Datasource = 'monitoring' | 'logging';
 
 export async function getServices(clusterId: string): Promise<SloService[]> {
   const clustersRequest = getClusters(null);
-  const response = (await axios.post<SloServicesResponse>(`opni-api/SLO/services`, { datasource: 'monitoring', clusterId }))?.data || { items: [] };
+  const data = (await axios.post<SloServicesResponse>(`opni-api/SLO/services`, { datasource: 'monitoring', clusterId }))?.data;
+  const response = isEmpty(data) ? { items: [] } : data;
   const clusters = await clustersRequest;
 
   return response.items.map(item => new SloService(item, clusters, null) );
@@ -122,9 +124,8 @@ export async function getSLOs(vue: any) {
   return response?.items?.map(item => new Slo(item, vue)) || [];
 }
 
-export async function getSLOStatus(id: string): Promise<SloStatusResponse> {
-  const randomResult = ['NoData', 'Ok', 'Warning', 'Breaching', 'InternalError'];
-  const result = (await axios.post(`opni-api/SLO/slos/${ id }/status`, { id })).data;
+export async function getSLOStatus(id: string): Promise<SloStatusStateResponse> {
+  const result = (await axios.post <SloStatusResponse>(`opni-api/SLO/slos/${ id }/status`, { id })).data;
 
-  return result?.sloSLOStatusState ? result : { sloSLOStatusState: randomResult[Math.floor(Math.random() * (randomResult.length - 1))] };
+  return result?.state;
 }
