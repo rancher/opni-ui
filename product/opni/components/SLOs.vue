@@ -1,6 +1,7 @@
 <script>
 import SortableTable from '@/components/SortableTable';
 import Loading from '@/components/Loading';
+import { getClusterStatus } from '@/product/opni/utils/requests/monitoring';
 import EditClusterDialog from './dialogs/EditClusterDialog';
 import { getSLOs } from '~/product/opni/utils/requests/slo';
 
@@ -15,11 +16,12 @@ export default {
 
   data() {
     return {
-      loading:       false,
-      statsInterval: null,
-      clusters:      [],
-      slos:          [],
-      headers:       [
+      loading:             false,
+      statsInterval:       null,
+      clusters:            [],
+      slos:                [],
+      isMonitoringEnabled: false,
+      headers:             [
         {
           name:          'status',
           labelKey:      'tableHeaders.status',
@@ -74,8 +76,15 @@ export default {
     async load() {
       try {
         this.loading = true;
-        this.$set(this, 'slos', await getSLOs(this));
-        await this.updateStatuses();
+        const status = (await getClusterStatus()).state;
+        const isMonitoringEnabled = status !== 'NotInstalled';
+
+        this.$set(this, 'isMonitoringEnabled', isMonitoringEnabled);
+
+        if (isMonitoringEnabled) {
+          this.$set(this, 'slos', await getSLOs(this));
+          await this.updateStatuses();
+        }
       } finally {
         this.loading = false;
       }
@@ -95,19 +104,27 @@ export default {
       <div class="title">
         <h1>SLOs</h1>
       </div>
-      <div class="actions-container">
+      <div v-if="isMonitoringEnabled" class="actions-container">
         <n-link class="btn role-primary" :to="{name: 'slo-create'}">
           Create SLO
         </n-link>
       </div>
     </header>
     <SortableTable
+      v-if="isMonitoringEnabled"
       :rows="slos"
       :headers="headers"
       :search="false"
       default-sort-by="expirationDate"
       key-field="id"
     />
+    <div v-else class="not-enabled">
+      <h4>
+        Monitoring must be enabled to use SLOs. <n-link :to="{name: 'monitoring'}">
+          Click here
+        </n-link> to enable monitoring.
+      </h4>
+    </div>
     <EditClusterDialog ref="dialog" @save="load" />
   </div>
 </template>
@@ -122,4 +139,13 @@ export default {
     font-family: $mono-font;
   }
 }
+
+.not-enabled {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
 </style>

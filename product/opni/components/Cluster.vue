@@ -111,8 +111,7 @@ export default {
       const imageCrd = this.useOCI ? 'oci://ghcr.io/rancher/opni-agent-crd' : 'opni/opni-agent-crd';
       const imageMain = this.useOCI ? 'oci://ghcr.io/rancher/opni-agent' : 'opni/opni-agent';
 
-      return `helm -n ${ this.namespace } install  opni-agent-crd ${ imageCrd } --create-namespace
-              && helm -n ${ this.namespace } install opni-agent ${ imageMain } ${ prometheus } --set address=${ this.gatewayAddress } --set pin=${ this.pin } --set token=${ this.token } --create-namespace ${ defaultImageRepository }`;
+      return `helm -n ${ this.namespace } install  opni-agent-crd ${ imageCrd } --create-namespace && helm -n ${ this.namespace } install opni-agent ${ imageMain } ${ prometheus } --set address=${ this.gatewayAddress } --set pin=${ this.pin } --set token=${ this.token } --create-namespace ${ defaultImageRepository }`;
     },
     gatewayUrl() {
       return this.installCommand.match(/gateway-url=.+/s)?.[0]?.replace('gateway-url=', '').replace('"  ', '').replace('https://', '').replace('http://', '');
