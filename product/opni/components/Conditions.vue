@@ -2,13 +2,10 @@
 import SortableTable from '@/components/SortableTable';
 import Loading from '@/components/Loading';
 import { getClusterStatus } from '@/product/opni/utils/requests/monitoring';
-import EditClusterDialog from './dialogs/EditClusterDialog';
-import { getSLOs } from '~/product/opni/utils/requests/slo';
+import { getAlertConditions } from '~/product/opni/utils/requests/alerts';
 
 export default {
-  components: {
-    EditClusterDialog, Loading, SortableTable
-  },
+  components: { Loading, SortableTable },
   async fetch() {
     await this.load();
     await this.updateStatuses();
@@ -18,8 +15,7 @@ export default {
     return {
       loading:             false,
       statsInterval:       null,
-      clusters:            [],
-      slos:                [],
+      conditions:          [],
       isMonitoringEnabled: false,
       headers:             [
         {
@@ -33,18 +29,22 @@ export default {
           name:          'nameDisplay',
           labelKey:      'tableHeaders.name',
           value:         'nameDisplay',
-          width:         undefined
         },
         {
-          name:          'tags',
-          labelKey:      'tableHeaders.tags',
-          value:         'tags',
+          name:          'description',
+          labelKey:      'tableHeaders.description',
+          value:         'description',
+        },
+        {
+          name:      'type',
+          labelKey:  'tableHeaders.type',
+          value:     'typeDisplay'
+        },
+        {
+          name:          'labels',
+          labelKey:      'tableHeaders.labels',
+          value:         'labels',
           formatter:     'ListBubbles'
-        },
-        {
-          name:      'period',
-          labelKey:  'tableHeaders.period',
-          value:     'period'
         },
       ]
     };
@@ -76,13 +76,14 @@ export default {
     async load() {
       try {
         this.loading = true;
+
         const status = (await getClusterStatus()).state;
         const isMonitoringEnabled = status !== 'NotInstalled';
 
         this.$set(this, 'isMonitoringEnabled', isMonitoringEnabled);
 
         if (isMonitoringEnabled) {
-          this.$set(this, 'slos', await getSLOs(this));
+          this.$set(this, 'conditions', await getAlertConditions(this));
           await this.updateStatuses();
         }
       } finally {
@@ -90,7 +91,7 @@ export default {
       }
     },
     async updateStatuses() {
-      const promises = this.slos.map(slo => slo.updateStatus());
+      const promises = this.conditions.map(c => c.updateStatus());
 
       await Promise.all(promises);
     }
@@ -102,17 +103,17 @@ export default {
   <div v-else>
     <header>
       <div class="title">
-        <h1>SLOs</h1>
+        <h1>Conditions</h1>
       </div>
       <div v-if="isMonitoringEnabled" class="actions-container">
-        <n-link class="btn role-primary" :to="{name: 'slo-create'}">
-          Create SLO
+        <n-link class="btn role-primary" :to="{name: 'condition-create'}">
+          Create Condition
         </n-link>
       </div>
     </header>
     <SortableTable
       v-if="isMonitoringEnabled"
-      :rows="slos"
+      :rows="conditions"
       :headers="headers"
       :search="false"
       default-sort-by="expirationDate"
@@ -120,12 +121,11 @@ export default {
     />
     <div v-else class="not-enabled">
       <h4>
-        Monitoring must be enabled to use SLOs. <n-link :to="{name: 'monitoring'}">
+        Monitoring must be enabled to use Conditions. <n-link :to="{name: 'monitoring'}">
           Click here
         </n-link> to enable monitoring.
       </h4>
     </div>
-    <EditClusterDialog ref="dialog" @save="load" />
   </div>
 </template>
 
@@ -141,11 +141,11 @@ export default {
 }
 
 .not-enabled {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-}
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
 </style>
