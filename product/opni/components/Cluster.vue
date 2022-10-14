@@ -30,7 +30,7 @@ export default {
       getGatewayConfig()
     ]);
 
-    const gatewayAddress = gatewayConfig?.map(g => g.json)?.find(g => g.kind === 'GatewayConfig')?.spec?.hostname;
+    const gatewayAddress = gatewayConfig?.map(g => g.json)?.find(g => g.kind === 'GatewayConfig')?.spec?.grpcListenAddress;
 
     this.$set(this, 'token', token.id);
     this.$set(this, 'clusterCount', clusters.length);
