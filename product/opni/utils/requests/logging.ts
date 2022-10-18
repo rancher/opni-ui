@@ -75,3 +75,24 @@ export async function isLoggingClusterUpgradeAvailable(): Promise<UpgradeAvailab
 export async function upgradeLoggingCluster() {
   await axios.post('opni-api/LoggingAdmin/logging/upgrade/do');
 }
+
+export enum Status {
+  // eslint-disable-next-line no-unused-vars
+  ClusterStatusPending = 1,
+  // eslint-disable-next-line no-unused-vars
+  ClusterStatusGreen,
+  // eslint-disable-next-line no-unused-vars
+  ClusterStatusYellow,
+  // eslint-disable-next-line no-unused-vars
+  ClusterStatusRed,
+  // eslint-disable-next-line no-unused-vars
+  ClusterStatusError
+}
+export interface StatusResponse {
+  status: Status;
+  details: string;
+}
+
+export async function getLoggingStatus(): Promise<UpgradeAvailableResponse> {
+  return (await axios.get < UpgradeAvailableResponse>('opni-api/LoggingAdmin/logging/status')).data;
+}

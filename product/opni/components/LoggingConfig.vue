@@ -4,7 +4,7 @@ import Loading from '@/components/Loading';
 import DashboardDetails from '@/product/opni/components/DashboardDetails';
 import AsyncButton from '@/components/AsyncButton';
 import {
-  deleteLoggingCluster, getLoggingCluster, upsertLoggingCluster, upgradeLoggingCluster, isLoggingClusterUpgradeAvailable
+  deleteLoggingCluster, getLoggingCluster, getLoggingStatus, upsertLoggingCluster, upgradeLoggingCluster, isLoggingClusterUpgradeAvailable, Status
 } from '@/product/opni/utils/requests/logging';
 import { exceptionToErrorsArray } from '@/utils/error';
 import Banner from '@/components/Banner';
@@ -37,7 +37,16 @@ export default {
       });
       this.$set(this, 'enabled', true);
       this.$set(this, 'config', { Dashboards: {}, ...cluster });
+      this.loadStatus();
     }
+  },
+
+  created() {
+    this.$set(this, 'statusInterval', setInterval(this.loadStatus, 10000));
+  },
+
+  beforeDestroy() {
+    clearInterval(this.statusInterval);
   },
 
   data() {
@@ -48,6 +57,8 @@ export default {
       enabled:          false,
       statsInterval:    null,
       upgradeable:      false,
+      statusInterval:   null,
+      status:           null,
       config:           {
         ExternalURL:   '',
         DataRetention: '7d',
@@ -109,6 +120,10 @@ export default {
       this.$set(this, 'upgradeable', false);
     },
 
+    async loadStatus() {
+      this.$set(this, 'status', await getLoggingStatus());
+    },
+
     async save(buttonCallback) {
       if (this.config.ExternalURL === '') {
         this.$set(this, 'error', 'External URL is required');
@@ -165,6 +180,8 @@ export default {
 
       try {
         await upsertLoggingCluster(this.config);
+        await this.loadStatus();
+        document.querySelector('main').scrollTop = 0;
 
         this.$set(this, 'error', '');
         buttonCallback(true);
@@ -173,8 +190,29 @@ export default {
         this.$set(this, 'error', exceptionToErrorsArray(err).join('; '));
         buttonCallback(false);
       }
-    }
+    },
   },
+  computed: {
+    bannerColor() {
+      if (!this.status) {
+        return '';
+      }
+
+      switch (this.status.status) {
+      case Status.ClusterStatusGreen:
+        return 'success';
+      case Status.ClusterStatusPending:
+      case Status.ClusterStatusYellow:
+        return 'warning';
+      default:
+        return 'error';
+      }
+    },
+
+    bannerMessage() {
+      return this.status ? this.status.details : '';
+    }
+  }
 };
 </script>
 <template>
@@ -186,6 +224,9 @@ export default {
         Disable
       </button>
     </header>
+    <Banner v-if="enabled && bannerMessage" :color="bannerColor" class="mt-0">
+      {{ bannerMessage }}
+    </Banner>
     <div class="body">
       <div v-if="enabled" class="enabled">
         <div v-if="upgradeable" class="row mb-10">
