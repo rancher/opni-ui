@@ -4136,6 +4136,7 @@ tableHeaders:
   level: Level
   levels: Levels
   loggingOutputProviders: Provider
+  logs: Log Count
   machines: Machines
   machineNodeName: Node
   manual: Manual
@@ -6163,6 +6164,7 @@ opni:
     loggingConfig: Logging
     monitoring: Monitoring
     management: Management
+    workloadModel: Workload Insights
   workloadVsControlPlaneChart:
     workload: Workload
     controlPlane: Control Plane
