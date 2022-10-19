@@ -30,13 +30,14 @@ export default {
       getGatewayConfig()
     ]);
 
-    const gatewayAddress = gatewayConfig?.map(g => g.json)?.find(g => g.kind === 'GatewayConfig')?.spec?.grpcListenAddress;
+    const hostname = gatewayConfig?.map(g => g.json)?.find(g => g.kind === 'GatewayConfig')?.spec?.hostname;
+    const port = gatewayConfig?.map(g => g.json)?.find(g => g.kind === 'GatewayConfig')?.spec?.grpcListenAddress?.split(':')[1];
 
     this.$set(this, 'token', token.id);
     this.$set(this, 'clusterCount', clusters.length);
     this.$set(this, 'pin', clusterFingerprint);
     this.$set(this, 'defaultImageRepository', defaultImageRepository || '');
-    this.$set(this, 'gatewayAddress', gatewayAddress || '');
+    this.$set(this, 'gatewayAddress', `${ hostname }:${ port }` || '');
   },
 
   data() {
