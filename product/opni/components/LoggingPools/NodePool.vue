@@ -151,7 +151,7 @@ export default {
           <div class="role-container">
             <Checkbox v-model="controlplane" label="Controlplane" />
             <Checkbox v-model="data" label="Data" />
-            <Checkbox v-model="ingest" label="ingest" />
+            <Checkbox v-model="ingest" label="Ingest" />
           </div>
         </div>
       </div>

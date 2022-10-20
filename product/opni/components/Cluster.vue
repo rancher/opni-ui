@@ -190,7 +190,7 @@ export default {
           {{ installCommand }}
         </CopyCode>
         <Banner v-if="!newCluster" color="info">
-          Copy and run the above command to install the Opni Monitoring agent on the new cluster.
+          Copy and run the above command to install the Opni agent on the new cluster.
           <a
             v-if="$config.dev"
             class="btn bg-info mr-5"
