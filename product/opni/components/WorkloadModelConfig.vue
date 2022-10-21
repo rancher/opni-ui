@@ -115,7 +115,7 @@ export default {
     },
 
     selection(selection) {
-      if (!this.ignoreSelection) {
+      if (!this.ignoreSelection && this.deployments[this.cluster]) {
         this.$set(this.queue, this.cluster, selection);
       }
     },
@@ -136,8 +136,12 @@ export default {
           return workload.clusterId === deployment.clusterId && workload.namespace === deployment.namespace && workload.deployment === deployment.nameDisplay;
         });
 
-        queue[workload.clusterId] = queue[workload.clusterId] || [];
-        queue[workload.clusterId].push(deployment);
+        // Model params can still return deployments even if they're not available on the cluster anymore. I'm choosing to not show the deployments in the
+        // queue since they can't actually be selected or deselected if they're no longer present
+        if (this.deployments[workload.clusterId]) {
+          queue[workload.clusterId] = queue[workload.clusterId] || [];
+          queue[workload.clusterId].push(deployment);
+        }
       });
 
       this.$set(this, 'queue', queue);
@@ -148,9 +152,11 @@ export default {
         const clusterQueue = this.queue[this.cluster] || [];
 
         clusterQueue.forEach((deployment) => {
-          const a = document.querySelectorAll(`tr[data-node-id='${ deployment.id }'] .checkbox-custom`);
+          if (deployment) {
+            const a = document.querySelectorAll(`tr[data-node-id='${ deployment.id }'] .checkbox-custom`);
 
-          a?.[0]?.click();
+            a?.[0]?.click();
+          }
         });
 
         this.$nextTick(() => {
@@ -242,7 +248,7 @@ export default {
       </Banner>
       <SortableTable
         class="primary"
-        :rows="deployments[cluster]"
+        :rows="deployments[cluster] || []"
         :headers="headers"
         :search="false"
         default-sort-by="logs"
@@ -250,6 +256,7 @@ export default {
         :sub-rows="true"
         group-by="namespace"
         :default-sort-descending="true"
+        no-rows-key="opni.workloadInsights.noRowsKey"
         @selection="selection"
       >
         <template #header-right>
@@ -268,7 +275,7 @@ export default {
         <div v-for="s in orderedSelection" :key="s.cluster" class="mt-10">
           <h3>{{ getClusterName(s.cluster) }}</h3>
           <SortableTable
-            :rows="s.deployments"
+            :rows="s.deployments || []"
             :headers="headers"
             :search="false"
             default-sort-by="logs"

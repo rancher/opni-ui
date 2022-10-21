@@ -5,7 +5,7 @@ import { Deployment, DeploymentResponse } from '~/product/opni/models/Deployment
 export async function getDeployments(clusterId: string): Promise<Deployment[]> {
   const deployments = (await axios.post<{ list: DeploymentResponse[] }>(`opni-api/ModelTraining/workloadLogCount/${ clusterId }`, { id: clusterId })).data;
 
-  return deployments.list.map(d => new Deployment(d, null));
+  return (deployments?.list || []).map(d => new Deployment(d, null));
 }
 
 export interface ModelStatus {

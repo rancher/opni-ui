@@ -6165,6 +6165,8 @@ opni:
     monitoring: Monitoring
     management: Management
     workloadModel: Workload Insights
+  workloadInsights:
+    noRowsKey: There are not any deployments accessible for this cluster
   workloadVsControlPlaneChart:
     workload: Workload
     controlPlane: Control Plane
