@@ -201,12 +201,29 @@ export async function getPodBreakdown(range: Range, clusterId: string, keywords:
 export async function getLogTemplates(range: Range, clusterId: string): Promise<LogTemplate[]> {
   const response = await search(getLogTemplatesQuery(range, clusterId));
 
-  return response.rawResponse.aggregations.templates.buckets.map(bucket => ({
-    template: bucket.include_source.hits.hits[0]._source.template_matched,
+  const templates = response.rawResponse.aggregations.templates.buckets.map(bucket => ({
+    template: '',
     templateId: bucket.key,
     count: bucket.doc_count,
-    log: bucket.include_source.hits.hits[0]._source.log
+    log: ''
   }));
+
+  const templateIds = templates.map(t => t.templateId);
+  const addonResponse = await search(getLogTemplateAddonQuery(templateIds), 'templates*');
+  const templateLookup = {};
+
+  addonResponse.rawResponse.hits.hits.forEach(addOn => {
+    templateLookup[addOn._id] = addOn._source.doc;
+  });
+
+  templates.forEach(template => {
+    template.template = templateLookup[template.templateId]?.template_matched;
+    template.log = templateLookup[template.templateId]?.log;
+  });
+
+
+
+  return templates.filter(t => t.template && t.log);
 }
 
 export async function getLogTypes(): Promise<String[]> {
@@ -256,8 +273,6 @@ export async function getAnomalies(range: Range, granularity: Granularity, clust
   const results = await search(getAnomaliesQuery(range, granularity, clusterId));
   const byComponent: AnomalyByComponent = {};
   const buckets = results.rawResponse?.aggregations?.histogram?.buckets || [];
-
-  console.log('dd', results);
 
   buckets.forEach(bucket => {
     const timestamp = bucket.key;
@@ -545,6 +560,21 @@ function getRancherBreakdownQuery(range: Range, clusterId: string) {
   }
 }
 
+function getLogTemplateAddonQuery(templateIds: string[]) {
+  return {
+    "query": {
+      "bool": {
+        "filter": [{
+          "terms": {
+            "doc.template_cluster_id": templateIds
+          }
+        }],
+      }
+    },
+    "size": 10000,
+  }
+}
+
 function getLogTemplatesQuery(range: Range, clusterId: string) {
   return {
     "query": {
@@ -556,17 +586,7 @@ function getLogTemplatesQuery(range: Range, clusterId: string) {
     "size": 0,
     "aggs": {
       "templates": {
-        "terms": { "field": "template_cluster_id", "size": 1000 },
-        "aggs": {
-          "include_source": {
-            "top_hits": {
-              "size": 1,
-              "_source": {
-                "includes": ["template_matched", "log"]
-              }
-            }
-          }
-        }
+        "terms": { "field": "template_cluster_id", "size": 10000 },
       },
     },
   }
