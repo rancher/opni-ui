@@ -319,12 +319,12 @@ function getSearchUrl() {
   return window.location.href.replace(/\/app\/.*/, '/internal/search/opensearch');
 }
 
-async function search(query) {
+async function search(query, index = 'logs*') {
   return (await Axios.post(
     getSearchUrl(),
     {
       params: {
-        index: 'logs*',
+        index,
         body: query
       }
     },
@@ -550,7 +550,7 @@ function getLogTemplatesQuery(range: Range, clusterId: string) {
     "query": {
       "bool": {
         "filter": [{ "range": { "time": { "gte": range.start, "lte": range.end } } }],
-        "must": [...must(clusterId), { "match": { "log_type": "rancher" } }],
+        "must": [...must(clusterId)],
       }
     },
     "size": 0,
