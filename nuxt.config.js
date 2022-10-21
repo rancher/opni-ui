@@ -24,6 +24,7 @@ if ( !api.startsWith('http') ) {
 }
 
 let opniApi = process.env.OPNI_API || 'http://localhost:8888';
+const modelApi = process.env.MODEL_API || 'http://localhost:2000';
 let opniMonitoringTest = process.env.OPNI_MONITORING_TEST || 'http://localhost:7777';
 
 if (opniApi && !opniApi.startsWith('http')) {
@@ -346,6 +347,10 @@ module.exports = {
     '/api-ui':       proxyOpts(api), // Browser API UI
     '/meta':         proxyOpts(api), // Browser API UI
     '/v1-*':         proxyOpts(api), // SAML, KDM, etc
+    '/model-api': {
+      ...proxyOpts(modelApi, false),
+      pathRewrite: { '^/model-api': '' }
+    },
     '/opni-api':     {
       ...proxyOpts(opniApi, false),
       pathRewrite: { '^/opni-api': '' }
