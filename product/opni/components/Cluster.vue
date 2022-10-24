@@ -80,7 +80,7 @@ export default {
 
   methods: {
     save() {
-      updateCluster(this.newCluster.id, this.name, this.labels);
+      updateCluster(this.newCluster.id, this.name, { ...(this.newCluster.labels || {}), ...this.labels });
 
       this.$router.replace({ name: 'clusters' });
     },
