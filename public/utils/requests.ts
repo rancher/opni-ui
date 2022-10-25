@@ -59,7 +59,7 @@ export interface Log {
   component: string;
 }
 
-export type LogType = 'workload' | 'controlplane' | 'rancher';
+export type LogType = 'workload' | 'controlplane' | 'rancher' | 'longhorn';
 export type EventType = 'Normal' | 'Warning';
 
 export async function getInsights(range: Range, granularity: Granularity, clusterId: string, keywords: string[], logType?: LogType): Promise<Insight[]> {
@@ -99,6 +99,10 @@ export async function getK8sEvents(range: Range, clusterId: string, type?: Event
 
 export async function getRancherInsights(range: Range, granularity: Granularity, clusterId: string, keywords: string[]): Promise<Insight[]> {
   return getInsights(range, granularity, clusterId, keywords, 'rancher');
+}
+
+export async function getLonghornInsights(range: Range, granularity: Granularity, clusterId: string, keywords: string[]): Promise<Insight[]> {
+  return getInsights(range, granularity, clusterId, keywords, 'longhorn');
 }
 
 export async function getControlPlaneInsights(range: Range, granularity: Granularity, clusterId: string, keywords: string[]): Promise<Insight[]> {
@@ -160,6 +164,31 @@ export async function getRancherBreakdown(range: Range, clusterId: string, keywo
       const keywordsBucket = keywordsBuckets.find(b => b.key === bucket.key);
       return {
         ...extractCounts(bucket.anomaly_level.buckets),
+        keywords: keywordsBucket?.doc_count || 0,
+        name: bucket.key,
+        clusterId: cluster.key
+      };
+    });
+  });
+}
+
+export async function getLonghornBreakdown(range: Range, clusterId: string, keywords: string[]): Promise<BasicBreakdown[]> {
+  const breakdownPromise = search(getLonghornBreakdownQuery(range, clusterId));
+  const keywordsBreakdownPromise = search(getLonghornKeywordsBreakdownQuery(range, clusterId, keywords));
+  const clusters = (await breakdownPromise).rawResponse?.aggregations?.cluster_id?.buckets || [];
+  const keywordsClusters = (await keywordsBreakdownPromise).rawResponse?.aggregations?.cluster_id?.buckets || [];
+
+  console.log('ggg', clusters);
+  return clusters.flatMap(cluster => {
+    const keywordsCluster = keywordsClusters.find(c => c.key === cluster.key) || {};
+
+    const buckets = cluster.pod_name?.buckets || [];
+    const keywordsBuckets = keywordsCluster.pod_name?.buckets || [];
+
+    return buckets.map((bucket) => {
+      const keywordsBucket = keywordsBuckets.find(b => b.key === bucket.key);
+      return {
+        ...extractCounts(bucket.anomaly_level?.buckets),
         keywords: keywordsBucket?.doc_count || 0,
         name: bucket.key,
         clusterId: cluster.key
@@ -372,7 +401,9 @@ function getInsightsQuery(range: Range, granularity: Granularity, clusterId: str
         "filter": [
           { "range": { "time": { "gte": range.start.format(), "lte": range.end.format() } } }
         ],
-
+        "must": [
+          ...must(clusterId, logType),
+        ]
       }
     },
     "aggs": {
@@ -401,7 +432,7 @@ function getKeywordInsightsQuery(range: Range, granularity: Granularity, cluster
       "bool": {
         "filter": [{ "range": { "time": { "gte": range.start.format(), "lte": range.end.format() } } }],
         "must": [
-          ...must(clusterId),
+          ...must(clusterId, logType),
           ...mustKeywords(keywords)
         ]
       }
@@ -560,6 +591,30 @@ function getRancherBreakdownQuery(range: Range, clusterId: string) {
   }
 }
 
+function getLonghornBreakdownQuery(range: Range, clusterId: string) {
+  return {
+    "query": {
+      "bool": {
+        "filter": [{ "range": { "time": { "gte": range.start, "lte": range.end } } }],
+        "must": [...must(clusterId), { "match": { "log_type": "longhorn" } }],
+      }
+    },
+    "aggs": {
+      "cluster_id": {
+        "terms": { "field": "cluster_id" },
+        "aggs": {
+          "pod_name": {
+            "terms": { "field": "kubernetes.pod_name.keyword" },
+            "aggs": {
+              "anomaly_level": { "terms": { "field": "anomaly_level" } }
+            },
+          }
+        }
+      }
+    },
+  }
+}
+
 function getLogTemplateAddonQuery(templateIds: string[]) {
   return {
     "query": {
@@ -601,6 +656,32 @@ function getRancherKeywordsBreakdownQuery(range: Range, clusterId: string, keywo
           ...must(clusterId),
           ...mustKeywords(keywords),
           { "match": { "log_type": "rancher" } }
+        ],
+      }
+    },
+    "size": 0,
+    "aggs": {
+      "cluster_id": {
+        "terms": { "field": "cluster_id" },
+        "aggs": {
+          "pod_name": {
+            "terms": { "field": "kubernetes.pod_name.keyword" },
+          }
+        }
+      }
+    },
+  }
+}
+
+function getLonghornKeywordsBreakdownQuery(range: Range, clusterId: string, keywords: string[]) {
+  return {
+    "query": {
+      "bool": {
+        "filter": [{ "range": { "time": { "gte": range.start, "lte": range.end } } }],
+        "must": [
+          ...must(clusterId),
+          ...mustKeywords(keywords),
+          { "match": { "log_type": "longhorn" } }
         ],
       }
     },

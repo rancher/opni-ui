@@ -32,6 +32,8 @@ export function createColumns(type, range, clusterId, showNormalSparkline, showA
         return `_g=(filters:(),refreshInterval:(pause:!t,value:0),time:(from:'${from}',to:'${to}'))&_a=(columns:!(_source),filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,key:kubernetes.namespace_name,negate:!f,params:(query:${value}),type:phrase),query:(match_phrase:(kubernetes.namespace_name:${value})))${clusterQuery}${severityQuery}),interval:auto,${query},sort:!())`;
       case 'rancher':
         return `_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'${from}',to:'${to}'))&_a=(columns:!(_source),filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,key:kubernetes.pod_name,negate:!f,params:(query:${value}),type:phrase),query:(match_phrase:(kubernetes.pod_name:${value})))${clusterQuery}${severityQuery}),('$state':(store:appState),meta:(alias:!n,disabled:!f,key:log_type,negate:!f,params:(query:rancher),type:phrase),query:(match_phrase:(log_type:rancher)))),interval:auto,${query},sort:!())`
+      case 'longhorn':
+        return `_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'${from}',to:'${to}'))&_a=(columns:!(_source),filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,key:log_type,negate:!f,params:(query:longhorn),type:phrase),query:(match_phrase:(log_type:longhorn))),('$state':(store:appState),meta:(alias:!n,disabled:!f,key:kubernetes.pod_name,negate:!f,params:(query:${value}),type:phrase),query:(match_phrase:(kubernetes.pod_name:${value})))${clusterQuery}${severityQuery}),interval:auto,${query},sort:!())`;
       default:
         return '';
       }
