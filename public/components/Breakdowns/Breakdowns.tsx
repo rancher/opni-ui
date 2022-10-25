@@ -10,7 +10,8 @@ import ControlPlane from './components/ControlPlane';
 import Pod from './components/Pod';
 import Namespace from './components/Namesapce';
 import Rancher from './components/Rancher';
-import { BasicBreakdown, getControlPlaneBreakdown, getLogTypes, getNamespaceBreakdown, getPodBreakdown, getRancherBreakdown } from '../../utils/requests';
+import Longhorn from './components/Longhorn';
+import { BasicBreakdown, getControlPlaneBreakdown, getLogTypes, getNamespaceBreakdown, getPodBreakdown, getRancherBreakdown, getLonghornBreakdown } from '../../utils/requests';
 import Loading from '../Loading/Loading';
 import { Granularity, isSameRange, Range } from '../../utils/time';
 
@@ -26,12 +27,15 @@ export interface BreakdownState {
   podBreakdownRequest: Promise<BasicBreakdown[]>;
   namespaceBreakdownRequest: Promise<BasicBreakdown[]>;
   rancherBreakdownRequest: Promise<BasicBreakdown[]>;
+  longhornBreakdownRequest: Promise<BasicBreakdown[]>;
   controlPlaneBreakdown: BasicBreakdown[];
   podBreakdown: BasicBreakdown[];
   namespaceBreakdown: BasicBreakdown[];
   rancherBreakdown: BasicBreakdown[];
+  longhornBreakdown: BasicBreakdown[];
   allRequests: Promise<any>;
   showRancher: boolean;
+  showLonghorn: boolean;
 }
 
 export default class Breakdowns extends Component<BreakdownsProps, BreakdownState> {
@@ -47,8 +51,11 @@ export default class Breakdowns extends Component<BreakdownsProps, BreakdownStat
       namespaceBreakdown: [],
       rancherBreakdownRequest: new Promise<BasicBreakdown[]>(() => {}),
       rancherBreakdown: [],
+      longhornBreakdownRequest: new Promise<BasicBreakdown[]>(()=>{}),
+      longhornBreakdown: [],
       allRequests: new Promise<any>(() => {}),
-      showRancher: false
+      showRancher: false,
+      showLonghorn: false,
     };
   }
 
@@ -67,6 +74,7 @@ export default class Breakdowns extends Component<BreakdownsProps, BreakdownStat
     const podBreakdownRequest =  getPodBreakdown(this.props.range, this.props.clusterId, this.props.keywords);
     const namespaceBreakdownRequest =  getNamespaceBreakdown(this.props.range, this.props.clusterId, this.props.keywords);
     const rancherBreakdownRequest = getRancherBreakdown(this.props.range, this.props.clusterId, this.props.keywords);
+    const longhornBreakdownRequest = getLonghornBreakdown(this.props.range, this.props.clusterId, this.props.keywords);
     const logTypesRequest = getLogTypes();
     
     this.setState({
@@ -74,7 +82,8 @@ export default class Breakdowns extends Component<BreakdownsProps, BreakdownStat
       podBreakdownRequest,
       namespaceBreakdownRequest,
       rancherBreakdownRequest,
-      allRequests: Promise.all([controlPlaneBreakdownRequest, podBreakdownRequest, namespaceBreakdownRequest, rancherBreakdownRequest, getLogTypes])
+      longhornBreakdownRequest,
+      allRequests: Promise.all([controlPlaneBreakdownRequest, podBreakdownRequest, namespaceBreakdownRequest, rancherBreakdownRequest, longhornBreakdownRequest, getLogTypes])
     });
 
     const logTypes = await logTypesRequest;
@@ -83,7 +92,9 @@ export default class Breakdowns extends Component<BreakdownsProps, BreakdownStat
       podBreakdown: await podBreakdownRequest,
       namespaceBreakdown: await namespaceBreakdownRequest,
       rancherBreakdown: await rancherBreakdownRequest,
-      showRancher: logTypes.includes('rancher')
+      longhornBreakdown: await longhornBreakdownRequest,
+      showRancher: logTypes.includes('rancher'),
+      showLonghorn: logTypes.includes('longhorn')
     });
   };
 
@@ -111,6 +122,14 @@ export default class Breakdowns extends Component<BreakdownsProps, BreakdownStat
         id: 'rancher',
         name: 'Rancher',
         content: <Rancher breakdown={this.state.rancherBreakdown} range={this.props.range} clusterId={this.props.clusterId} granularity={this.props.granularity} keywords={this.props.keywords} />
+      });
+    }
+
+    if (this.state.showLonghorn) {
+      tabs.push({
+        id: 'longhorn',
+        name: 'Longhorn',
+        content: <Longhorn breakdown={this.state.longhornBreakdown} range={this.props.range} clusterId={this.props.clusterId} granularity={this.props.granularity} keywords={this.props.keywords} />
       });
     }
     return (
