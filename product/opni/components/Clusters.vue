@@ -188,6 +188,7 @@ export default {
         <td>
           <CapabilityButton label="Monitoring" type="metrics" :cluster="row" :is-backend-installed="isMonitoringBackendInstalled" />
           <CapabilityButton label="Logging" type="logs" :cluster="row" :is-backend-installed="isLoggingBackendInstalled" />
+          <CapabilityButton label="Topology" type="topology" :cluster="row" :is-backend-installed="true" />
         </td>
       </template>
       <template #sub-row="{row, fullColspan}">

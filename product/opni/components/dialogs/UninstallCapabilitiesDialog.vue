@@ -34,7 +34,9 @@ export default {
     open(cluster, capabilities) {
       this.$set(this, 'cluster', cluster);
       this.$set(this, 'capabilities', capabilities);
-      this.$set(this, 'labels', capabilities.map(c => ({ metrics: 'Monitoring', logs: 'Logging' }[c])));
+      this.$set(this, 'labels', capabilities.map(c => ({
+        metrics: 'Monitoring', logs: 'Logging', topology: 'Topology'
+      }[c])));
       this.$set(this, 'confirm', '');
       this.$modal.show('uninstall-capabilities-dialog');
     },
