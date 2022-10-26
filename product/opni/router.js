@@ -14,6 +14,7 @@ import Configuration from './pages/Configuration';
 import LoggingConfig from './pages/LoggingConfig';
 import SLOs from './pages/SLOs';
 import SLO from './pages/SLO';
+import WorkloadModelConfig from './pages/WorkloadModelConfig';
 
 Vue.use(Router);
 
@@ -162,6 +163,14 @@ export const NAVIGATION = {
           ]
         },
       ]
+    },
+    {
+      name:      'workload-model-config',
+      path:      '/workload-model-config',
+      labelKey:  'opni.nav.workloadModel',
+      icon:      'globe',
+      component: WorkloadModelConfig,
+      display:   true
     },
     {
       name:      'configuration',
