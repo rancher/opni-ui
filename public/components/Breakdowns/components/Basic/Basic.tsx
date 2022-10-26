@@ -8,9 +8,10 @@ import Bubble from '../../../Bubble';
 import { BasicBreakdown } from '../../../../utils/requests';
 import { formatShort } from '../../../../utils/format';
 import { Range } from '../../../../utils/time';
-import SparkLine from '../../../SparkLine';
 
-export function createColumns(type, range, clusterId, showNormalSparkline, showAnomaly, keywords) {
+export const NO_ITEMS_WORKLOAD_INSIGHTS_CONFIGURED="No items found. Make sure you have Opni's Workload Insights configured to watch deployments in order to information here."
+
+export function createColumns(type, range, showAnomaly, keywords) {
   const getQuery = (row, severity: string) => {
     const from = range.start.format();
     const to = range.end.format();
@@ -22,7 +23,7 @@ export function createColumns(type, range, clusterId, showNormalSparkline, showA
       ? `,('$state':(store:appState),meta:(alias:!n,disabled:!f,key:anomaly_level,negate:!f,params:(query:${severity}),type:phrase),query:(match_phrase:(anomaly_level:${severity})))`
       : ``
 
-    const clusterQuery = clusterId !== 'all' ? `,('$state':(store:appState),meta:(alias:!n,disabled:!f,key:cluster_id,negate:!f,params:(query:'${clusterId}'),type:phrase),query:(match_phrase:(cluster_id:'${clusterId}')))` : '';
+    const clusterQuery = row.clusterId !== 'all' ? `,('$state':(store:appState),meta:(alias:!n,disabled:!f,key:cluster_id,negate:!f,params:(query:'${row.clusterId}'),type:phrase),query:(match_phrase:(cluster_id:'${row.clusterId}')))` : '';
     switch (type) {
       case 'pod':
         return `_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'${from}',to:'${to}'))&_a=(columns:!(_source),filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,key:kubernetes.pod_name,negate:!f,params:(query:${value}),type:phrase),query:(match_phrase:(kubernetes.pod_name:${value})))${clusterQuery}${severityQuery}),interval:auto,${query},sort:!())`;
@@ -74,8 +75,7 @@ export function createColumns(type, range, clusterId, showNormalSparkline, showA
       field: 'normal',
       name: 'Normal',
       render: (count, row) => {
-        const sparkLine = showNormalSparkline && row.normalSparkline ? <SparkLine data={row.normalSparkline} yMax={undefined as any} /> : null;
-        return <div className="normal"><div><a href={getUrl(row, 'Normal')} target="_blank"><Bubble severity="normal">{formatShort(count)}</Bubble></a></div>{sparkLine}</div>;
+        return <div className="normal"><div><a href={getUrl(row, 'Normal')} target="_blank"><Bubble severity="normal">{formatShort(count)}</Bubble></a></div></div>;
       }
     }
   ];
@@ -93,14 +93,14 @@ export interface BreakdownProps {
   breakdown: Item[];
   range: Range;
   clusterId: string;
-  showNormalSparkline: boolean;
   showAnomaly: boolean;
   keywords: string[];
+  noItemsMessage?: string;
 }
 
 export default class Breakdown extends Component<BreakdownProps> {
   render() {
-    const columns = createColumns(this.props.type, this.props.range, this.props.clusterId, this.props.showNormalSparkline, this.props.showAnomaly, this.props.keywords);
+    const columns = createColumns(this.props.type, this.props.range, this.props.showAnomaly, this.props.keywords);
 
     return (
         <div className="basic-breakdown">
@@ -109,6 +109,7 @@ export default class Breakdown extends Component<BreakdownProps> {
             items={this.props.breakdown}
             columns={columns}
             rowProps={getRowProps}
+            noItemsMessage={this.props.noItemsMessage}
           />
         </div>
     );
