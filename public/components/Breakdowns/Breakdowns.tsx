@@ -107,12 +107,12 @@ export default class Breakdowns extends Component<BreakdownsProps, BreakdownStat
       },
       {
         id: 'pod',
-        name: 'Pod',
+        name: 'Workload Pod',
         content: <Pod breakdown={this.state.podBreakdown} range={this.props.range} clusterId={this.props.clusterId} keywords={this.props.keywords} />
       },
       {
         id: 'namespace',
-        name: 'Namespace',
+        name: 'Workload Namespace',
         content: <Namespace breakdown={this.state.namespaceBreakdown} range={this.props.range} clusterId={this.props.clusterId} keywords={this.props.keywords} />
       }
     ];

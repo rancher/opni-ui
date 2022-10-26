@@ -19,7 +19,7 @@ export default class Longhorn extends Component<RancherProps> {
     return (
       <div className="longhorn-breakdown">
         <InsightsChart range={this.props.range} granularity={this.props.granularity} clusterId={this.props.clusterId} insightsProvider={getLonghornInsights} keywords={this.props.keywords} />
-        <Basic type="longhorn" breakdown={getGroupBreakdown(this.props.breakdown)} range={this.props.range} clusterId={this.props.clusterId} showNormalSparkline={false} showAnomaly={true} keywords={this.props.keywords} />
+        <Basic type="longhorn" breakdown={getGroupBreakdown(this.props.breakdown)} range={this.props.range} clusterId={this.props.clusterId} showAnomaly={true} keywords={this.props.keywords} />
       </div>
     );
   }

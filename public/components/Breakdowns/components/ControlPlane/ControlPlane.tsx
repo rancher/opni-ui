@@ -19,7 +19,7 @@ export default class ControlPlane extends Component<ControlPlaneProps> {
     return (
       <div className="control-plane-breakdown">
         <InsightsChart range={this.props.range} granularity={this.props.granularity} clusterId={this.props.clusterId} insightsProvider={getControlPlaneInsights} keywords={this.props.keywords} />
-        <Basic type="controlPlane" breakdown={getGroupBreakdown(this.props.breakdown)} range={this.props.range} clusterId={this.props.clusterId} showNormalSparkline={false} showAnomaly={true} keywords={this.props.keywords} />
+        <Basic type="controlPlane" breakdown={getGroupBreakdown(this.props.breakdown)} range={this.props.range} clusterId={this.props.clusterId} showAnomaly={true} keywords={this.props.keywords} />
       </div>
     );
   }
