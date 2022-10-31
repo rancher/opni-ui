@@ -61,7 +61,7 @@ export default class InsightsChart extends Component<AnomalyChartProps, AnomalyC
 
   render() {
     function xFormat(ms) {
-      return moment(ms).format('HH:MM');
+      return moment(ms).format('HH:mm');
     }
 
     const getBars = () => {
