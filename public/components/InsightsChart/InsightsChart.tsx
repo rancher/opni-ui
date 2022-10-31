@@ -73,7 +73,7 @@ export default class InsightsChart extends Component<InsightsChartProps, Insight
 
   render() {
     function xFormat(ms) {
-      return moment(ms).format('HH:MM');
+      return moment(ms).format('HH:mm');
     }
 
     const keywords = this.props.keywords.length > 0 
