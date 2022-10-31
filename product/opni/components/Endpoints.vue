@@ -2,49 +2,35 @@
 import SortableTable from '@/components/SortableTable';
 import Loading from '@/components/Loading';
 import { getClusterStatus } from '@/product/opni/utils/requests/monitoring';
-import EditClusterDialog from './dialogs/EditClusterDialog';
-import { getSLOs } from '~/product/opni/utils/requests/slo';
+import { getAlertEndpoints } from '~/product/opni/utils/requests/alerts';
 
 export default {
-  components: {
-    EditClusterDialog, Loading, SortableTable
-  },
+  components: { Loading, SortableTable },
   async fetch() {
     await this.load();
-    await this.updateStatuses();
   },
 
   data() {
     return {
       loading:             false,
       statsInterval:       null,
-      clusters:            [],
-      slos:                [],
+      endpoints:           [],
       isMonitoringEnabled: false,
       headers:             [
         {
-          name:          'status',
-          labelKey:      'tableHeaders.status',
-          value:         'status',
-          formatter:     'StatusBadge',
-          width:     100
+          name:            'nameDisplay',
+          labelKey:        'tableHeaders.name',
+          value:           'nameDisplay',
         },
         {
-          name:          'nameDisplay',
-          labelKey:      'tableHeaders.name',
-          value:         'nameDisplay',
-          width:         undefined
+          name:            'type',
+          labelKey:        'tableHeaders.type',
+          value:           'typeDisplay',
         },
         {
-          name:          'tags',
-          labelKey:      'tableHeaders.tags',
-          value:         'tags',
-          formatter:     'ListBubbles'
-        },
-        {
-          name:      'period',
-          labelKey:  'tableHeaders.period',
-          value:     'period'
+          name:            'description',
+          labelKey:        'tableHeaders.description',
+          value:           'description'
         },
       ]
     };
@@ -76,24 +62,19 @@ export default {
     async load() {
       try {
         this.loading = true;
+
         const status = (await getClusterStatus()).state;
         const isMonitoringEnabled = status !== 'NotInstalled';
 
         this.$set(this, 'isMonitoringEnabled', isMonitoringEnabled);
 
         if (isMonitoringEnabled) {
-          this.$set(this, 'slos', await getSLOs(this));
-          await this.updateStatuses();
+          this.$set(this, 'endpoints', await getAlertEndpoints(this));
         }
       } finally {
         this.loading = false;
       }
     },
-    async updateStatuses() {
-      const promises = this.slos.map(slo => slo.updateStatus());
-
-      await Promise.all(promises);
-    }
   },
 };
 </script>
@@ -102,17 +83,17 @@ export default {
   <div v-else>
     <header>
       <div class="title">
-        <h1>SLOs</h1>
+        <h1>Endpoints</h1>
       </div>
       <div v-if="isMonitoringEnabled" class="actions-container">
-        <n-link class="btn role-primary" :to="{name: 'slo-create'}">
-          Create SLO
+        <n-link class="btn role-primary" :to="{name: 'endpoint-create'}">
+          Create Endpoint
         </n-link>
       </div>
     </header>
     <SortableTable
       v-if="isMonitoringEnabled"
-      :rows="slos"
+      :rows="endpoints"
       :headers="headers"
       :search="false"
       default-sort-by="expirationDate"
@@ -120,12 +101,11 @@ export default {
     />
     <div v-else class="not-enabled">
       <h4>
-        Monitoring must be enabled to use SLOs. <n-link :to="{name: 'monitoring'}">
+        Monitoring must be enabled to use Endpoints. <n-link :to="{name: 'monitoring'}">
           Click here
         </n-link> to enable monitoring.
       </h4>
     </div>
-    <EditClusterDialog ref="dialog" @save="load" />
   </div>
 </template>
 
@@ -141,11 +121,11 @@ export default {
 }
 
 .not-enabled {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-}
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
 </style>

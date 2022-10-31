@@ -16,6 +16,12 @@ import SLOs from './pages/SLOs';
 import SLO from './pages/SLO';
 import WorkloadModelConfig from './pages/WorkloadModelConfig';
 
+import Endpoints from './pages/Endpoints';
+import Endpoint from './pages/Endpoint';
+import Conditions from './pages/Conditions';
+import Condition from './pages/Condition';
+import AlertingOverview from './pages/AlertingOverview';
+
 Vue.use(Router);
 
 export const NAVIGATION = {
@@ -36,14 +42,14 @@ export const NAVIGATION = {
           name:      'clusters',
           path:      '/clusters',
           labelKey:  'opni.nav.clusters',
-          icon:      'cluster-management',
+          // icon:      'cluster-management',
           component: Clusters,
           routes:    [
             {
               name:      'cluster-create',
               path:      '/create',
               labelKey:  'opni.nav.clusters',
-              icon:      'globe',
+              // icon:      'globe',
               component: Cluster,
               display:   false
             },
@@ -53,7 +59,7 @@ export const NAVIGATION = {
           name:      'tokens',
           path:      '/tokens',
           labelKey:  'opni.nav.tokens',
-          icon:      'unlock',
+          // icon:      'unlock',
           component: Tokens,
           display:   false
         }
@@ -70,7 +76,7 @@ export const NAVIGATION = {
           name:      'logging-config',
           path:      '/logging-config',
           labelKey:  'opni.nav.loggingConfig',
-          icon:      'logging',
+          // icon:      'logging',
           component: LoggingConfig,
           display:   true
         },
@@ -78,14 +84,14 @@ export const NAVIGATION = {
           name:      'monitoring',
           path:      '/monitoring',
           labelKey:  'opni.nav.monitoring',
-          icon:      'monitoring',
+          // icon:      'monitoring',
           component: Monitoring,
           routes:    [
             {
               name:     'rbac',
               path:     '/rbac',
               labelKey: 'opni.nav.rbac',
-              icon:     'folder',
+              // icon:     'folder',
               display:   true,
               redirect: { name: 'roles' },
               routes:   [
@@ -93,14 +99,14 @@ export const NAVIGATION = {
                   name:      'roles',
                   path:      '/roles',
                   labelKey:  'opni.nav.roles',
-                  icon:      'show',
+                  // icon:      'show',
                   component: Roles,
                   routes:    [
                     {
                       name:      'role-create',
                       path:      '/create',
                       labelKey:  'opni.nav.roles',
-                      icon:      'globe',
+                      // icon:      'globe',
                       component: Role,
                       display:   false
                     },
@@ -110,14 +116,14 @@ export const NAVIGATION = {
                   name:      'role-bindings',
                   path:      '/role-bindings',
                   labelKey:  'opni.nav.roleBindings',
-                  icon:      'user',
+                  // icon:      'user',
                   component: RoleBindings,
                   routes:    [
                     {
                       name:      'role-binding-create',
                       path:      '/create',
                       labelKey:  'opni.nav.roleBindings',
-                      icon:      'globe',
+                      // icon:      'globe',
                       component: RoleBinding,
                       display:   false
                     },
@@ -130,17 +136,17 @@ export const NAVIGATION = {
       ]
     },
     {
-      name:     'alerting',
-      path:     '/alerting',
-      labelKey: 'opni.nav.alerting',
+      name:      'alerting',
+      path:      '/alerting',
+      labelKey:  'opni.nav.alerting',
       display:   true,
-      redirect: { name: 'slos' },
-      routes:   [
+      component: AlertingOverview,
+      routes:    [
         {
           name:      'slos',
           path:      '/slos',
           labelKey:  'opni.nav.slos',
-          icon:      'alert',
+          // icon:      'alert',
           component: SLOs,
           display:   true,
           routes:    [
@@ -148,7 +154,7 @@ export const NAVIGATION = {
               name:      'slo',
               path:      '/:id',
               labelKey:  'opni.nav.slos',
-              icon:      'globe',
+              // icon:      'globe',
               component: SLO,
               display:   false
             },
@@ -156,8 +162,60 @@ export const NAVIGATION = {
               name:      'slo-create',
               path:      '/create',
               labelKey:  'opni.nav.slos',
-              icon:      'globe',
+              // icon:      'globe',
               component: SLO,
+              display:   false
+            },
+          ]
+        },
+        {
+          name:      'endpoints',
+          path:      '/endpoints',
+          labelKey:  'opni.nav.endpoints',
+          // icon:      'alert',
+          component: Endpoints,
+          display:   true,
+          routes:    [
+            {
+              name:      'endpoint',
+              path:      '/:id',
+              labelKey:  'opni.nav.endpoints',
+              // icon:      'globe',
+              component: Endpoint,
+              display:   false
+            },
+            {
+              name:      'endpoint-create',
+              path:      '/create',
+              labelKey:  'opni.nav.endpoints',
+              // icon:      'globe',
+              component: Endpoint,
+              display:   false
+            },
+          ]
+        },
+        {
+          name:      'conditions',
+          path:      '/conditions',
+          labelKey:  'opni.nav.conditions',
+          // icon:      'alert',
+          component: Conditions,
+          display:   true,
+          routes:    [
+            {
+              name:      'condition',
+              path:      '/:id',
+              labelKey:  'opni.nav.conditions',
+              // icon:      'globe',
+              component: Condition,
+              display:   false
+            },
+            {
+              name:      'condition-create',
+              path:      '/create',
+              labelKey:  'opni.nav.conditions',
+              // icon:      'globe',
+              component: Condition,
               display:   false
             },
           ]
@@ -168,7 +226,7 @@ export const NAVIGATION = {
       name:      'workload-model-config',
       path:      '/workload-model-config',
       labelKey:  'opni.nav.workloadModel',
-      icon:      'globe',
+      // icon:      'globe',
       component: WorkloadModelConfig,
       display:   true
     },

@@ -89,7 +89,7 @@ A I {
       grid-template-columns: auto auto;
       grid-column-gap: 5px;
       font-size: 14px;
-      line-height: 24px;
+      line-height: 22px;
       padding: 7.5px 7px 7.5px 10px;
       margin: 0 0 0 -3px;
       overflow: hidden;
@@ -121,17 +121,18 @@ A I {
       padding-right: 4px;
     }
 
-    $leftMultiplier: 6px;
-    &.depth-2 .label {
-      padding-left: $leftMultiplier;
-    }
+    $leftMultiplier: 8px;
 
-    &.depth-3 .label {
+    &.depth-2 .label {
       padding-left: $leftMultiplier * 2;
     }
 
-    &.depth-4 .label {
+    &.depth-3 .label {
       padding-left: $leftMultiplier * 3;
+    }
+
+    &.depth-4 .label {
+      padding-left: $leftMultiplier * 4;
     }
 
     & A {

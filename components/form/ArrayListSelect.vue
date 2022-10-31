@@ -54,12 +54,12 @@ export default {
   methods: {
     updateRow(index, value) {
       this.value.splice(index, 1, value);
-      this.$emit(value || []);
+      this.$emit('input', this.value || []);
     },
     calculateOptions(value) {
       const valueOption = this.options.find(o => o.value === value);
 
-      if (valueOption) {
+      if (!valueOption) {
         return [valueOption, ...this.filteredOptions];
       }
 

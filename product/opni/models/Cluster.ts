@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { Resource } from './Resource';
 import { deleteCluster, getCluster, uninstallCapabilityStatus } from '~/product/opni/utils/requests';
-import { LABEL_KEYS } from '~/product/opni/models/shared';
+import { LABEL_KEYS, Status } from '~/product/opni/models/shared';
 import { installCapabilityV2 } from '~/product/opni/utils/requests/management';
 
 export interface ClusterResponse {
@@ -12,13 +12,6 @@ export interface ClusterResponse {
       name: string;
     }[];
   }
-}
-
-export type State = 'success' | 'warning' | 'error';
-
-export interface Status {
-  state: State;
-  message: string;
 }
 
 export interface HealthResponse {
