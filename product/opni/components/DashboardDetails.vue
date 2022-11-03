@@ -96,7 +96,7 @@ export default {
       </div>
     </div>
     <div v-else slot="body" class="not-enabled">
-      <h5>The Dashboard is not currently enabled. Enabling it will install it on the available agents.</h5>
+      <h5>The Dashboard is not currently enabled. Enabling it will install additional resources.</h5>
       <button class="btn role-primary" @click="$emit('enable')">
         Enable
       </button>
