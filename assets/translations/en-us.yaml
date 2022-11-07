@@ -6152,6 +6152,7 @@ opni:
         matchExpressions:
           label: Match Expressions
   nav:
+    alertingBackend: Alerting
     alerting: Alerting
     backends: Backends
     configuration: Advanced Configuration

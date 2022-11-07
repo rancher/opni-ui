@@ -3,19 +3,17 @@ import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import UnitInput from '@/components/form/UnitInput';
 import AsyncButton from '@/components/AsyncButton';
-import ArrayListSelect from '@/components/form/ArrayListSelect';
 import ArrayList from '@/components/form/ArrayList';
 import Loading from '@/components/Loading';
 import Tab from '@/components/Tabbed/Tab';
 import Tabbed from '@/components/Tabbed';
 import Banner from '@/components/Banner';
-import Checkbox from '@/components/form/Checkbox';
-import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
 import { exceptionToErrorsArray } from '@/utils/error';
 import dayjs from 'dayjs';
-import { AlertType, Severity } from '~/product/opni/models/alerting/Condition';
+import { AlertType, Severity, SeverityResponseToEnum } from '~/product/opni/models/alerting/Condition';
+import AttachedEndpoints, { DEFAULT_ATTACHED_ENDPOINTS } from '~/product/opni/components/AttachedEndpoints';
 import {
-  createAlertCondition, getAlertConditionChoices, getAlertEndpoints, getAlertCondition, updateAlertCondition, deactivateSilenceAlertCondition, silenceAlertCondition
+  createAlertCondition, getAlertConditionChoices, getAlertCondition, updateAlertCondition, deactivateSilenceAlertCondition, silenceAlertCondition
 } from '~/product/opni/utils/requests/alerts';
 import { getClusters } from '~/product/opni/utils/requests';
 
@@ -24,36 +22,25 @@ const DEFAULT_CONFIG = {
   description:       '',
   labels:            [],
   severity:          Severity.INFO,
-  attachedEndpoints: {
-    items:              [],
-    initialDelay:       '30s',
-    repeatInterval:     '30s',
-    throttlingDuration: '30s',
-    details:            {
-      title: '', body: '', sendResolved: false
-    }
-  }
+  attachedEndpoints: DEFAULT_ATTACHED_ENDPOINTS
 };
 
 export default {
   components: {
     ArrayList,
-    ArrayListSelect,
     AsyncButton,
-    Checkbox,
-
+    AttachedEndpoints,
     LabeledInput,
     LabeledSelect,
     Loading,
     Tab,
     Tabbed,
-    TextAreaAutoGrow,
     UnitInput,
     Banner,
   },
 
   async fetch() {
-    await Promise.all([this.loadChoices(), this.loadEndpoints(), this.loadClusters()]);
+    await Promise.all([this.loadChoices(), this.loadClusters()]);
 
     await this.load();
   },
@@ -73,8 +60,8 @@ export default {
       type: 'kubeState',
 
       system: {
-        choices: { },
-        config:  { clusterId: { id: { id: '' } }, timeout: '30s' }
+        choices: { clusters: [] },
+        config:  { clusterId: { id: '' }, timeout: '30s' }
       },
       kubeState: {
         choices: { },
@@ -86,25 +73,6 @@ export default {
       config: DEFAULT_CONFIG,
 
       options: {
-        severityOptions: [
-          {
-            label: 'Info',
-            value: Severity.INFO
-          },
-          {
-            label: 'Warning',
-            value: Severity.WARNING
-          },
-          {
-            label: 'Error',
-            value: Severity.ERROR
-          },
-          {
-            label: 'Critical',
-            value: Severity.CRITICAL
-          },
-        ],
-        endpointOptions: [],
         clusterOptions:  [],
         silenceOptions:         [
           {
@@ -151,6 +119,8 @@ export default {
           },
           alertType: undefined
         });
+
+        this.$set(this.config, 'severity', SeverityResponseToEnum[this.config.severity] || Severity.INFO);
       }
     },
     async save(buttonCallback) {
@@ -213,15 +183,6 @@ export default {
       this.$set(this[this.type], 'choices', choices);
     },
 
-    async loadEndpoints() {
-      const endpoints = await getAlertEndpoints(this);
-
-      this.$set(this.options, 'endpointOptions', endpoints.map(e => ({
-        label: e.nameDisplay,
-        value: e.id
-      })));
-    },
-
     async loadClusters() {
       const clusters = await getClusters(this);
 
@@ -246,7 +207,7 @@ export default {
         await deactivateSilenceAlertCondition(this.silenceId);
         this.load();
       }
-    }
+    },
   },
 
   computed: {
@@ -268,8 +229,8 @@ export default {
     systemClusterOptions() {
       const options = this.options.clusterOptions;
 
-      if (!this.options.clusterOptions.find(o => o.value === this.system.config.clusterId.id.id)) {
-        this.$set(this.system.config.clusterId.id, 'id', options[0]?.value || '');
+      if (!this.options.clusterOptions.find(o => o.value === this.system.config.clusterId.id)) {
+        this.$set(this.system.config.clusterId, 'id', options[0]?.value || '');
       }
 
       return options;
@@ -337,16 +298,6 @@ export default {
       return options;
     },
 
-    attachedEndpoints: {
-      get() {
-        return this.config.attachedEndpoints.items.map(item => item.endpointId);
-      },
-
-      set(value) {
-        this.$set(this.config.attachedEndpoints, 'items', value.map(v => ({ endpointId: v })));
-      }
-    },
-
     systemTimeout: {
       get() {
         return Number.parseInt(this.system.config.timeout || '0');
@@ -364,36 +315,6 @@ export default {
 
       set(value) {
         this.$set(this.kubeState.config, 'for', `${ (value || 0) }s`);
-      }
-    },
-
-    initialDelay: {
-      get() {
-        return Number.parseInt(this.config.attachedEndpoints.initialDelay || '0');
-      },
-
-      set(value) {
-        this.$set(this.config.attachedEndpoints, 'initialDelay', `${ (value || 0) }s`);
-      }
-    },
-
-    repeatInterval: {
-      get() {
-        return Number.parseInt(this.config.attachedEndpoints.repeatInterval || '0');
-      },
-
-      set(value) {
-        this.$set(this.config.attachedEndpoints, 'repeatInterval', `${ (value || 0) }s`);
-      }
-    },
-
-    throttlingDuration: {
-      get() {
-        return Number.parseInt(this.config.attachedEndpoints.throttlingDuration || '0');
-      },
-
-      set(value) {
-        this.$set(this.config.attachedEndpoints, 'throttlingDuration', `${ (value || 0) }s`);
       }
     },
 
@@ -444,7 +365,7 @@ export default {
         </div>
         <div v-if="type == 'system'" class="row mt-20">
           <div class="col span-6">
-            <LabeledSelect v-model="system.config.clusterId.id.id" label="Cluster" :options="systemClusterOptions" :required="true" />
+            <LabeledSelect v-model="system.config.clusterId.id" label="Cluster" :options="systemClusterOptions" :required="true" />
           </div>
           <div class="col span-6">
             <UnitInput v-model="systemTimeout" label="Timeout" suffix="s" :required="true" />
@@ -490,55 +411,16 @@ export default {
         label="Message Options"
         :weight="2"
       >
-        <h4 class="mt-20">
-          Destination
-        </h4>
-        <div class="row mt-10">
-          <div class="col span-12">
-            <ArrayListSelect v-model="attachedEndpoints" add-label="Add Endpoint" :options="options.endpointOptions" />
-          </div>
-        </div>
-        <div class="row mt-10">
-          <div class="col span-4">
-            <UnitInput v-model="initialDelay" label="Initial Delay" suffix="s" />
-          </div>
-          <div class="col span-4">
-            <UnitInput v-model="repeatInterval" label="Repeat Interval" suffix="s" />
-          </div>
-          <div class="col span-4">
-            <UnitInput v-model="throttlingDuration" label="Throttling Duration" suffix="s" />
-          </div>
-        </div>
-        <h4 class="mt-20">
-          Message
-        </h4>
-        <div class="row mt-10">
-          <div class="col span-6">
-            <LabeledInput v-model="config.attachedEndpoints.details.title" label="Title" :required="true" />
-          </div>
-          <div class="col span-6">
-            <LabeledSelect v-model="config.severity" label="Severity" :options="options.severityOptions" />
-          </div>
-        </div>
-        <div class="row mt-10">
-          <div class="col span-12">
-            <TextAreaAutoGrow v-model="config.attachedEndpoints.details.body" :min-height="250" :required="true" />
-          </div>
-        </div>
-        <div class="row mt-10">
-          <div class="col span-12">
-            <Checkbox v-model="config.attachedEndpoints.details.sendResolved" label="Send Resolved" />
-          </div>
-        </div>
+        <AttachedEndpoints v-model="config.attachedEndpoints" :show-severity="true" :severity="config.severity" @severity="(val) => config.severity = val" />
       </Tab>
       <Tab
-        name="labels"
-        label="Labels"
+        name="tags"
+        label="Tags"
         :weight="1"
       >
         <div class="row">
           <div class="col span-12">
-            <ArrayList v-model="config.labels" label="labels" add-label="Add Label" :read-allowed="false" />
+            <ArrayList v-model="config.labels" add-label="Add Tag" :read-allowed="false" />
           </div>
         </div>
       </Tab>

@@ -15,10 +15,12 @@ import {
 import MetricFilter from '@/product/opni/components/MetricFilter';
 import SLOPreview from '@/product/opni/components/SLOPreview';
 import UnitInput from '@/components/form/UnitInput';
+import AttachedEndpoints, { DEFAULT_ATTACHED_ENDPOINTS } from '@/product/opni/components/AttachedEndpoints';
 
 export default {
   components: {
     AsyncButton,
+    AttachedEndpoints,
     LabeledInput,
     LabeledSelect,
     ArrayList,
@@ -59,9 +61,14 @@ export default {
       this.$set(this, 'tags', slo.tags);
       this.$set(this, 'threshold', slo.threshold);
       this.$set(this, 'budgetingInterval', slo.budgetingInterval);
-
       this.$set(this, 'goodEvents', slo.goodEvents);
       this.$set(this, 'totalEvents', slo.totalEvents);
+
+      this.$set(this, 'attachedEndpoints', {
+        ...DEFAULT_ATTACHED_ENDPOINTS,
+        details: { ...DEFAULT_ATTACHED_ENDPOINTS.details, ...slo.attachedEndpoints.details },
+        ...slo.attachedEndpoints
+      });
     }
   },
 
@@ -99,6 +106,8 @@ export default {
       error:                    '',
       budgetingIntervalOptions: ['1m', '5m', '10m', '30m', '60m'],
       budgetingInterval:        '5m',
+
+      attachedEndpoints: DEFAULT_ATTACHED_ENDPOINTS,
 
     };
   },
@@ -156,9 +165,9 @@ export default {
 
       try {
         if (this.id) {
-          await updateSLO(this.id, this.name, this.cluster, this.service, this.goodMetric, this.totalMetric, this.goodEvents, this.totalEvents, this.period, this.budgetingInterval, this.threshold, this.tags);
+          await updateSLO(this.id, this.name, this.cluster, this.service, this.goodMetric, this.totalMetric, this.goodEvents, this.totalEvents, this.period, this.budgetingInterval, this.threshold, this.tags, this.attachedEndpoints);
         } else {
-          await createSLO(this.name, this.cluster, this.service, this.goodMetric, this.totalMetric, this.goodEvents, this.totalEvents, this.period, this.budgetingInterval, this.threshold, this.tags);
+          await createSLO(this.name, this.cluster, this.service, this.goodMetric, this.totalMetric, this.goodEvents, this.totalEvents, this.period, this.budgetingInterval, this.threshold, this.tags, this.attachedEndpoints);
         }
 
         this.$set(this, 'error', '');
@@ -294,7 +303,7 @@ export default {
       <Tab
         name="options"
         :label="'Options'"
-        :weight="2"
+        :weight="3"
       >
         <div class="row mb-20 bottom">
           <div class="col span-6">
@@ -415,6 +424,13 @@ export default {
             />
           </div>
         </div>
+      </Tab>
+      <Tab
+        name="messaging"
+        label="Message Options"
+        :weight="2"
+      >
+        <AttachedEndpoints v-model="attachedEndpoints" :show-severity="false" />
       </Tab>
       <Tab
         name="tags"
