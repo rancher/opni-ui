@@ -4,8 +4,10 @@ import React, { Component } from 'react';
 import {
   EuiPanel,
   EuiBasicTable,
-  EuiIcon,
-  EuiToolTip
+  EuiToolTip,
+  EuiText,
+  EuiSpacer,
+  EuiHorizontalRule
 } from '@elastic/eui';
 
 import Loading from '../Loading';
@@ -98,22 +100,60 @@ export default class EventsTable extends Component<EventsTableProps, EventsTable
 
 
 
-    const onChange = () => {};
+    const onChange = (ev) => {
+      this.setState({
+        pagination: {
+          pageIndex: ev.page.index,
+          pageSize: ev.page.size,
+          totalItemCount: this.state.pagination.totalItemCount
+        }
+      });
+    };
 
     const getPagedEvents = () => {
-      return this.state.events.slice(this.state.pagination.pageIndex * this.state.pagination.pageSize, this.state.pagination.pageSize);
+      const start = this.state.pagination.pageIndex * this.state.pagination.pageSize;
+      const end = start + this.state.pagination.pageSize;
+      console.log(this.state.events.slice(this.state.pagination.pageIndex * this.state.pagination.pageSize, this.state.pagination.pageSize))
+      return this.state.events.slice(start, end);
     };
+
+    const resultsCount =
+      this.state.pagination.pageSize === 0 ? (
+        <strong>All</strong>
+      ) : (
+        <>
+          <strong>
+            {this.state.pagination.pageSize * this.state.pagination.pageIndex + 1}-{Math.min(this.state.pagination.pageSize * this.state.pagination.pageIndex + this.state.pagination.pageSize, this.state.pagination.totalItemCount)}
+          </strong>{' '}
+          of {this.state.pagination.totalItemCount}
+        </>
+      );
+    
+    const countHeading = this.state.pagination.totalItemCount === 0
+        ? null
+        : (
+          <React.Fragment>
+            <EuiText size="xs">
+              Showing {resultsCount} <strong>Events</strong>
+            </EuiText>
+            <EuiSpacer size="s" />
+          </React.Fragment>
+        ) 
 
     return (
       <div className="events-table" style={{ padding: '15px 15px', paddingTop: 0 }}>
           <EuiPanel>
             <Loading promise={this.state.eventsRequest}>
-              <EuiBasicTable
-                pagination={this.state.pagination}
-                items={getPagedEvents()}
-                columns={columns}
-                onChange={onChange}
-              />
+              <div>
+                {countHeading}
+                <EuiHorizontalRule margin="none" style={{ height: 1 }} />
+                <EuiBasicTable
+                  pagination={this.state.pagination}
+                  items={getPagedEvents()}
+                  columns={columns}
+                  onChange={onChange}
+                />
+              </div>
             </Loading>
           </EuiPanel>
         </div>

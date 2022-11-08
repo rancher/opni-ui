@@ -93,7 +93,7 @@ export default class Selector extends Component<SelectorProps, SelectorState> {
     const { range, granularity, cluster, keywords } = this.props.settings;
     const clusterOptions = [...CLUSTER_OPTIONS, ...this.props.clusterIds.map(id => ({ value: id, text: id}))];
     const onTimeChange = (newRange) => {
-      this.onChange('range')({start: newRange.start, end: newRange.end});
+      this.onChange('range')({start: newRange.start, end: (newRange.end.includes('now') ? 'now' : newRange.end)});
       setTimeout(() => this.props.onRefresh());
     };
 
