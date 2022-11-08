@@ -11,16 +11,16 @@ import Role from './pages/Role';
 import RoleBindings from './pages/RoleBindings';
 import RoleBinding from './pages/RoleBinding';
 import Configuration from './pages/Configuration';
-import LoggingConfig from './pages/LoggingConfig';
+import LoggingBackend from './pages/LoggingBackend';
 import SLOs from './pages/SLOs';
 import SLO from './pages/SLO';
 import WorkloadModelConfig from './pages/WorkloadModelConfig';
 
-// import Endpoints from './pages/Endpoints';
-// import Endpoint from './pages/Endpoint';
-// import Conditions from './pages/Conditions';
-// import Condition from './pages/Condition';
-// import AlertingOverview from './pages/AlertingOverview';
+import Endpoints from './pages/Endpoints';
+import Endpoint from './pages/Endpoint';
+import Conditions from './pages/Conditions';
+import Condition from './pages/Condition';
+import AlertingOverview from './pages/AlertingOverview';
 
 Vue.use(Router);
 
@@ -77,7 +77,7 @@ export const NAVIGATION = {
           path:      '/logging-config',
           labelKey:  'opni.nav.loggingConfig',
           // icon:      'logging',
-          component: LoggingConfig,
+          component: LoggingBackend,
           display:   true
         },
         {
@@ -140,8 +140,8 @@ export const NAVIGATION = {
       path:      '/alerting',
       labelKey:  'opni.nav.alerting',
       display:   true,
-      // component: AlertingOverview,
-      redirect: { name: 'slos' },
+      component: AlertingOverview,
+      redirect:  { name: 'slos' },
       routes:    [
         {
           name:      'slos',
@@ -169,58 +169,58 @@ export const NAVIGATION = {
             },
           ]
         },
-        // {
-        //   name:      'endpoints',
-        //   path:      '/endpoints',
-        //   labelKey:  'opni.nav.endpoints',
-        //   // icon:      'alert',
-        //   component: Endpoints,
-        //   display:   true,
-        //   routes:    [
-        //     {
-        //       name:      'endpoint',
-        //       path:      '/:id',
-        //       labelKey:  'opni.nav.endpoints',
-        //       // icon:      'globe',
-        //       component: Endpoint,
-        //       display:   false
-        //     },
-        //     {
-        //       name:      'endpoint-create',
-        //       path:      '/create',
-        //       labelKey:  'opni.nav.endpoints',
-        //       // icon:      'globe',
-        //       component: Endpoint,
-        //       display:   false
-        //     },
-        //   ]
-        // },
-        // {
-        //   name:      'conditions',
-        //   path:      '/conditions',
-        //   labelKey:  'opni.nav.conditions',
-        //   // icon:      'alert',
-        //   component: Conditions,
-        //   display:   true,
-        //   routes:    [
-        //     {
-        //       name:      'condition',
-        //       path:      '/:id',
-        //       labelKey:  'opni.nav.conditions',
-        //       // icon:      'globe',
-        //       component: Condition,
-        //       display:   false
-        //     },
-        //     {
-        //       name:      'condition-create',
-        //       path:      '/create',
-        //       labelKey:  'opni.nav.conditions',
-        //       // icon:      'globe',
-        //       component: Condition,
-        //       display:   false
-        //     },
-        //   ]
-        // },
+        {
+          name:      'endpoints',
+          path:      '/endpoints',
+          labelKey:  'opni.nav.endpoints',
+          // icon:      'alert',
+          component: Endpoints,
+          display:   true,
+          routes:    [
+            {
+              name:      'endpoint',
+              path:      '/:id',
+              labelKey:  'opni.nav.endpoints',
+              // icon:      'globe',
+              component: Endpoint,
+              display:   false
+            },
+            {
+              name:      'endpoint-create',
+              path:      '/create',
+              labelKey:  'opni.nav.endpoints',
+              // icon:      'globe',
+              component: Endpoint,
+              display:   false
+            },
+          ]
+        },
+        {
+          name:      'conditions',
+          path:      '/conditions',
+          labelKey:  'opni.nav.conditions',
+          // icon:      'alert',
+          component: Conditions,
+          display:   true,
+          routes:    [
+            {
+              name:      'condition',
+              path:      '/:id',
+              labelKey:  'opni.nav.conditions',
+              // icon:      'globe',
+              component: Condition,
+              display:   false
+            },
+            {
+              name:      'condition-create',
+              path:      '/create',
+              labelKey:  'opni.nav.conditions',
+              // icon:      'globe',
+              component: Condition,
+              display:   false
+            },
+          ]
+        },
       ]
     },
     {
