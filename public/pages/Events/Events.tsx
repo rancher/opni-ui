@@ -50,10 +50,6 @@ export default class Events extends Component<any, EventsState> {
       range: this.getAbsoluteRange(this.state.settings.range),
       cluster: this.state.settings.cluster
     });
-
-    setTimeout(() => {
-      this.loadEvents();
-    });
   };
 
   load = async () => {
@@ -62,16 +58,11 @@ export default class Events extends Component<any, EventsState> {
       clustersRequest
     });
 
-    await this.loadEvents();
-
     this.setState({
       clusters: await clustersRequest
     });
   };
 
-  loadEvents = async () => {
-
-  };
 
   render() {
     return (

@@ -58,10 +58,9 @@ export default class Selector extends Component<SelectorProps> {
     const { range, cluster } = this.props.settings;
     const clusterOptions = [...CLUSTER_OPTIONS, ...this.props.clusterIds.map(id => ({ value: id, text: id}))];
     const onTimeChange = (newRange) => {
-      this.onChange('range')({start: newRange.start, end: newRange.end});
+      this.onChange('range')({start: newRange.start, end: (newRange.end.includes('now') ? 'now' : newRange.end) });
       setTimeout(() => this.props.onRefresh());
     };
-
     return (
       <div className="events-filter">
         <EuiPanel>
