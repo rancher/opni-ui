@@ -9,6 +9,13 @@ export enum Severity {
   CRITICAL = 3, // eslint-disable-line no-unused-vars
 }
 
+export const SeverityResponseToEnum = {
+  INFO:     0,
+  WARNING:  1,
+  ERROR:    2,
+  CRITICAL: 3,
+};
+
 export enum ControlFlowAction {
   IF_THEN = 0, // eslint-disable-line no-unused-vars
   IF_NOT_THEN = 1, // eslint-disable-line no-unused-vars
@@ -191,6 +198,13 @@ export enum AlertConditionState {
   SILENCED = 3, // eslint-disable-line no-unused-vars, camelcase
 }
 
+export const alertConditionStateMapping = {
+  UNSPECIFIED: 0,
+  OK:          1,
+  FIRING:      2,
+  SILENCED:    3,
+};
+
 export interface AlertStatusResponse {
   state: AlertConditionState;
 }
@@ -258,7 +272,9 @@ export class Condition extends Resource {
       },
     };
 
-    return mapping[this.statusRaw] || mapping[AlertConditionState.UNSPECIFIED];
+    const enumeration = (alertConditionStateMapping as any)[this.statusRaw] as any;
+
+    return mapping[enumeration] || mapping[AlertConditionState.UNSPECIFIED];
   }
 
   async updateStatus() {

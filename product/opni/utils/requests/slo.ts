@@ -32,7 +32,7 @@ export async function getEvents(clusterId: string, serviceId: string, metricId: 
   return response.items;
 }
 
-export function createSLO(name: string, cluster: string, service: string, goodMetricName: string, totalMetricName: string, goodEvents: any[], totalEvents: any[], period: string, budgetingInterval: string, targetValue: number, tags: string[]) {
+export function createSLO(name: string, cluster: string, service: string, goodMetricName: string, totalMetricName: string, goodEvents: any[], totalEvents: any[], period: string, budgetingInterval: string, targetValue: number, tags: string[], attachedEndpoints: any) {
   const body = {
     slo: {
       name,
@@ -46,14 +46,15 @@ export function createSLO(name: string, cluster: string, service: string, goodMe
       sloPeriod:  period,
       budgetingInterval,
       target:     { value: targetValue },
-      labels:     tags.map(t => ({ name: t }))
+      labels:     tags.map(t => ({ name: t })),
+      attachedEndpoints
     },
   };
 
   return axios.post(`opni-api/SLO/slos`, body);
 }
 
-export function updateSLO(id: string, name: string, cluster: string, service: string, goodMetricName: string, totalMetricName: string, goodEvents: any[], totalEvents: any[], period: string, budgetingInterval: string, targetValue: number, tags: string[]) {
+export function updateSLO(id: string, name: string, cluster: string, service: string, goodMetricName: string, totalMetricName: string, goodEvents: any[], totalEvents: any[], period: string, budgetingInterval: string, targetValue: number, tags: string[], attachedEndpoints: any) {
   const body = {
     id,
     SLO: {
@@ -68,7 +69,8 @@ export function updateSLO(id: string, name: string, cluster: string, service: st
       sloPeriod:  period,
       budgetingInterval,
       target:     { value: targetValue },
-      labels:     tags.map(t => ({ name: t }))
+      labels:     tags.map(t => ({ name: t })),
+      attachedEndpoints
     },
   };
 

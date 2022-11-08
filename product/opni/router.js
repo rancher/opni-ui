@@ -21,6 +21,7 @@ import Endpoint from './pages/Endpoint';
 import Conditions from './pages/Conditions';
 import Condition from './pages/Condition';
 import AlertingOverview from './pages/AlertingOverview';
+import AlertingBackend from './pages/AlertingBackend';
 
 Vue.use(Router);
 
@@ -78,6 +79,14 @@ export const NAVIGATION = {
           labelKey:  'opni.nav.loggingConfig',
           // icon:      'logging',
           component: LoggingBackend,
+          display:   true
+        },
+        {
+          name:      'alerting-backend',
+          path:      '/alerting-backend',
+          labelKey:  'opni.nav.alertingBackend',
+          // icon:      'logging',
+          component: AlertingBackend,
           display:   true
         },
         {
