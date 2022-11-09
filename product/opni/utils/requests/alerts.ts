@@ -63,8 +63,8 @@ export function deleteAlertCondition(id: string) {
   return axios.delete(`opni-api/AlertConditions/configure`, { data: { id } });
 }
 
-export function getAlertConditionStatus(id: string): Promise<AlertStatusResponse> {
-  return axios.post(`opni-api/AlertConditions/status/${ id }`, { id });
+export async function getAlertConditionStatus(id: string): Promise<AlertStatusResponse> {
+  return (await axios.post(`opni-api/AlertConditions/status/${ id }`, { id })).data;
 }
 
 export function silenceAlertCondition(request: SilenceRequest) {
@@ -77,4 +77,70 @@ export function deactivateSilenceAlertCondition(id: string) {
 
 export async function getConditionTimeline(request: TimelineRequest): Promise<TimelineResponse> {
   return (await axios.post<TimelineResponse>(`opni-api/AlertConditions/timeline`, request)).data;
+}
+
+export interface ResourceLimitSpec {
+  // Storage resource limit for alerting volume
+  storage: string;
+  // CPU resource limit per replica
+  cpu: string;
+  // Memory resource limit per replica
+  memory: string;
+}
+export interface ClusterConfiguration {
+  // number of replicas for the opni-alerting (odd-number for HA)
+  numReplicas: number;
+
+  // Maximum time to wait for cluster
+  // connections to settle before
+  // evaluating notifications.
+  clusterSettleTimeout: string;
+  // Interval for gossip state syncs.
+  // Setting this interval lower
+  // (more frequent) will increase
+  // convergence speeds across larger
+  // clusters at the expense of
+  // increased bandwidth usage.
+  clusterPushPullInterval: string;
+  // Interval between sending gossip
+  // messages. By lowering this
+  // value (more frequent) gossip
+  // messages are propagated across
+  // the cluster more quickly at the
+  // expense of increased bandwidth.
+  clusterGossipInterval: string;
+
+  resourceLimits: ResourceLimitSpec;
+}
+
+export enum InstallState {
+  InstallUnknown = 0, // eslint-disable-line no-unused-vars
+  NotInstalled = 1, // eslint-disable-line no-unused-vars
+  InstallUpdating = 2, // eslint-disable-line no-unused-vars
+  Installed = 3, // eslint-disable-line no-unused-vars
+  Uninstalling = 4, // eslint-disable-line no-unused-vars
+}
+
+export interface InstallStatus {
+  state: InstallState;
+  version: string;
+  metadata: { [key: string]: string };
+}
+
+export async function getClusterConfiguration(): Promise<ClusterConfiguration> {
+  return (await axios.get<ClusterConfiguration>(`opni-api/AlertingAdmin/configuration`)).data;
+}
+// Install/Uninstall the alerting cluster by setting enabled=true/false
+export function configureCluster(config: ClusterConfiguration) {
+  return axios.post(`opni-api/AlertingAdmin/configure`, config);
+}
+export async function getClusterStatus(): Promise<InstallStatus> {
+  return (await axios.get<InstallStatus>(`opni-api/AlertingAdmin/status`)).data;
+}
+
+export function installCluster() {
+  return axios.post(`opni-api/AlertingAdmin/install`);
+}
+export function uninstallCluster() {
+  return axios.post(`opni-api/AlertingAdmin/uninstall`);
 }

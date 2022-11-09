@@ -12,6 +12,7 @@ export function createEmptyPool(index) {
       Request: '',
       Limit:   ''
     },
+    Replicas:           1,
     DiskSize:           '20Gi',
     MemoryLimit:        '1024Mi',
     NodeSelector:       {},
@@ -39,7 +40,12 @@ export default {
 
   methods: {
     addNodePool() {
-      this.value.push(createEmptyPool(++this.nameIndex));
+      const pool = createEmptyPool(++this.nameIndex);
+
+      this.value.push(pool);
+      this.$nextTick(() => {
+        this.$refs.pools.select(pool.Name);
+      });
     },
 
     removeNodePool(index) {
@@ -60,7 +66,7 @@ export default {
       <Tab
         v-if="!obj.remove"
         :key="i"
-        :name="`${i}`"
+        :name="obj.Name"
         :weight="value.length - i"
         :label="obj.Name || '(Not Named)'"
         :show-header="false"

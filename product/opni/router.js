@@ -11,7 +11,7 @@ import Role from './pages/Role';
 import RoleBindings from './pages/RoleBindings';
 import RoleBinding from './pages/RoleBinding';
 import Configuration from './pages/Configuration';
-import LoggingConfig from './pages/LoggingConfig';
+import LoggingBackend from './pages/LoggingBackend';
 import SLOs from './pages/SLOs';
 import SLO from './pages/SLO';
 import WorkloadModelConfig from './pages/WorkloadModelConfig';
@@ -21,6 +21,7 @@ import Endpoint from './pages/Endpoint';
 import Conditions from './pages/Conditions';
 import Condition from './pages/Condition';
 import AlertingOverview from './pages/AlertingOverview';
+import AlertingBackend from './pages/AlertingBackend';
 
 Vue.use(Router);
 
@@ -77,7 +78,15 @@ export const NAVIGATION = {
           path:      '/logging-config',
           labelKey:  'opni.nav.loggingConfig',
           // icon:      'logging',
-          component: LoggingConfig,
+          component: LoggingBackend,
+          display:   true
+        },
+        {
+          name:      'alerting-backend',
+          path:      '/alerting-backend',
+          labelKey:  'opni.nav.alertingBackend',
+          // icon:      'logging',
+          component: AlertingBackend,
           display:   true
         },
         {
@@ -141,6 +150,7 @@ export const NAVIGATION = {
       labelKey:  'opni.nav.alerting',
       display:   true,
       component: AlertingOverview,
+      redirect:  { name: 'slos' },
       routes:    [
         {
           name:      'slos',

@@ -1,9 +1,9 @@
 <script>
 import Main from '../components/Main';
-import LoggingConfig from '../components/LoggingConfig';
+import LoggingBackend from '../components/LoggingBackend';
 
 export default {
-  components: { LoggingConfig, Main },
+  components: { LoggingBackend, Main },
   layout:     'standalone',
   head() {
     return { title: 'Opni - Logging' };
@@ -12,6 +12,6 @@ export default {
 </script>
 <template>
   <Main>
-    <LoggingConfig />
+    <LoggingBackend />
   </Main>
 </template>

@@ -1,6 +1,7 @@
 import { Resource } from './Resource';
 import { SloServiceResponse } from '~/product/opni/models/SloService';
 import { cloneSLO, deleteSLO, getSLOStatus } from '~/product/opni/utils/requests/slo';
+import { AttachedEndpoints } from '~/product/opni/models/alerting/Condition';
 
 export type SloStatusStateResponse = 'InProgress' | 'Creating' | 'NoData' | 'Ok' | 'Warning' | 'Breaching' | 'PartialDataOk' | 'InternalError';
 
@@ -43,6 +44,7 @@ export interface SloMetadataResponse {
     goodMetricName: string;
     totalEvents?: any[];
     totalMetricName?: string;
+    attachedEndpoints: AttachedEndpoints;
 }
 
 export interface SloResponse {
@@ -63,6 +65,10 @@ export class Slo extends Resource {
       super(vue);
       this.base = base;
       this.state = 'Ok';
+    }
+
+    get attachedEndpoints(): AttachedEndpoints {
+      return this.base.SLO.attachedEndpoints;
     }
 
     get nameDisplay(): string {
