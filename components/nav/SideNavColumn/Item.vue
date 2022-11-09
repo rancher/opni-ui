@@ -50,7 +50,7 @@ A I {
   color: var(--muted);
 }
 
-.router-link-active {
+.router-link-exact-active {
   padding: 0;
 
   A, A I {
