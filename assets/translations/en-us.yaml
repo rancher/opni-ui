@@ -6167,7 +6167,7 @@ opni:
     management: Management
     workloadModel: Workload Insights
     endpoints: Endpoints
-    conditions: Conditions
+    alarms: Alarms
   workloadInsights:
     noRowsKey: There are not any deployments accessible for this cluster
   workloadVsControlPlaneChart:

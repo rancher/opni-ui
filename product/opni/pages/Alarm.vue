@@ -1,17 +1,17 @@
 <script>
 import Main from '../components/Main';
-import Condition from '../components/Condition';
+import Alarm from '../components/Alarm';
 
 export default {
-  components: { Condition, Main },
+  components: { Alarm, Main },
   layout:     'standalone',
   head() {
-    return { title: 'Opni - Condition' };
+    return { title: 'Opni - Alarm' };
   }
 };
 </script>
 <template>
   <Main>
-    <Condition />
+    <Alarm />
   </Main>
 </template>

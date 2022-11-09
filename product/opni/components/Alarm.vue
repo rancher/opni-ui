@@ -49,7 +49,7 @@ export default {
     return {
       conditionTypes: [
         {
-          label: 'System',
+          label: 'Agent Disconnect',
           value: 'system'
         },
         {
@@ -57,14 +57,14 @@ export default {
           value: 'kubeState'
         }
       ],
-      type: 'kubeState',
+      type: 'system',
 
       system: {
         choices: { clusters: [] },
         config:  { clusterId: { id: '' }, timeout: '30s' }
       },
       kubeState: {
-        choices: { },
+        choices: { clusters: [] },
         config:  {
           clusterId: '', objectType: '', objectName: '', namespace: '', state: '', for: '30s'
         }
@@ -102,6 +102,12 @@ export default {
   methods: {
     async load() {
       const conditionRequest = this.$route.params.id && this.$route.params.id !== 'create' ? getAlertCondition(this.$route.params.id, this) : Promise.resolve(false);
+      const clusters = await getClusters(this);
+      const hasOneMonitoring = clusters.some(c => c.isCapabilityInstalled('metrics'));
+
+      if (!hasOneMonitoring) {
+        this.conditionTypes.splice(1, 1);
+      }
 
       if (await conditionRequest) {
         const condition = await conditionRequest;
@@ -151,11 +157,11 @@ export default {
       }
       this.$set(this, 'error', '');
       buttonCallback(true);
-      this.$router.replace({ name: 'conditions' });
+      this.$router.replace({ name: 'alarms' });
     },
 
     cancel() {
-      this.$router.replace({ name: 'conditions' });
+      this.$router.replace({ name: 'alarms' });
     },
 
     async loadChoices() {
@@ -180,7 +186,7 @@ export default {
       const allChoices = await getAlertConditionChoices({ alertType: map[this.type].value });
       const choices = allChoices[this.type];
 
-      this.$set(this[this.type], 'choices', choices);
+      this.$set(this[this.type], 'choices', { ...choices, clusters: [] || choices.clusters });
     },
 
     async loadClusters() {
@@ -355,7 +361,7 @@ export default {
     <Tabbed :side-tabs="true" class="mb-20">
       <Tab
         name="options"
-        label="Condition Options"
+        label="Alarm Options"
         :weight="3"
       >
         <div class="row bottom">
