@@ -2,16 +2,12 @@
 import AsyncButton from '@/components/AsyncButton';
 import Card from '@/components/Card';
 import { exceptionToErrorsArray } from '@/utils/error';
-import RadioGroup from '@/components/form/RadioGroup';
-import { uninstallCapability } from '@/product/opni/utils/requests';
-import Banner from '@/components/Banner';
+import { cancelCapabilityUninstall } from '@/product/opni/utils/requests';
 
 export default {
   components: {
-    Banner,
     Card,
     AsyncButton,
-    RadioGroup
   },
   data() {
     return {
@@ -25,7 +21,7 @@ export default {
   },
   methods: {
     close(cancel = true) {
-      this.$modal.hide('uninstall-capabilities-dialog');
+      this.$modal.hide('cancel-uninstall-capabilities-dialog');
       if (cancel) {
         this.$emit('cancel', this.cluster, this.capabilities);
       }
@@ -36,12 +32,12 @@ export default {
       this.$set(this, 'capabilities', capabilities);
       this.$set(this, 'labels', capabilities.map(c => ({ metrics: 'Monitoring', logs: 'Logging' }[c])));
       this.$set(this, 'confirm', '');
-      this.$modal.show('uninstall-capabilities-dialog');
+      this.$modal.show('cancel-uninstall-capabilities-dialog');
     },
 
     async save(buttonDone) {
       try {
-        await Promise.all(this.capabilities.map(cap => uninstallCapability(this.cluster.id, cap, this.deleteData)));
+        await Promise.all(this.capabilities.map(cap => cancelCapabilityUninstall(this.cluster.id, cap)));
         this.$emit('save');
       } catch (err) {
         this.errors = exceptionToErrorsArray(err);
@@ -59,9 +55,8 @@ export default {
 
 <template>
   <modal
-    ref="editClusterDialog"
     class="uninstall-capabilities-dialog"
-    name="uninstall-capabilities-dialog"
+    name="cancel-uninstall-capabilities-dialog"
     styles="background-color: var(--nav-bg); border-radius: var(--border-radius); max-height: 90vh;"
     height="auto"
     width="600"
@@ -73,34 +68,14 @@ export default {
       :show-highlight-border="false"
     >
       <div slot="body" class="pt-10">
-        <h4 class="text-default-text pt-4 mb-20" v-html="`Uninstall <b>${labels.join(' and ')}</b> from <b>${ clusterName }</b>`" />
-        <div class="row">
-          <div class="col span-12">
-            <RadioGroup
-              v-model="deleteData"
-              name="deletedData"
-              label="Do you also want to delete the data?"
-              :labels="['Yes', 'No']"
-              :options="[true, false]"
-            />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col span-12">
-            <Banner color="warning">
-              Uninstalling capabilities will permentantly remove them. Are you sure you want to uninstall <b>{{ labels.join(' and ') }}</b>?
-            </Banner>
-            To confirm uninstall enter <b>{{ labels[0] }}</b> below:
-            <input v-model="confirm" class="no-label mt-5" type="text" />
-          </div>
-        </div>
+        <h4 class="text-default-text pt-4 mb-20" v-html="`Stop the uninstall of <b>${labels.join(' and ')}</b> from <b>${ clusterName }</b>?`" />
       </div>
       <div slot="actions" class="buttons">
         <button class="btn role-secondary mr-10" @click="close">
           {{ t("generic.cancel") }}
         </button>
 
-        <AsyncButton mode="edit" :disabled="labels[0] !== confirm" @click="save" />
+        <AsyncButton mode="edit" action-label="Stop" waiting-label="Stopping" success-label="Cancelled" @click="save" />
       </div>
     </Card>
   </modal>

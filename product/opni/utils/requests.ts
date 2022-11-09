@@ -187,6 +187,13 @@ export function uninstallCapability(clusterId: string, capability: string, delet
   return axios.post<CapabilitiesResponse>(`opni-api/management/clusters/${ clusterId }/capabilities/${ capability }/uninstall`, { options: { initialDelay: '15m', deleteStoredData } });
 }
 
+export async function cancelCapabilityUninstall(clusterId: string, capabilityName: string) {
+  await axios.post(`opni-api/management/clusters/${ clusterId }/capabilities/${ capabilityName }/uninstall/cancel`, {
+    name:    capabilityName,
+    cluster: { id: clusterId }
+  });
+}
+
 export async function uninstallCapabilityStatus(clusterId: string, capability: string, vue: any) {
   return (await axios.get<CapabilityStatusResponse>(`opni-api/management/clusters/${ clusterId }/capabilities/${ capability }/uninstall/status`)).data;
 }
