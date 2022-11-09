@@ -2,7 +2,6 @@
 import SortableTable from '@/components/SortableTable';
 import Loading from '@/components/Loading';
 import { getClusterStatus, getAlertConditions } from '@/product/opni/utils/requests/alerts';
-import { getClusters } from '~/product/opni/utils/requests';
 
 export default {
   components: { Loading, SortableTable },
@@ -17,7 +16,6 @@ export default {
       statsInterval:       null,
       conditions:          [],
       isAlertingEnabled: false,
-      hasOneMonitoring:  false,
       headers:             [
         {
           name:          'status',
@@ -81,20 +79,11 @@ export default {
         this.loading = true;
 
         const status = (await getClusterStatus()).state;
-        const isAlertingEnabled = status !== 'NotInstalled';
+        const isAlertingEnabled = status === 'Installed';
 
         this.$set(this, 'isAlertingEnabled', isAlertingEnabled);
 
         if (!isAlertingEnabled) {
-          return;
-        }
-
-        const clusters = await getClusters(this);
-        const hasOneMonitoring = clusters.some(c => c.isCapabilityInstalled('metrics'));
-
-        this.$set(this, 'hasOneMonitoring', hasOneMonitoring);
-
-        if (!hasOneMonitoring) {
           return;
         }
 
@@ -119,34 +108,27 @@ export default {
   <div v-else>
     <header>
       <div class="title">
-        <h1>Conditions</h1>
+        <h1>Alarms</h1>
       </div>
-      <div v-if="isAlertingEnabled && hasOneMonitoring" class="actions-container">
-        <n-link class="btn role-primary" :to="{name: 'condition-create'}">
-          Create Condition
+      <div v-if="isAlertingEnabled" class="actions-container">
+        <n-link class="btn role-primary" :to="{name: 'alarm-create'}">
+          Create Alarm
         </n-link>
       </div>
     </header>
     <SortableTable
-      v-if="isAlertingEnabled && hasOneMonitoring"
+      v-if="isAlertingEnabled"
       :rows="conditions"
       :headers="headers"
       :search="false"
       default-sort-by="expirationDate"
       key-field="id"
     />
-    <div v-else-if="!isAlertingEnabled" class="not-enabled">
-      <h4>
-        Alerting must be enabled to use Conditions. <n-link :to="{name: 'alerting-backend'}">
-          Click here
-        </n-link> to enable alerting.
-      </h4>
-    </div>
     <div v-else class="not-enabled">
       <h4>
-        At least one cluster must have Monitoring installed to use Conditions. <n-link :to="{name: 'clusters'}">
+        Alerting must be enabled to use Alarms. <n-link :to="{name: 'alerting-backend'}">
           Click here
-        </n-link> to enable Monitoring.
+        </n-link> to enable alerting.
       </h4>
     </div>
   </div>

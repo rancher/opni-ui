@@ -4,6 +4,7 @@ import Loading from '@/components/Loading';
 import { getClusterStatus } from '@/product/opni/utils/requests/alerts';
 import EditClusterDialog from './dialogs/EditClusterDialog';
 import { getSLOs } from '~/product/opni/utils/requests/slo';
+import { getClusters } from '~/product/opni/utils/requests';
 
 export default {
   components: {
@@ -20,6 +21,7 @@ export default {
       statsInterval:       null,
       clusters:            [],
       slos:                [],
+      hasOneMonitoring:  false,
       isAlertingEnabled: false,
       headers:             [
         {
@@ -77,14 +79,25 @@ export default {
       try {
         this.loading = true;
         const status = (await getClusterStatus()).state;
-        const isAlertingEnabled = status !== 'NotInstalled';
+        const isAlertingEnabled = status === 'Installed';
 
         this.$set(this, 'isAlertingEnabled', isAlertingEnabled);
 
-        if (isAlertingEnabled) {
-          this.$set(this, 'slos', await getSLOs(this));
-          await this.updateStatuses();
+        if (!isAlertingEnabled) {
+          return;
         }
+
+        const clusters = await getClusters(this);
+        const hasOneMonitoring = clusters.some(c => c.isCapabilityInstalled('metrics'));
+
+        this.$set(this, 'hasOneMonitoring', hasOneMonitoring);
+
+        if (!hasOneMonitoring) {
+          return;
+        }
+
+        this.$set(this, 'slos', await getSLOs(this));
+        await this.updateStatuses();
       } finally {
         this.loading = false;
       }
@@ -104,25 +117,32 @@ export default {
       <div class="title">
         <h1>SLOs</h1>
       </div>
-      <div v-if="isAlertingEnabled" class="actions-container">
+      <div v-if="isAlertingEnabled && hasOneMonitoring" class="actions-container">
         <n-link class="btn role-primary" :to="{name: 'slo-create'}">
           Create SLO
         </n-link>
       </div>
     </header>
     <SortableTable
-      v-if="isAlertingEnabled"
+      v-if="isAlertingEnabled && hasOneMonitoring"
       :rows="slos"
       :headers="headers"
       :search="false"
       default-sort-by="expirationDate"
       key-field="id"
     />
-    <div v-else class="not-enabled">
+    <div v-else-if="!isAlertingEnabled" class="not-enabled">
       <h4>
         Alerting must be enabled to use SLOs. <n-link :to="{name: 'alerting-backend'}">
           Click here
         </n-link> to enable alerting.
+      </h4>
+    </div>
+    <div v-else class="not-enabled">
+      <h4>
+        At least one cluster must have Monitoring installed to use SLOs. <n-link :to="{name: 'clusters'}">
+          Click here
+        </n-link> to enable Monitoring.
       </h4>
     </div>
     <EditClusterDialog ref="dialog" @save="load" />

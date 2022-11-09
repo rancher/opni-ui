@@ -63,7 +63,7 @@ export default {
         this.loading = true;
 
         const status = (await getClusterStatus()).state;
-        const isAlertingEnabled = status !== 'NotInstalled';
+        const isAlertingEnabled = status === 'Installed';
 
         this.$set(this, 'isAlertingEnabled', isAlertingEnabled);
 
@@ -84,14 +84,14 @@ export default {
       <div class="title">
         <h1>Endpoints</h1>
       </div>
-      <div v-if="isMonitoringEnabled" class="actions-container">
+      <div v-if="isAlertingEnabled" class="actions-container">
         <n-link class="btn role-primary" :to="{name: 'endpoint-create'}">
           Create Endpoint
         </n-link>
       </div>
     </header>
     <SortableTable
-      v-if="isMonitoringEnabled"
+      v-if="isAlertingEnabled"
       :rows="endpoints"
       :headers="headers"
       :search="false"

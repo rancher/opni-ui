@@ -18,8 +18,8 @@ import WorkloadModelConfig from './pages/WorkloadModelConfig';
 
 import Endpoints from './pages/Endpoints';
 import Endpoint from './pages/Endpoint';
-import Conditions from './pages/Conditions';
-import Condition from './pages/Condition';
+import Alarms from './pages/Alarms';
+import Alarm from './pages/Alarm';
 import AlertingOverview from './pages/AlertingOverview';
 import AlertingBackend from './pages/AlertingBackend';
 
@@ -150,7 +150,7 @@ export const NAVIGATION = {
       labelKey:  'opni.nav.alerting',
       display:   true,
       component: AlertingOverview,
-      redirect:  { name: 'slos' },
+      // redirect:  { name: 'slos' },
       routes:    [
         {
           name:      'slos',
@@ -205,27 +205,27 @@ export const NAVIGATION = {
           ]
         },
         {
-          name:      'conditions',
-          path:      '/conditions',
-          labelKey:  'opni.nav.conditions',
+          name:      'alarms',
+          path:      '/alarms',
+          labelKey:  'opni.nav.alarms',
           // icon:      'alert',
-          component: Conditions,
+          component: Alarms,
           display:   true,
           routes:    [
             {
-              name:      'condition',
+              name:      'alarm',
               path:      '/:id',
-              labelKey:  'opni.nav.conditions',
+              labelKey:  'opni.nav.alarms',
               // icon:      'globe',
-              component: Condition,
+              component: Alarm,
               display:   false
             },
             {
-              name:      'condition-create',
+              name:      'alarm-create',
               path:      '/create',
-              labelKey:  'opni.nav.conditions',
+              labelKey:  'opni.nav.alarms',
               // icon:      'globe',
-              component: Condition,
+              component: Alarm,
               display:   false
             },
           ]
