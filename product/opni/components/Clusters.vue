@@ -8,11 +8,13 @@ import { getLoggingCluster } from '@/product/opni/utils/requests/logging';
 import { isEmpty } from 'lodash';
 import EditClusterDialog from './dialogs/EditClusterDialog';
 import UninstallCapabilitiesDialog from './dialogs/UninstallCapabilitiesDialog';
+import CancelUninstallCapabilitiesDialog from './dialogs/CancelUninstallCapabilitiesDialog';
 import CantDeleteClusterDialog from './dialogs/CantDeleteClusterDialog';
 
 export default {
   components: {
     CapabilityButton,
+    CancelUninstallCapabilitiesDialog,
     CantDeleteClusterDialog,
     EditClusterDialog,
     Loading,
@@ -20,8 +22,8 @@ export default {
     UninstallCapabilitiesDialog,
   },
   async fetch() {
-    this.loadStats();
     await this.load();
+    await this.loadStats();
   },
 
   data() {
@@ -89,6 +91,7 @@ export default {
     this.$on('edit', this.openEditDialog);
     this.$on('copy', this.copyClusterID);
     this.$on('uninstallCapabilities', this.openUninstallCapabilitiesDialog);
+    this.$on('cancelUninstallCapabilities', this.openCancelUninstallCapabilitiesDialog);
     this.$on('cantDeleteCluster', this.openCantDeleteClusterDialog);
     this.statsInterval = setInterval(this.loadStats, 10000);
   },
@@ -98,6 +101,7 @@ export default {
     this.$off('edit');
     this.$off('copy');
     this.$off('uninstallCapabilities');
+    this.$off('cancelUninstallCapabilities');
     this.$off('cantDeleteCluster');
     if (this.statsInterval) {
       clearInterval(this.statsInterval);
@@ -115,6 +119,10 @@ export default {
 
     openUninstallCapabilitiesDialog(cluster, capabilities) {
       this.$refs.capabilitiesDialog.open(cluster, capabilities);
+    },
+
+    openCancelUninstallCapabilitiesDialog(cluster, capabilities) {
+      this.$refs.cancelCapabilitiesDialog.open(cluster, capabilities);
     },
 
     openCantDeleteClusterDialog(cluster) {
@@ -160,6 +168,14 @@ export default {
         }
       } catch (ex) {}
     },
+
+    async onDialogSave() {
+      this.$set(this, 'clusters', await getClusters(this));
+      await this.loadStats();
+
+      this.$refs.capabilitiesDialog.close(false);
+      this.$refs.cancelCapabilitiesDialog.close(false);
+    }
   },
 };
 </script>
@@ -202,7 +218,8 @@ export default {
       </template>
     </SortableTable>
     <EditClusterDialog ref="dialog" @save="load" />
-    <UninstallCapabilitiesDialog ref="capabilitiesDialog" @save="loadStats" @cancel="cancelCapabilityUninstall" />
+    <UninstallCapabilitiesDialog ref="capabilitiesDialog" @save="onDialogSave" @cancel="cancelCapabilityUninstall" />
+    <CancelUninstallCapabilitiesDialog ref="cancelCapabilitiesDialog" @save="onDialogSave" />
     <CantDeleteClusterDialog ref="cantDeleteClusterDialog" />
   </div>
 </template>

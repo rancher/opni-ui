@@ -10,6 +10,7 @@ export interface ClusterResponse {
     labels: { [key: string]: string };
     capabilities: {
       name: string;
+      deletionTimestamp?: string;
     }[];
   }
 }
@@ -214,8 +215,8 @@ export class Cluster extends Resource {
         return null;
       case 'Running':
       case 'Pending':
-      case 'Cancelled':
-        return 'info';
+      case 'Canceled':
+        return 'warning';
       default:
         return 'error';
       }
@@ -224,6 +225,12 @@ export class Cluster extends Resource {
     for (const i in this.capabilities) {
       try {
         const capability = this.capabilities[i] as (keyof CapabilityStatuses);
+        const capMeta = this.base.metadata.capabilities.find(c => c.name === capability);
+
+        if (capMeta && !capMeta?.deletionTimestamp) {
+          this.clearCapabilityStatus([capability]);
+          continue;
+        }
         const log = await uninstallCapabilityStatus(this.id, capability, this.vue);
         const pending = log.state === 'Pending' || log.state === 'Running' || this.capabilityStatus[capability]?.pending || false;
         const state = getState(log.state);
@@ -310,7 +317,17 @@ export class Cluster extends Resource {
     });
   }
 
+  isCapabilityUninstalling(capability: keyof CapabilityStatuses): boolean {
+    const cap = this.base.metadata.capabilities.find(c => c.name === capability);
+
+    return !!(cap?.deletionTimestamp);
+  }
+
   toggleCapability(capability: keyof CapabilityStatuses) {
+    if (this.isCapabilityUninstalling(capability)) {
+      return this.vue.$emit('cancelUninstallCapabilities', this, [capability]);
+    }
+
     if (this.isCapabilityInstalled(capability)) {
       Vue.set(this.capabilityStatus, capability, {
         state:   null,
