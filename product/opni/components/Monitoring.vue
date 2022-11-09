@@ -62,16 +62,6 @@ export default {
           value: 1
         },
       ],
-      storageOptions:   [
-        {
-          label: 'Filesystem',
-          value: 'filesystem'
-        },
-        {
-          label: 'S3',
-          value: 's3'
-        },
-      ],
       signatureVersionOptions: [
         {
           label: 'v4',
@@ -143,7 +133,7 @@ export default {
       config:           {
         mode:          0,
         storage:       { backend: 'filesystem', retentionPeriod: `${ 30 * SECONDS_IN_DAY }s` },
-        grafana:       { enabled: false }
+        grafana:       { enabled: true }
       }
     };
   },
@@ -214,9 +204,12 @@ export default {
 
           return;
         }
+      }
 
-        if (this.config.grafana.enabled && this.config.grafana.hostname === '') {
-          this.$set(this, 'error', 'Hostname is required');
+      if (this.config.grafana.enabled) {
+        // check if hostname is set and not empty
+        if (!this.config.grafana.hostname || this.config.grafana.hostname === '') {
+          this.$set(this, 'error', 'Grafana hostname is required');
           buttonCallback(false);
 
           return;
@@ -274,12 +267,11 @@ export default {
     },
 
     enableGrafana() {
-      this.$set(this.config, 'grafana', { enabled: true, hostname: `grafana.${ window.location.host }` });
+      this.$set(this.config, 'grafana', { enabled: true });
     },
 
     disableGrafana() {
       this.$set(this.config, 'grafana', { enabled: false });
-      this.save(() => {});
     }
   },
   computed: {
@@ -293,6 +285,33 @@ export default {
         return `Monitoring is currently installed on the cluster.`;
       default:
         return `Monitoring is currently in an unknown state on the cluster. You can't make changes right now.`;
+      }
+    },
+
+    storageOptions() {
+      // only enable filesystem in standalone mode (0)
+      if (this.config.mode === 0) {
+        return [
+          { label: 'Filesystem', value: 'filesystem' },
+          { label: 'S3', value: 's3' }
+        ];
+      }
+
+      return [
+        { label: 'S3', value: 's3' }
+      ];
+    },
+
+    mode: {
+      get() {
+        return this.config.mode;
+      },
+      set(val) {
+        this.$set(this.config, 'mode', val);
+        if (val !== 0 && this.config.storage.backend === 'filesystem') {
+          // switch to the next available mode
+          this.$set(this.config.storage, 'backend', this.storageOptions[0].value);
+        }
       }
     },
 
@@ -366,7 +385,7 @@ export default {
     <header>
       <h1>Monitoring</h1>
       <AsyncButton
-        v-if="enabled"
+        v-if="enabled && status !== 'NotInstalled'"
         class="btn bg-error"
         mode="edit"
         action-label="Disable"
@@ -382,7 +401,7 @@ export default {
       <div v-if="enabled" class="enabled">
         <div class="row mb-20">
           <div class="col span-12">
-            <LabeledSelect v-model="config.mode" :options="modes" label="Mode" />
+            <LabeledSelect v-model="mode" :options="modes" label="Mode" />
           </div>
         </div>
 

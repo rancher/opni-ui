@@ -64,7 +64,7 @@ export default {
         DataRetention: '7d',
         NodePools:     [createEmptyPool(1)],
         Dashboards:    {
-          Enabled: false, Replicas: 1, Resources: { Limits: {}, Requests: {} }
+          Enabled: true, Replicas: 1, Resources: { Limits: {}, Requests: {} }
         },
       }
     };
@@ -91,7 +91,6 @@ export default {
 
     disableDashboard() {
       this.$set(this.config.Dashboards, 'Enabled', false);
-      this.save(() => {});
     },
 
     numberSuffix(i) {
