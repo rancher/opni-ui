@@ -237,7 +237,7 @@ export class Condition extends Resource {
 
   get typeDisplay(): string {
     const mapping: any = {
-      system:    'System',
+      system:    'Agent Disconnect',
       kubeState: 'Kube State'
     };
 
@@ -309,7 +309,7 @@ export class Condition extends Resource {
 
   edit() {
     this.vue.$router.replace({
-      name:   'condition',
+      name:   'alarm',
       params: { id: this.id }
     });
   }

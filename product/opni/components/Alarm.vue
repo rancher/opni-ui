@@ -11,19 +11,21 @@ import Banner from '@/components/Banner';
 import { exceptionToErrorsArray } from '@/utils/error';
 import dayjs from 'dayjs';
 import { AlertType, Severity, SeverityResponseToEnum } from '~/product/opni/models/alerting/Condition';
-import AttachedEndpoints, { DEFAULT_ATTACHED_ENDPOINTS } from '~/product/opni/components/AttachedEndpoints';
+import AttachedEndpoints, { createDefaultAttachedEndpoints } from '~/product/opni/components/AttachedEndpoints';
 import {
   createAlertCondition, getAlertConditionChoices, getAlertCondition, updateAlertCondition, deactivateSilenceAlertCondition, silenceAlertCondition
 } from '~/product/opni/utils/requests/alerts';
 import { getClusters } from '~/product/opni/utils/requests';
 
-const DEFAULT_CONFIG = {
-  name:              '',
-  description:       '',
-  labels:            [],
-  severity:          Severity.INFO,
-  attachedEndpoints: DEFAULT_ATTACHED_ENDPOINTS
-};
+export function createDefaultConfig() {
+  return {
+    name:              '',
+    description:       '',
+    labels:            [],
+    severity:          Severity.INFO,
+    attachedEndpoints: createDefaultAttachedEndpoints()
+  };
+}
 
 export default {
   components: {
@@ -70,7 +72,7 @@ export default {
         }
       },
 
-      config: DEFAULT_CONFIG,
+      config: createDefaultConfig(),
 
       options: {
         clusterOptions:  [],
@@ -114,13 +116,14 @@ export default {
 
         this.$set(this, 'type', condition.type);
         this.$set(this[condition.type], 'config', condition.alertType );
+        const defaultConfig = createDefaultConfig();
 
         this.$set(this, 'config', {
-          ...DEFAULT_CONFIG,
+          ...defaultConfig,
           ...condition.base.alertCondition,
           attachedEndpoints: {
-            ...DEFAULT_CONFIG.attachedEndpoints,
-            details: { ...DEFAULT_CONFIG.attachedEndpoints.details, ...condition.base.alertCondition.attachedEndpoints.details },
+            ...defaultConfig.attachedEndpoints,
+            details: { ...defaultConfig.attachedEndpoints.details, ...condition.base.alertCondition.attachedEndpoints.details },
             ...condition.base.alertCondition.attachedEndpoints
           },
           alertType: undefined
@@ -186,7 +189,7 @@ export default {
       const allChoices = await getAlertConditionChoices({ alertType: map[this.type].value });
       const choices = allChoices[this.type];
 
-      this.$set(this[this.type], 'choices', { ...choices, clusters: [] || choices.clusters });
+      this.$set(this[this.type], 'choices', { ...choices });
     },
 
     async loadClusters() {

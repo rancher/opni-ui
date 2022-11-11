@@ -15,7 +15,7 @@ import {
 import MetricFilter from '@/product/opni/components/MetricFilter';
 import SLOPreview from '@/product/opni/components/SLOPreview';
 import UnitInput from '@/components/form/UnitInput';
-import AttachedEndpoints, { DEFAULT_ATTACHED_ENDPOINTS } from '@/product/opni/components/AttachedEndpoints';
+import AttachedEndpoints, { createDefaultAttachedEndpoints } from '@/product/opni/components/AttachedEndpoints';
 
 export default {
   components: {
@@ -41,7 +41,6 @@ export default {
     this.$set(this, 'clusterOptions', clusters.map(c => ({ label: c.nameDisplay, value: c.id })));
     // this.$set(this, 'rawServices', (await servicesRequest).filter(s => s.jobId));
     // this.$set(this, 'serviceOptions', this.rawServices.map((s, i) => ({ label: s.nameDisplay, value: `${ i }` })));
-
     if (await sloRequest) {
       const slo = await sloRequest;
 
@@ -63,10 +62,11 @@ export default {
       this.$set(this, 'budgetingInterval', slo.budgetingInterval);
       this.$set(this, 'goodEvents', slo.goodEvents);
       this.$set(this, 'totalEvents', slo.totalEvents);
+      const defaultAttachedEndpoints = createDefaultAttachedEndpoints();
 
       this.$set(this, 'attachedEndpoints', {
-        ...DEFAULT_ATTACHED_ENDPOINTS,
-        details: { ...DEFAULT_ATTACHED_ENDPOINTS.details, ...slo.attachedEndpoints.details },
+        ...defaultAttachedEndpoints,
+        details: { ...defaultAttachedEndpoints.details, ...slo.attachedEndpoints.details },
         ...slo.attachedEndpoints
       });
     }
@@ -107,7 +107,7 @@ export default {
       budgetingIntervalOptions: ['1m', '5m', '10m', '30m', '60m'],
       budgetingInterval:        '5m',
 
-      attachedEndpoints: DEFAULT_ATTACHED_ENDPOINTS,
+      attachedEndpoints: createDefaultAttachedEndpoints(),
 
     };
   },

@@ -8,15 +8,17 @@ import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
 import { Severity } from '~/product/opni/models/alerting/Condition';
 import { getAlertEndpoints } from '~/product/opni/utils/requests/alerts';
 
-export const DEFAULT_ATTACHED_ENDPOINTS = {
-  items:              [],
-  initialDelay:       '30s',
-  repeatInterval:     '30s',
-  throttlingDuration: '30s',
-  details:            {
-    title: '', body: '', sendResolved: false
-  }
-};
+export function createDefaultAttachedEndpoints() {
+  return {
+    items:              [],
+    initialDelay:       '10s',
+    repeatInterval:     '600s',
+    throttlingDuration: '600s',
+    details:            {
+      title: '', body: '', sendResolved: false
+    }
+  };
+}
 
 export default {
   components: {
@@ -109,21 +111,21 @@ export default {
 
     repeatInterval: {
       get() {
-        return Number.parseInt(this.value.repeatInterval || '0');
+        return Number.parseInt(this.value.repeatInterval || '0') / 60;
       },
 
       set(value) {
-        this.$emit('input', { ...this.value, repeatInterval: `${ (value || 0) }s` });
+        this.$emit('input', { ...this.value, repeatInterval: `${ Math.round(value * 60 || 0) }s` });
       }
     },
 
     throttlingDuration: {
       get() {
-        return Number.parseInt(this.value.throttlingDuration || '0');
+        return Number.parseInt(this.value.throttlingDuration || '0') / 60;
       },
 
       set(value) {
-        this.$emit('input', { ...this.value, throttlingDuration: `${ (value || 0) }s` });
+        this.$emit('input', { ...this.value, throttlingDuration: `${ Math.round(value * 60 || 0) }s` });
       }
     },
   }
@@ -144,10 +146,10 @@ export default {
         <UnitInput v-model="initialDelay" label="Initial Delay" suffix="s" />
       </div>
       <div class="col span-4">
-        <UnitInput v-model="repeatInterval" label="Repeat Interval" suffix="s" />
+        <UnitInput v-model="repeatInterval" label="Repeat Interval" suffix="m" />
       </div>
       <div class="col span-4">
-        <UnitInput v-model="throttlingDuration" label="Throttling Duration" suffix="s" />
+        <UnitInput v-model="throttlingDuration" label="Throttling Duration" suffix="m" />
       </div>
     </div>
     <h4 class="mt-20">
