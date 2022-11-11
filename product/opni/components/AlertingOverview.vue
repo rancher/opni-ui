@@ -1,8 +1,7 @@
 <script>
 import Loading from '@/components/Loading';
 import dayjs from 'dayjs';
-import { getClusterStatus } from '@/product/opni/utils/requests/monitoring';
-import { getAlertConditions, getConditionTimeline } from '~/product/opni/utils/requests/alerts';
+import { getAlertConditions, getConditionTimeline, getClusterStatus } from '~/product/opni/utils/requests/alerts';
 
 export default {
   components: { Loading },
@@ -15,7 +14,7 @@ export default {
       loading:             false,
       conditions:          [],
       timelines:           [],
-      isMonitoringEnabled: false,
+      isAlertingEnabled: false,
       headers:             [
         {
           name:          'status',
@@ -48,33 +47,35 @@ export default {
   methods: {
     async load() {
       const status = (await getClusterStatus()).state;
-      const isMonitoringEnabled = status !== 'NotInstalled';
+      const isAlertingEnabled = status === 'Installed';
 
-      this.$set(this, 'isMonitoringEnabled', isMonitoringEnabled);
+      this.$set(this, 'isAlertingEnabled', isAlertingEnabled);
 
-      if (isMonitoringEnabled) {
-        const now = dayjs();
-        const [conditions, response] = await Promise.all([getAlertConditions(this), getConditionTimeline({ lookbackWindow: '24h' })]);
-
-        const timelines = Object.entries(response?.items || {})
-          .map(([id, value]) => {
-            const condition = conditions.find(c => c.id === id);
-
-            return {
-              name:   condition.nameDisplay,
-              events: (value?.windows || [])
-                .filter(w => w.type !== 'Timeline_Unknown')
-                .map(w => ({
-                  start: now.diff(dayjs(w.start), 'h', true),
-                  end:   now.diff(dayjs(w.end), 'h', true),
-                  type:  w.type
-                }))
-            };
-          })
-          .filter(t => t.events.length > 0);
-
-        this.$set(this, 'timelines', timelines);
+      if (!isAlertingEnabled) {
+        return;
       }
+
+      const now = dayjs();
+      const [conditions, response] = await Promise.all([getAlertConditions(this), getConditionTimeline({ lookbackWindow: '24h' })]);
+
+      const timelines = Object.entries(response?.items || {})
+        .map(([id, value]) => {
+          const condition = conditions.find(c => c.id === id);
+
+          return {
+            name:   condition.nameDisplay,
+            events: (value?.windows || [])
+              .filter(w => w.type !== 'Timeline_Unknown')
+              .map(w => ({
+                start: now.diff(dayjs(w.start), 'h', true),
+                end:   now.diff(dayjs(w.end), 'h', true),
+                type:  w.type
+              }))
+          };
+        })
+        .filter(t => t.events.length > 0);
+
+      this.$set(this, 'timelines', timelines);
     },
 
     computeEventLeft(event) {
@@ -107,7 +108,7 @@ export default {
         <h1>Alerting Overview</h1>
       </div>
     </header>
-    <table v-if="isMonitoringEnabled" class="sortable-table top-divider" width="100%">
+    <table v-if="isAlertingEnabled" class="sortable-table top-divider" width="100%">
       <thead class="sortable-table top-divider">
         <tr>
           <th>Incident</th>
@@ -154,9 +155,9 @@ export default {
     </table>
     <div v-else class="not-enabled">
       <h4>
-        Monitoring must be enabled to use Alerting Overview. <n-link :to="{name: 'monitoring'}">
+        Alerting must be enabled to use Alerting Overview. <n-link :to="{name: 'alerting-backend'}">
           Click here
-        </n-link> to enable monitoring.
+        </n-link> to enable Alerting.
       </h4>
     </div>
   </div>
