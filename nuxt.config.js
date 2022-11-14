@@ -180,6 +180,10 @@ module.exports = {
         config.output.publicPath = resourceBase;
       }
 
+      // This makes the asset public path relative so the <base> element can dynamically change the base path for all of our assets. This is useful so we can host
+      // the admin ui behind the k8s proxy
+      config.output.publicPath = './_nuxt/';
+
       // Remove default image handling rules
       for ( let i = config.module.rules.length - 1 ; i >= 0 ; i-- ) {
         if ( /svg/.test(config.module.rules[i].test) ) {
@@ -194,9 +198,10 @@ module.exports = {
           {
             loader:  'url-loader',
             options: {
-              name:     '[path][name].[ext]',
-              limit:    1,
-              esModule: false
+              publicPath: './_nuxt',
+              name:       '[path][name].[ext]',
+              limit:      1,
+              esModule:   false
             },
           }
         ]
@@ -293,7 +298,7 @@ module.exports = {
       rel:  'icon',
       type: 'image/x-icon',
       href: `${ resourceBase || '/' }favicon.png`
-    }]
+    }],
   },
 
   // Nuxt modules
