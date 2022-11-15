@@ -505,10 +505,10 @@ function getControlPlaneBreakdownQuery(range: Range, clusterId: string) {
     },
     "aggs": {
       "cluster_id": {
-        "terms": { "field": "cluster_id" },
+        "terms": { "field": "cluster_id", "size": 1000 },
         "aggs": {
           "component_name": {
-            "terms": { "field": "kubernetes_component" },
+            "terms": { "field": "kubernetes_component", "size": 1000 },
             "aggs": {
               "anomaly_level": { "terms": { "field": "anomaly_level" } }
             },
@@ -547,10 +547,10 @@ function getControlPlaneKeywordsBreakdownQuery(range: Range, clusterId: string, 
     "size": 0,
     "aggs": {
       "cluster_id": {
-        "terms": { "field": "cluster_id" },
+        "terms": { "field": "cluster_id", "size": 1000 },
         "aggs": {
           "component_name": {
-            "terms": { "field": "kubernetes_component" },
+            "terms": { "field": "kubernetes_component", "size": 1000 },
           }
         }
       }
@@ -568,10 +568,10 @@ function getRancherBreakdownQuery(range: Range, clusterId: string) {
     },
     "aggs": {
       "cluster_id": {
-        "terms": { "field": "cluster_id" },
+        "terms": { "field": "cluster_id", "size": 1000 },
         "aggs": {
           "pod_name": {
-            "terms": { "field": "kubernetes.pod_name.keyword" },
+            "terms": { "field": "kubernetes.pod_name.keyword", "size": 1000 },
             "aggs": {
               "anomaly_level": { "terms": { "field": "anomaly_level" } }
             },
@@ -592,10 +592,10 @@ function getLonghornBreakdownQuery(range: Range, clusterId: string) {
     },
     "aggs": {
       "cluster_id": {
-        "terms": { "field": "cluster_id" },
+        "terms": { "field": "cluster_id", "size": 1000 },
         "aggs": {
           "pod_name": {
-            "terms": { "field": "kubernetes.pod_name.keyword" },
+            "terms": { "field": "kubernetes.pod_name.keyword", "size": 1000 },
             "aggs": {
               "anomaly_level": { "terms": { "field": "anomaly_level" } }
             },
@@ -653,10 +653,10 @@ function getRancherKeywordsBreakdownQuery(range: Range, clusterId: string, keywo
     "size": 0,
     "aggs": {
       "cluster_id": {
-        "terms": { "field": "cluster_id" },
+        "terms": { "field": "cluster_id", "size": 1000 },
         "aggs": {
           "pod_name": {
-            "terms": { "field": "kubernetes.pod_name.keyword" },
+            "terms": { "field": "kubernetes.pod_name.keyword", "size": 1000 },
           }
         }
       }
@@ -679,10 +679,10 @@ function getLonghornKeywordsBreakdownQuery(range: Range, clusterId: string, keyw
     "size": 0,
     "aggs": {
       "cluster_id": {
-        "terms": { "field": "cluster_id" },
+        "terms": { "field": "cluster_id", "size": 1000 },
         "aggs": {
           "pod_name": {
-            "terms": { "field": "kubernetes.pod_name.keyword" },
+            "terms": { "field": "kubernetes.pod_name.keyword", "size": 1000 },
           }
         }
       }
@@ -700,10 +700,10 @@ function getNamespaceBreakdownQuery(range: Range, clusterId: string) {
     },
     "aggs": {
       "cluster_id": {
-        "terms": { "field": "cluster_id" },
+        "terms": { "field": "cluster_id", "size": 1000 },
         "aggs": {
           "component_name": {
-            "terms": { "field": "kubernetes.namespace_name.keyword" },
+            "terms": { "field": "kubernetes.namespace_name.keyword", "size": 1000 },
             "aggs": {
               "anomaly_level": { "terms": { "field": "anomaly_level" } }
             },
@@ -749,10 +749,10 @@ function getPodBreakdownQuery(range: Range, clusterId: string) {
     },
     "aggs": {
       "cluster_id": {
-        "terms": { "field": "cluster_id" },
+        "terms": { "field": "cluster_id", "size": 1000 },
         "aggs": {
           "component_name": {
-            "terms": { "field": "kubernetes.pod_name.keyword" },
+            "terms": { "field": "kubernetes.pod_name.keyword", "size": 1000 },
             "aggs": {
               "anomaly_level": { "terms": { "field": "anomaly_level" } }
             },
