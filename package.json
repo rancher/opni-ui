@@ -141,6 +141,7 @@
     "nyc": "^15.0.0",
     "start-server-and-test": "^1.13.1",
     "style-loader": "^1.1.2",
+    "unique-names-generator": "^4.7.1",
     "yarn": "^1.22.4"
   },
   "ava": {

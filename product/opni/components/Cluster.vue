@@ -9,6 +9,7 @@ import {
 import Loading from '@/components/Loading';
 import Card from '@/components/Card';
 import Banner from '@/components/Banner';
+import { generateName } from '@/product/opni/utils/nameGenerator';
 
 export default {
   components: {
@@ -80,7 +81,7 @@ export default {
 
   methods: {
     save() {
-      updateCluster(this.newCluster.id, this.name, { ...(this.newCluster.labels || {}), ...this.labels });
+      updateCluster(this.newCluster.id, this.name || generateName(), { ...(this.newCluster.labels || {}), ...this.labels });
 
       this.$router.replace({ name: 'clusters' });
     },
