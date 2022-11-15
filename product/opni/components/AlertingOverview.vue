@@ -105,7 +105,7 @@ export default {
   <div v-else>
     <header>
       <div class="title">
-        <h1>Alerting Overview</h1>
+        <h1>Overview</h1>
       </div>
     </header>
     <table v-if="isAlertingEnabled" class="sortable-table top-divider" width="100%">

@@ -1,6 +1,7 @@
 import { Resource } from '../Resource';
 import { deleteAlertCondition, getAlertConditionStatus } from '~/product/opni/utils/requests/alerts';
 import { Duration, Reference, Status, Timestamp } from '~/product/opni/models/shared';
+import { Cluster } from '~/product/opni/models/Cluster';
 
 export enum Severity {
   INFO = 0, // eslint-disable-line no-unused-vars
@@ -212,15 +213,27 @@ export interface AlertStatusResponse {
 export class Condition extends Resource {
   private base: AlertConditionWithId;
   private statusRaw;
+  private clusters;
 
-  constructor(base: AlertConditionWithId, vue: any) {
+  constructor(base: AlertConditionWithId, vue: any, clusters?: Cluster[]) {
     super(vue);
     this.base = base;
     this.statusRaw = AlertConditionState.UNSPECIFIED;
+    this.clusters = clusters;
   }
 
   get nameDisplay() {
     return this.base.alertCondition.name;
+  }
+
+  get clusterDisplay() {
+    const clusterId = this.alertType.clusterId?.id;
+
+    if (!clusterId || !this.clusters) {
+      return '';
+    }
+
+    return this.clusters.find(c => c.id === clusterId)?.nameDisplay;
   }
 
   get description() {

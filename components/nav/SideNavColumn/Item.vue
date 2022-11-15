@@ -6,6 +6,10 @@ export default {
     item: {
       type:     Object,
       required: true
+    },
+    selected: {
+      type:    Boolean,
+      default: false
     }
   },
   methods: {
@@ -20,6 +24,10 @@ export default {
       }
 
       return `icon-${ this.item.icon }`;
+    },
+
+    hasChildren() {
+      return this.item.children && this.item.children.some(c => c.display);
     }
   }
 };
@@ -30,13 +38,14 @@ export default {
     :to="item.route"
     tag="li"
     class="child nav-type"
-    :class="{[`depth-${item.depth}`]: true}"
+    :class="{[`depth-${item.depth}`]: true, selected}"
   >
     <a>
       <span class="label" :class="{'no-icon': !item.icon}">
         <i v-if="iconClass" class="icon icon-fw" :class="iconClass" />
         {{ item.label }}
       </span>
+      <i v-if="hasChildren" class="icon toggle icon-chevron-down"></i>
     </a>
   </n-link>
 </template>
@@ -50,7 +59,15 @@ A I {
   color: var(--muted);
 }
 
-.router-link-exact-active {
+A {
+  display: flex;
+  flex-direction: row;
+
+  justify-content: space-between;
+  align-items: center;
+}
+
+.selected {
   padding: 0;
 
   A, A I {
