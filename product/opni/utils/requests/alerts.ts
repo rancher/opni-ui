@@ -77,39 +77,7 @@ export function deactivateSilenceAlertCondition(id: string) {
 }
 
 export async function getConditionTimeline(request: TimelineRequest): Promise<TimelineResponse> {
-  const r: any = {
-    items: {
-      '221684fe-772c-4a60-9372-2f696ec006e3': {
-        windows: [
-          {
-            start: '2022-11-16T05:10:35.243033325Z',
-            end:   '2022-11-16T06:10:35.243033325Z',
-            type:  'Timeline_Alerting'
-          }
-        ]
-      },
-      '87b34652-46e5-4943-bb45-0d8d5d392078': {
-        windows: [
-          {
-            start: '2022-11-16T01:10:35.243033325Z',
-            end:   '2022-11-16T03:10:35.243033325Z',
-            type:  'Timeline_Alerting'
-          }
-        ]
-      },
-      '0ce82dd6-fa75-4e2d-bb16-cac96fb8159b': {
-        windows: [
-          {
-            start: '2022-11-16T01:10:35.243033325Z',
-            end:   '2022-11-16T03:10:35.243033325Z',
-            type:  'Timeline_Alerting'
-          }
-        ]
-      }
-    }
-  };
-
-  return await Promise.resolve(r);// (await axios.post<TimelineResponse>(`opni-api/AlertConditions/timeline`, request)).data;
+  return (await axios.post<TimelineResponse>(`opni-api/AlertConditions/timeline`, request)).data;
 }
 
 export interface ResourceLimitSpec {
