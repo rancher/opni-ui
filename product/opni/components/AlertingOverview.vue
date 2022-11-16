@@ -2,6 +2,7 @@
 import Loading from '@/components/Loading';
 import dayjs from 'dayjs';
 import { getAlertConditions, getConditionTimeline, getClusterStatus } from '~/product/opni/utils/requests/alerts';
+import { getClusters } from '~/product/opni/utils/requests';
 
 export default {
   components: { Loading },
@@ -13,7 +14,7 @@ export default {
     return {
       loading:             false,
       conditions:          [],
-      timelines:           [],
+      groups:            [],
       isAlertingEnabled: false,
       headers:             [
         {
@@ -56,26 +57,57 @@ export default {
       }
 
       const now = dayjs();
-      const [conditions, response] = await Promise.all([getAlertConditions(this), getConditionTimeline({ lookbackWindow: '24h' })]);
+      const clusters = await getClusters(this);
+      const [conditions, response] = await Promise.all([getAlertConditions(this, clusters), getConditionTimeline({ lookbackWindow: '24h' })]);
+      const DEFAULT_CLUSTER_ID = 'default';
 
       const timelines = Object.entries(response?.items || {})
         .map(([id, value]) => {
           const condition = conditions.find(c => c.id === id);
 
+          if (!condition) {
+            return { events: [] };
+          }
+
           return {
-            name:   condition.nameDisplay,
-            events: (value?.windows || [])
+            name:      condition.nameDisplay.replace(/\(.*\)/g, ''),
+            clusterId: condition.clusterId || DEFAULT_CLUSTER_ID,
+            events:    (value?.windows || [])
               .filter(w => w.type !== 'Timeline_Unknown')
               .map(w => ({
-                start: now.diff(dayjs(w.start), 'h', true),
-                end:   now.diff(dayjs(w.end), 'h', true),
-                type:  w.type
+                start:       now.diff(dayjs(w.start), 'h', true),
+                end:         now.diff(dayjs(w.end), 'h', true),
+                type:        w.type
               }))
           };
         })
         .filter(t => t.events.length > 0);
 
-      this.$set(this, 'timelines', timelines);
+      const groups = {
+        [DEFAULT_CLUSTER_ID]: {
+          name:      'Disconnected',
+          timelines: []
+        }
+      };
+
+      clusters.forEach((c) => {
+        groups[c.id] = {
+          name:      c.nameDisplay,
+          timelines: []
+        };
+      });
+
+      timelines.forEach((t) => {
+        groups[t.clusterId].timelines.push(t);
+      });
+
+      Object.entries(groups).forEach(([key, value]) => {
+        if (value.timelines.length === 0) {
+          delete groups[key];
+        }
+      });
+
+      this.$set(this, 'groups', groups);
     },
 
     computeEventLeft(event) {
@@ -95,9 +127,14 @@ export default {
         return 'Silenced Event';
       }
 
-      return 'Event';
+      return 'Agent Disconnect';
     }
   },
+  computed: {
+    hasTimelines() {
+      return Object.values(this.groups).some(g => g.timelines.length > 0);
+    }
+  }
 };
 </script>
 <template>
@@ -127,8 +164,17 @@ export default {
           <th>0hrs</th>
         </tr>
       </thead>
-      <tbody>
-        <tr v-for="(timeline, i) in timelines" :key="i">
+      <tbody v-for="(group, i) in groups" :key="i" class="group">
+        <tr :key="group.name" class="group-row">
+          <td colspan="14">
+            <div class="group-tab">
+              <div class="cluster">
+                Cluster: {{ group.name }}
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr v-for="(timeline, j) in group.timelines" :key="j" class="main-row">
           <td>{{ timeline.name }}</td>
           <td colspan="13" class="events">
             <div v-for="j in 13" :key="'tick'+j" class="tick" :style="{left: computeTickLeft(j)}">
@@ -146,7 +192,9 @@ export default {
             </div>
           </td>
         </tr>
-        <tr v-if="timelines.length === 0" class="no-data">
+      </tbody>
+      <tbody v-if="!hasTimelines">
+        <tr class="no-data">
           <td colspan="14">
             No events have occured in the last 24 hours
           </td>
@@ -168,15 +216,27 @@ table {
   table-layout: fixed;
 }
 
-.sortable-table tbody tr:hover {
+.sortable-table tbody tr:not(.group-row):hover {
   background-color: var(--sortable-table-row-bg);
 }
 
 td, th {
   &:first-of-type {
-    width: 200px;
+    width: 300px;
     text-align: left;
   }
+}
+
+.sortable-table tbody tr.group-row .group-tab {
+  top: 3px;
+}
+
+.cluster {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 250px;
+  height: 100%;
 }
 
 th {
@@ -202,11 +262,6 @@ tr.no-data {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--sortable-table-top-divider);
-}
-
-td:first-of-type {
-  background-color: var(--sortable-table-header-bg);
-  border-right: 1px solid var(--sortable-table-top-divider);
 }
 
 .heading {

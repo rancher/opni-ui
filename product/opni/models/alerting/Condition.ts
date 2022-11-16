@@ -226,14 +226,18 @@ export class Condition extends Resource {
     return this.base.alertCondition.name;
   }
 
+  get clusterId() {
+    return this.alertType.clusterId?.id;
+  }
+
   get clusterDisplay() {
     const clusterId = this.alertType.clusterId?.id;
 
     if (!clusterId || !this.clusters) {
-      return '';
+      return 'Disconnected';
     }
 
-    return this.clusters.find(c => c.id === clusterId)?.nameDisplay;
+    return this.clusters.find(c => c.id === clusterId)?.nameDisplay || 'Disconnected';
   }
 
   get description() {
