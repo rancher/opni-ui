@@ -46,7 +46,7 @@ export default {
           labelKey:      'tableHeaders.name',
           sort:          ['nameDisplay'],
           value:         'nameDisplay',
-          width:         340,
+          width:         200,
           formatter:     'TextWithClass',
           formatterOpts: {
             getClass(row, value) {
