@@ -46,7 +46,7 @@ export default {
           labelKey:      'tableHeaders.name',
           sort:          ['nameDisplay'],
           value:         'nameDisplay',
-          width:         200,
+          width:         250,
           formatter:     'TextWithClass',
           formatterOpts: {
             getClass(row, value) {
@@ -61,27 +61,18 @@ export default {
           }
         },
         {
+          name:          'id',
+          labelKey:      'tableHeaders.id',
+          sort:          ['id'],
+          value:         'id',
+        },
+        {
           name:          'capabilities',
           labelKey:      'tableHeaders.capabilities',
           sort:          ['capabilities'],
           value:         'capabilities',
           formatter:     'ListBubbles'
         },
-        {
-          name:      'numSeries',
-          labelKey:  'tableHeaders.numSeries',
-          sort:      ['numSeries'],
-          value:     'numSeries',
-          formatter: 'Number'
-        },
-        {
-          name:          'sampleRate',
-          labelKey:      'tableHeaders.sampleRate',
-          sort:          ['sampleRate'],
-          value:         'sampleRate',
-          formatter:     'Number',
-          formatterOpts: { suffix: '/s' }
-        }
       ]
     };
   },
