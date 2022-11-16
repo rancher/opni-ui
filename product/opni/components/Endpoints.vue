@@ -86,7 +86,7 @@ export default {
       </div>
       <div v-if="isAlertingEnabled" class="actions-container">
         <n-link class="btn role-primary" :to="{name: 'endpoint-create'}">
-          Create Endpoint
+          Create
         </n-link>
       </div>
     </header>

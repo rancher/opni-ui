@@ -13,7 +13,7 @@ import Configuration from './pages/Configuration';
 import LoggingBackend from './pages/LoggingBackend';
 import SLOs from './pages/SLOs';
 import SLO from './pages/SLO';
-import WorkloadModelConfig from './pages/WorkloadModelConfig';
+// import WorkloadModelConfig from './pages/WorkloadModelConfig';
 
 import Endpoints from './pages/Endpoints';
 import Endpoint from './pages/Endpoint';
@@ -28,18 +28,18 @@ export const NAVIGATION = {
   routes: [
     {
       path:      '/',
-      redirect: { name: 'clusters' },
+      redirect: { name: 'agents' },
       display:  false
     },
     {
-      name:      'clusters',
-      path:      '/clusters',
-      labelKey:  'opni.nav.clusters',
+      name:      'agents',
+      path:      '/agents',
+      labelKey:  'opni.nav.agents',
       // icon:      'cluster-management',
       component: Clusters,
       routes:    [
         {
-          name:      'cluster-create',
+          name:      'agent-create',
           path:      '/create',
           labelKey:  'opni.nav.clusters',
           // icon:      'globe',

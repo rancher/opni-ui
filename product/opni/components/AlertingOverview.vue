@@ -177,12 +177,12 @@ export default {
         <tr v-for="(timeline, j) in group.timelines" :key="j" class="main-row">
           <td>{{ timeline.name }}</td>
           <td colspan="13" class="events">
-            <div v-for="j in 13" :key="'tick'+j" class="tick" :style="{left: computeTickLeft(j)}">
+            <div v-for="k in 13" :key="'tick'+k" class="tick" :style="{left: computeTickLeft(k)}">
 &nbsp;
             </div>
             <div
-              v-for="(event, j) in timeline.events"
-              :key="'event'+j"
+              v-for="(event, k) in timeline.events"
+              :key="'event'+k"
               v-tooltip="computeTooltip(event)"
               class="event"
               :class="event.type"

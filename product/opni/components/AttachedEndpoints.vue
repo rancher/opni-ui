@@ -128,49 +128,51 @@ export default {
         this.$emit('input', { ...this.value, throttlingDuration: `${ Math.round(value * 60 || 0) }s` });
       }
     },
+    showMessageOptions() {
+      return this.value.items.length > 0 && this.value.items.some(item => item?.endpointId);
+    }
   }
 };
 </script>
 <template>
   <div class="attached-endpoints">
-    <h4 class="mt-20">
-      Destination
-    </h4>
     <div class="row mt-10">
       <div class="col span-12">
         <ArrayListSelect v-model="attachedEndpoints" add-label="Add Endpoint" :options="options.endpointOptions" />
       </div>
     </div>
-    <div class="row mt-10">
-      <div class="col span-4">
-        <UnitInput v-model="initialDelay" label="Initial Delay" suffix="s" />
+    <div v-if="showMessageOptions">
+      <div class="row mt-10">
+        <div class="col span-4">
+          <UnitInput v-model="initialDelay" label="Initial Delay" suffix="s" />
+        </div>
+        <div class="col span-4">
+          <UnitInput v-model="repeatInterval" label="Repeat Interval" suffix="m" />
+        </div>
+        <div class="col span-4">
+          <UnitInput v-model="throttlingDuration" label="Throttling Duration" suffix="m" />
+        </div>
       </div>
-      <div class="col span-4">
-        <UnitInput v-model="repeatInterval" label="Repeat Interval" suffix="m" />
+      <h4 class="mt-20">
+        Message
+      </h4>
+      <div class="row mt-10">
+        <div class="col" :class="{'span-6': showSeverity, 'span-12': !showSeverity}">
+          <LabeledInput v-model="value.details.title" label="Title" :required="true" />
+        </div>
+        <div v-if="showSeverity" class="col span-6">
+          <LabeledSelect :value="severity" label="Severity" :options="options.severityOptions" @input="(val) => $emit('severity', val)" />
+        </div>
       </div>
-      <div class="col span-4">
-        <UnitInput v-model="throttlingDuration" label="Throttling Duration" suffix="m" />
+      <div class="row mt-10">
+        <div class="col span-12">
+          <TextAreaAutoGrow v-model="value.details.body" :min-height="250" :required="true" />
+        </div>
       </div>
-    </div>
-    <h4 class="mt-20">
-      Message
-    </h4>
-    <div class="row mt-10">
-      <div class="col" :class="{'span-6': showSeverity, 'span-12': !showSeverity}">
-        <LabeledInput v-model="value.details.title" label="Title" :required="true" />
-      </div>
-      <div v-if="showSeverity" class="col span-6">
-        <LabeledSelect :value="severity" label="Severity" :options="options.severityOptions" @input="(val) => $emit('severity', val)" />
-      </div>
-    </div>
-    <div class="row mt-10">
-      <div class="col span-12">
-        <TextAreaAutoGrow v-model="value.details.body" :min-height="250" :required="true" />
-      </div>
-    </div>
-    <div class="row mt-10">
-      <div class="col span-12">
-        <Checkbox v-model="value.details.sendResolved" label="Send Resolved" />
+      <div class="row mt-10">
+        <div class="col span-12">
+          <Checkbox v-model="value.details.sendResolved" label="Send Resolved" />
+        </div>
       </div>
     </div>
   </div>

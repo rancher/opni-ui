@@ -115,7 +115,7 @@ export default {
       </div>
       <div v-if="isAlertingEnabled" class="actions-container">
         <n-link class="btn role-primary" :to="{name: 'alarm-create'}">
-          Create Alarm
+          Create
         </n-link>
       </div>
     </header>

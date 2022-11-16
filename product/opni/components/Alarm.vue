@@ -141,6 +141,10 @@ export default {
       try {
         const condition = { ...this.config, alertType: { [this.type]: this[this.type].config } };
 
+        if (condition.attachedEndpoints.items.length === 0 || condition.attachedEndpoints.items.every(item => !item?.endpointId)) {
+          delete condition.attachedEndpoints;
+        }
+
         if (this.$route.params.id && this.$route.params.id !== 'create') {
           const updateConfig = {
             id:          { id: this.$route.params.id },
