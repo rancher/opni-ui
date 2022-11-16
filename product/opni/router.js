@@ -205,14 +205,14 @@ export const NAVIGATION = {
         },
       ]
     },
-    {
-      name:      'workload-model-config',
-      path:      '/workload-model-config',
-      labelKey:  'opni.nav.workloadModel',
-      // icon:      'globe',
-      component: WorkloadModelConfig,
-      display:   true
-    },
+    // {
+    //   name:      'workload-model-config',
+    //   path:      '/workload-model-config',
+    //   labelKey:  'opni.nav.workloadModel',
+    //   // icon:      'globe',
+    //   component: WorkloadModelConfig,
+    //   display:   true
+    // },
     {
       name:      'configuration',
       path:      '/configuration',
