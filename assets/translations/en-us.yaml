@@ -6156,7 +6156,7 @@ opni:
     alerting: Alerting
     backends: Backends
     configuration: Advanced Configuration
-    clusters: Clusters
+    agents: Agents
     rbac: RBAC
     roles: Roles
     roleBindings: Role Bindings
@@ -6168,6 +6168,7 @@ opni:
     workloadModel: Workload Insights
     endpoints: Endpoints
     alarms: Alarms
+    alertingOverview: Overview
   workloadInsights:
     noRowsKey: There are not any deployments accessible for this cluster
   workloadVsControlPlaneChart:

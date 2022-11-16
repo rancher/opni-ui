@@ -92,8 +92,7 @@ export default {
           {
             label: '1 day',
             value: '24h'
-          },
-          { label: 'Until resumed' }
+          }
         ],
       },
       silenceFor: '1h',
@@ -123,8 +122,8 @@ export default {
           ...condition.base.alertCondition,
           attachedEndpoints: {
             ...defaultConfig.attachedEndpoints,
-            details: { ...defaultConfig.attachedEndpoints.details, ...condition.base.alertCondition.attachedEndpoints.details },
-            ...condition.base.alertCondition.attachedEndpoints
+            details: { ...defaultConfig.attachedEndpoints.details, ...(condition.base.alertCondition?.attachedEndpoints?.details || {}) },
+            ...(condition.base.alertCondition?.attachedEndpoints || {})
           },
           alertType: undefined
         });
@@ -141,6 +140,10 @@ export default {
       }
       try {
         const condition = { ...this.config, alertType: { [this.type]: this[this.type].config } };
+
+        if (condition.attachedEndpoints.items.length === 0 || condition.attachedEndpoints.items.every(item => !item?.endpointId)) {
+          delete condition.attachedEndpoints;
+        }
 
         if (this.$route.params.id && this.$route.params.id !== 'create') {
           const updateConfig = {
@@ -202,19 +205,27 @@ export default {
     },
 
     async silence() {
-      const request = {
-        conditionId: { id: this.id },
-        duration:    this.silenceFor
-      };
+      try {
+        const request = {
+          conditionId: { id: this.id },
+          duration:    this.silenceFor
+        };
 
-      await silenceAlertCondition(request);
-      this.load();
+        await silenceAlertCondition(request);
+        this.load();
+      } catch (err) {
+        this.$set(this, 'error', exceptionToErrorsArray(err).join('; '));
+      }
     },
 
     async resume() {
-      if (this.silenceId) {
-        await deactivateSilenceAlertCondition(this.silenceId);
-        this.load();
+      try {
+        if (this.silenceId) {
+          await deactivateSilenceAlertCondition(this.id);
+          this.load();
+        }
+      } catch (err) {
+        this.$set(this, 'error', exceptionToErrorsArray(err).join('; '));
       }
     },
   },
@@ -332,7 +343,7 @@ export default {
         return 'until resumed';
       }
 
-      return dayjs(this.config?.silence?.endsAt || undefined).format('dddd, MMMM Do YYYY, h:mm:ss a');
+      return dayjs(this.config?.silence?.endsAt || undefined).format('dddd, MMMM D YYYY, h:mm:ss a');
     }
   },
 
@@ -369,7 +380,7 @@ export default {
       >
         <div class="row bottom">
           <div class="col span-12">
-            <LabeledSelect v-model="type" label="Type" :options="conditionTypes" :required="true" />
+            <LabeledSelect v-model="type" label="Type" :options="conditionTypes" :required="true" :disabled="true" />
           </div>
         </div>
         <div v-if="type == 'system'" class="row mt-20">

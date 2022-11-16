@@ -93,7 +93,7 @@ export default {
       </div>
       <div class="actions-container">
         <n-link class="btn role-primary" :to="{ name: 'role-create' }">
-          Create Role
+          Create
         </n-link>
       </div>
     </header>

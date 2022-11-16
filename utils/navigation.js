@@ -3,7 +3,9 @@ export function traverseNavigation(navigation, fn) {
     const path = parentPath + (route.path || '');
 
     if (path) {
-      fn(path, route, depth);
+      const isParent = parentPath && (route.routes || []).length > 0 && route.routes.some(r => r.display);
+
+      fn(path, route, depth, isParent);
     }
 
     (route.routes || []).forEach(subRoute => impl(path, subRoute, depth + 1));
@@ -29,7 +31,7 @@ export function createRoutesFromNavigation(navigation) {
 export function createNavItemsFromNavigation(navigation, t, customizeNavItem = navItem => navItem) {
   const navItems = [];
 
-  traverseNavigation(navigation, (path, route, depth) => {
+  traverseNavigation(navigation, (path, route, depth, isParent) => {
     if (route.display === false) {
       return;
     }
@@ -40,6 +42,7 @@ export function createNavItemsFromNavigation(navigation, t, customizeNavItem = n
       route:    path,
       label:    t(route.labelKey),
       routes:   undefined,
+      parent:   isParent,
       children: route.children ? traverseNavigation(route.children) : []
     });
 

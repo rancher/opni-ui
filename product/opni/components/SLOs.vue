@@ -119,7 +119,7 @@ export default {
       </div>
       <div v-if="isAlertingEnabled && hasOneMonitoring" class="actions-container">
         <n-link class="btn role-primary" :to="{name: 'slo-create'}">
-          Create SLO
+          Create
         </n-link>
       </div>
     </header>

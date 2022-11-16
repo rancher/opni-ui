@@ -164,10 +164,13 @@ export default {
       }
 
       try {
+        const hasAttachedEndpoints = this.attachedEndpoints.items.length > 0 && this.attachedEndpoints.items.some(item => item?.endpointId);
+        const attachedEndpoints = hasAttachedEndpoints ? this.attachedEndpoints : undefined;
+
         if (this.id) {
-          await updateSLO(this.id, this.name, this.cluster, this.service, this.goodMetric, this.totalMetric, this.goodEvents, this.totalEvents, this.period, this.budgetingInterval, this.threshold, this.tags, this.attachedEndpoints);
+          await updateSLO(this.id, this.name, this.cluster, this.service, this.goodMetric, this.totalMetric, this.goodEvents, this.totalEvents, this.period, this.budgetingInterval, this.threshold, this.tags, attachedEndpoints);
         } else {
-          await createSLO(this.name, this.cluster, this.service, this.goodMetric, this.totalMetric, this.goodEvents, this.totalEvents, this.period, this.budgetingInterval, this.threshold, this.tags, this.attachedEndpoints);
+          await createSLO(this.name, this.cluster, this.service, this.goodMetric, this.totalMetric, this.goodEvents, this.totalEvents, this.period, this.budgetingInterval, this.threshold, this.tags, attachedEndpoints);
         }
 
         this.$set(this, 'error', '');

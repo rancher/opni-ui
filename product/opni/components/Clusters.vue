@@ -184,11 +184,11 @@ export default {
   <div v-else>
     <header>
       <div class="title">
-        <h1>Clusters</h1>
+        <h1>Agents</h1>
       </div>
       <div class="actions-container">
-        <n-link class="btn role-primary" :to="{ name: 'cluster-create' }">
-          Add Cluster
+        <n-link class="btn role-primary" :to="{ name: 'agent-create' }">
+          Add
         </n-link>
       </div>
     </header>

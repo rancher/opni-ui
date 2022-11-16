@@ -6,6 +6,7 @@ import {
 import {
   AlertEndpoint, AlertEndpointList, Endpoint, TestAlertEndpointRequest, UpdateAlertEndpointRequest
 } from '~/product/opni/models/alerting/Endpoint';
+import { Cluster } from '~/product/opni/models/Cluster';
 
 export async function createAlertEndpoint(endpoint: AlertEndpoint) {
   await axios.post('opni-api/AlertEndpoints/configure', endpoint);
@@ -45,10 +46,10 @@ export async function getAlertCondition(id: string, vue: any): Promise<Condition
   return new Condition({ id: { id }, alertCondition: response }, vue);
 }
 
-export async function getAlertConditions(vue: any): Promise<Condition[]> {
+export async function getAlertConditions(vue: any, clusters: Cluster[]): Promise<Condition[]> {
   const response = (await axios.get<AlertConditionList>('opni-api/AlertConditions/list')).data;
 
-  return (response.items || []).map(item => new Condition(item, vue));
+  return (response.items || []).map(item => new Condition(item, vue, clusters));
 }
 
 export async function updateAlertCondition(condition: UpdateAlertConditionRequest): Promise<any> {
@@ -72,7 +73,7 @@ export function silenceAlertCondition(request: SilenceRequest) {
 }
 
 export function deactivateSilenceAlertCondition(id: string) {
-  return axios.delete(`opni-api/AlertConditions/silences/${ id }`);
+  return axios.delete(`opni-api/AlertConditions/silences`, { data: { id } });
 }
 
 export async function getConditionTimeline(request: TimelineRequest): Promise<TimelineResponse> {

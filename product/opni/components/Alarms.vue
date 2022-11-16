@@ -2,6 +2,7 @@
 import SortableTable from '@/components/SortableTable';
 import Loading from '@/components/Loading';
 import { getClusterStatus, getAlertConditions } from '@/product/opni/utils/requests/alerts';
+import { getClusters } from '~/product/opni/utils/requests';
 
 export default {
   components: { Loading, SortableTable },
@@ -87,7 +88,9 @@ export default {
           return;
         }
 
-        this.$set(this, 'conditions', await getAlertConditions(this));
+        const clusters = await getClusters(this);
+
+        this.$set(this, 'conditions', await getAlertConditions(this, clusters));
         await this.updateStatuses();
       } finally {
         this.loading = false;
@@ -112,7 +115,7 @@ export default {
       </div>
       <div v-if="isAlertingEnabled" class="actions-container">
         <n-link class="btn role-primary" :to="{name: 'alarm-create'}">
-          Create Alarm
+          Create
         </n-link>
       </div>
     </header>
@@ -123,7 +126,14 @@ export default {
       :search="false"
       default-sort-by="expirationDate"
       key-field="id"
-    />
+      group-by="clusterDisplay"
+    >
+      <template #group-by="{group: thisGroup}">
+        <div v-trim-whitespace class="group-tab">
+          Cluster: {{ thisGroup.ref }}
+        </div>
+      </template>
+    </SortableTable>
     <div v-else class="not-enabled">
       <h4>
         Alerting must be enabled to use Alarms. <n-link :to="{name: 'alerting-backend'}">
