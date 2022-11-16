@@ -92,8 +92,7 @@ export default {
           {
             label: '1 day',
             value: '24h'
-          },
-          { label: 'Until resumed' }
+          }
         ],
       },
       silenceFor: '1h',
