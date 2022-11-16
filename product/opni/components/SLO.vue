@@ -299,6 +299,7 @@ export default {
         <LabeledInput
           v-model="name"
           label="Name"
+          :required="true"
         />
       </div>
     </div>

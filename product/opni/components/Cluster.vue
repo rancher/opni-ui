@@ -83,7 +83,7 @@ export default {
     save() {
       updateCluster(this.newCluster.id, this.name || generateName(), { ...(this.newCluster.labels || {}), ...this.labels });
 
-      this.$router.replace({ name: 'clusters' });
+      this.$router.replace({ name: 'agents' });
     },
 
     createAgent() {
