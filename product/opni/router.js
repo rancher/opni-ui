@@ -13,7 +13,7 @@ import Configuration from './pages/Configuration';
 import LoggingBackend from './pages/LoggingBackend';
 import SLOs from './pages/SLOs';
 import SLO from './pages/SLO';
-// import WorkloadModelConfig from './pages/WorkloadModelConfig';
+import WorkloadModelConfig from './pages/WorkloadModelConfig';
 
 import Endpoints from './pages/Endpoints';
 import Endpoint from './pages/Endpoint';
@@ -205,14 +205,14 @@ export const NAVIGATION = {
         },
       ]
     },
-    // {
-    //   name:      'workload-model-config',
-    //   path:      '/workload-model-config',
-    //   labelKey:  'opni.nav.workloadModel',
-    //   // icon:      'globe',
-    //   component: WorkloadModelConfig,
-    //   display:   true
-    // },
+    {
+      name:      'workload-model-config',
+      path:      '/workload-model-config',
+      labelKey:  'opni.nav.workloadModel',
+      // icon:      'globe',
+      component: WorkloadModelConfig,
+      display:   true
+    },
     {
       name:      'configuration',
       path:      '/configuration',

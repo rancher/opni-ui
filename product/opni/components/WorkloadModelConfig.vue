@@ -31,6 +31,7 @@ export default {
       cluster:          '',
       clusters:         [],
       queue:            {},
+      lastParameters:   {},
       status:           '',
       hasGpu:           false,
       isLoggingEnabled: false,
@@ -81,10 +82,6 @@ export default {
           this.$set(this, 'hasGpu', await hasGpu());
         }
 
-        if (!this.hasGpu) {
-          return;
-        }
-
         const clusters = await getClusters();
 
         this.$set(this, 'clusters', clusters.map(c => ({ label: c.nameDisplay, value: c.id })));
@@ -124,13 +121,16 @@ export default {
       this.$set(this, 'status', 'training');
       document.querySelector('main').scrollTop = 0;
       await trainModel(this.workloadList);
+      this.$set(this, 'lastParameters', await getModelTrainingParameters());
     },
 
     async loadSelection() {
       const params = await getModelTrainingParameters();
+
+      this.$set(this, 'lastParameters', params);
       const queue = {};
 
-      params.list.forEach((workload) => {
+      params.items.forEach((workload) => {
         const flatDeployments = Object.values(this.deployments).flat();
         const deployment = flatDeployments.find((deployment) => {
           return workload.clusterId === deployment.clusterId && workload.namespace === deployment.namespace && workload.deployment === deployment.nameDisplay;
@@ -148,7 +148,7 @@ export default {
     },
 
     selectQueue() {
-      this.$nextTick(() => {
+      setTimeout(() => {
         const clusterQueue = this.queue[this.cluster] || [];
 
         clusterQueue.forEach((deployment) => {
@@ -162,13 +162,22 @@ export default {
         this.$nextTick(() => {
           this.$set(this, 'ignoreSelection', false);
         });
-      });
+      }, 0);
     },
 
     getClusterName(clusterId) {
       const cluster = this.clusters.find(c => c.value === clusterId);
 
       return cluster.label;
+    },
+
+    async removeAll() {
+      this.$set(this, 'queue', {});
+      this.$set(this, 'lastParameters', {});
+      this.$refs.table.clearSelection();
+      this.$set(this, 'status', 'training');
+      document.querySelector('main').scrollTop = 0;
+      await trainModel(this.workloadList);
     }
   },
 
@@ -213,6 +222,35 @@ export default {
       default:
         return '';
       }
+    },
+
+    hasListChanged() {
+      const flat = Object.values(this.queue).flat();
+      const params = this.lastParameters?.items || [];
+
+      if (params.length !== flat.length ) {
+        return true;
+      }
+
+      return !params.some((parameters) => {
+        return flat.find((f) => {
+          return f.clusterId === parameters.clusterId &&
+            f.namespace === parameters.namespace &&
+            f.nameDisplay === parameters.deployment;
+        });
+      });
+    },
+
+    updateTooltip() {
+      if (!this.hasGpu) {
+        return `We can't update the watchlist without a GPU`;
+      }
+
+      if (!this.hasListChanged) {
+        return `No changes have been selected`;
+      }
+
+      return null;
     }
   },
 
@@ -239,14 +277,12 @@ export default {
         </n-link> to enable logging.
       </h4>
     </div>
-    <div v-else-if="!hasGpu" class="not-enabled">
-      <h4>Workload Insights are only available when a Nvidia GPU is present in the cluster that Opni is installed in.</h4>
-    </div>
     <div v-else>
       <Banner v-if="bannerMessage" :color="bannerColor" class="mt-0">
         {{ bannerMessage }}
       </Banner>
       <SortableTable
+        ref="table"
         class="primary"
         :rows="deployments[cluster] || []"
         :headers="headers"
@@ -268,9 +304,14 @@ export default {
       <Flyout :is-open="true">
         <template #title>
           <h4>There are <b>{{ selectionCount }}</b> deployments currently selected to be watched</h4>
-          <button class="btn role-primary update-watchlist" :disabled="status === 'training' || selectionCount === 0" @click="train">
-            Update Watchlist
-          </button>
+          <div class="buttons">
+            <button v-if="!hasGpu" class="btn role-primary mr-10" @click="removeAll">
+              Remove All Deployments
+            </button>
+            <button v-tooltip="updateTooltip" class="btn role-primary" :disabled="!hasGpu || status === 'training' || !hasListChanged" @click="train">
+              Update Watchlist
+            </button>
+          </div>
         </template>
         <div v-for="s in orderedSelection" :key="s.cluster" class="mt-10">
           <h3>{{ getClusterName(s.cluster) }}</h3>
@@ -335,7 +376,7 @@ export default {
     align-items: flex-start;
   }
 
-  .update-watchlist {
+  .buttons {
     position: relative;
 
     z-index: 10;
