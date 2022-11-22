@@ -11,6 +11,11 @@ import Card from '@/components/Card';
 import Banner from '@/components/Banner';
 import { generateName } from '@/product/opni/utils/nameGenerator';
 
+const TOKEN_EXPIRATION_SECONDS = 3600;
+const NEW_TOKEN_INTERVAL_SECONDS = TOKEN_EXPIRATION_SECONDS - 100;
+
+const CLUSTER_COUNT_INTERVAL_SECONDS = 2;
+
 export default {
   components: {
     Banner,
@@ -24,7 +29,7 @@ export default {
 
   async fetch() {
     const [token, clusters, clusterFingerprint, defaultImageRepository, gatewayConfig] = await Promise.all([
-      createToken('3600s', '', []),
+      createToken(`${ TOKEN_EXPIRATION_SECONDS }s`, '', []),
       getClusters(),
       getClusterFingerprint(),
       getDefaultImageRepository(),
@@ -63,19 +68,27 @@ export default {
       gatewayAddress:         '',
       installPrometheus:      false,
       useOCI:                 false,
-      defaultImageRepository: ''
+      defaultImageRepository: '',
+      newTokenInervalHandle:  null
     };
   },
 
   created() {
-    const twoSeconds = 2000;
+    this.clusterCountInterval = setInterval(this.lookForNewCluster, CLUSTER_COUNT_INTERVAL_SECONDS * 1000);
+    this.newTokenInervalHandle = setInterval(async() => {
+      const token = await createToken(`${ TOKEN_EXPIRATION_SECONDS }s`, '', []);
 
-    this.clusterCountInterval = setInterval(this.lookForNewCluster, twoSeconds);
+      this.$set(this, 'token', token.id);
+    }, NEW_TOKEN_INTERVAL_SECONDS * 1000);
   },
 
   beforeDestroy() {
     if (this.clusterCountInterval) {
       clearInterval(this.clusterCountInterval);
+    }
+
+    if (this.newTokenInervalHandle) {
+      clearInterval(this.newTokenInervalHandle);
     }
   },
 
