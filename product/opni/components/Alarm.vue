@@ -10,6 +10,7 @@ import Tabbed from '@/components/Tabbed';
 import Banner from '@/components/Banner';
 import { exceptionToErrorsArray } from '@/utils/error';
 import dayjs from 'dayjs';
+import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
 import { AlertType, Severity, SeverityResponseToEnum } from '~/product/opni/models/alerting/Condition';
 import AttachedEndpoints, { createDefaultAttachedEndpoints } from '~/product/opni/components/AttachedEndpoints';
 import {
@@ -39,6 +40,7 @@ export default {
     Tabbed,
     UnitInput,
     Banner,
+    TextAreaAutoGrow
   },
 
   async fetch() {
@@ -57,6 +59,10 @@ export default {
         {
           label: 'Kube State',
           value: 'kubeState'
+        },
+        {
+          label: 'Alerting Rule',
+          value: 'prometheusQuery'
         }
       ],
       type: 'system',
@@ -69,6 +75,12 @@ export default {
         choices: { clusters: [] },
         config:  {
           clusterId: '', objectType: '', objectName: '', namespace: '', state: '', for: '30s'
+        }
+      },
+      prometheusQuery: {
+        choices: { clusters: [] },
+        config:  {
+          clusterId: { id: '' }, query: '', for: '30s'
         }
       },
 
@@ -188,6 +200,7 @@ export default {
           value: AlertType.CONTROL_FLOW,
           // handler: this.loadControlFlow
         },
+        prometheusQuery: { valie: AlertType.PROMETHEUS_QUERY }
       };
       const allChoices = await getAlertConditionChoices({ alertType: map[this.type].value });
       const choices = allChoices[this.type];
@@ -251,6 +264,16 @@ export default {
 
       if (!this.options.clusterOptions.find(o => o.value === this.system.config.clusterId.id)) {
         this.$set(this.system.config.clusterId, 'id', options[0]?.value || '');
+      }
+
+      return options;
+    },
+
+    prometheusQueryClusterOptions() {
+      const options = this.options.clusterOptions;
+
+      if (!this.options.clusterOptions.find(o => o.value === this.prometheusQuery.config.clusterId.id)) {
+        this.$set(this.prometheusQuery.config.clusterId, 'id', options[0]?.value || '');
       }
 
       return options;
@@ -344,6 +367,16 @@ export default {
       }
 
       return dayjs(this.config?.silence?.endsAt || undefined).format('dddd, MMMM D YYYY, h:mm:ss a');
+    },
+
+    prometheusQueryFor: {
+      get() {
+        return Number.parseInt(this.prometheusQuery.config.for || '0');
+      },
+
+      set(value) {
+        this.$set(this.prometheusQuery.config, 'for', `${ (value || 0) }s`);
+      }
     }
   },
 
@@ -380,7 +413,7 @@ export default {
       >
         <div class="row bottom">
           <div class="col span-12">
-            <LabeledSelect v-model="type" label="Type" :options="conditionTypes" :required="true" :disabled="true" />
+            <LabeledSelect v-model="type" label="Type" :options="conditionTypes" :required="true" />
           </div>
         </div>
         <div v-if="type == 'system'" class="row mt-20">
@@ -422,6 +455,24 @@ export default {
             </div>
             <div class="col span-6">
               <UnitInput v-model="kubeStateFor" label="Duration" suffix="s" :required="true" />
+            </div>
+          </div>
+        </div>
+        <div v-if="type == 'prometheusQuery'">
+          <div class="row mt-20">
+            <div class="col span-6">
+              <LabeledSelect v-model="prometheusQuery.config.clusterId.id" label="Cluster" :options="prometheusQueryClusterOptions" :required="true" />
+            </div>
+            <div class="col span-6">
+              <UnitInput v-model="prometheusQueryFor" label="Duration" suffix="s" :required="true" />
+            </div>
+          </div>
+          <div class="row mt-20">
+            <div class="col span-12">
+              <h4>
+                Query
+              </h4>
+              <TextAreaAutoGrow v-model="prometheusQuery.config.query" :min-height="250" :required="true" />
             </div>
           </div>
         </div>
