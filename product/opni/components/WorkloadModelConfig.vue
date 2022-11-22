@@ -113,7 +113,7 @@ export default {
 
     selection(selection) {
       if (!this.ignoreSelection && this.deployments[this.cluster]) {
-        this.$set(this.queue, this.cluster, selection);
+        this.$set(this.queue, this.cluster, [...selection]);
       }
     },
 
@@ -305,15 +305,15 @@ export default {
         <template #title>
           <h4>There are <b>{{ selectionCount }}</b> deployments currently selected to be watched</h4>
           <div class="buttons">
-            <button v-if="!hasGpu" class="btn role-primary mr-10" @click="removeAll">
-              Remove All Deployments
+            <button class="btn role-secondary mr-10" @click="removeAll">
+              Clear Watchlist
             </button>
             <button v-tooltip="updateTooltip" class="btn role-primary" :disabled="!hasGpu || status === 'training' || !hasListChanged" @click="train">
               Update Watchlist
             </button>
           </div>
         </template>
-        <div v-for="s in orderedSelection" :key="s.cluster" class="mt-10">
+        <div v-for="s in orderedSelection" :key="s.cluster" class="mt-20">
           <h3>{{ getClusterName(s.cluster) }}</h3>
           <SortableTable
             :rows="s.deployments || []"
