@@ -32,6 +32,7 @@ export enum AlertType {
   KUBE_STATE = 1, // eslint-disable-line no-unused-vars
   COMPOSITION = 2, // eslint-disable-line no-unused-vars
   CONTROL_FLOW = 3, // eslint-disable-line no-unused-vars
+  PROMETHEUS_QUERY = 9, // eslint-disable-line no-unused-vars
 }
 
 export enum TimelineType {
@@ -67,11 +68,18 @@ export interface AlertConditionKubeState {
   for: Duration;
 }
 
+export interface AlertConditionPrometheusQuery{
+  clusterId: Reference;
+  query: string;
+  for: Duration;
+}
+
 export interface AlertTypeDetails {
-    system: AlertConditionSystem;
-    kubeState: AlertConditionKubeState;
-    composition: AlertConditionComposition;
-    controlFlow: AlertConditionControlFlow;
+  system: AlertConditionSystem;
+  kubeState: AlertConditionKubeState;
+  composition: AlertConditionComposition;
+  controlFlow: AlertConditionControlFlow;
+  prometheusQuery: AlertConditionPrometheusQuery;
 }
 
 export interface AttachedEndpoint {
