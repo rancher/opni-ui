@@ -21,6 +21,7 @@ import Alarms from './pages/Alarms';
 import Alarm from './pages/Alarm';
 import AlertingOverview from './pages/AlertingOverview';
 import AlertingBackend from './pages/AlertingBackend';
+import AiOpsBackend from './pages/AiOpsBackend';
 
 Vue.use(Router);
 
@@ -206,12 +207,20 @@ export const NAVIGATION = {
       ]
     },
     {
-      name:      'workload-model-config',
-      path:      '/workload-model-config',
-      labelKey:  'opni.nav.workloadModel',
-      // icon:      'globe',
-      component: WorkloadModelConfig,
-      display:   true
+      name:      'ai-ops',
+      path:      '/ai-ops',
+      labelKey:  'opni.nav.aiOps',
+      component: AiOpsBackend,
+      display:   true,
+      routes:    [
+        {
+          name:      'workload-model-config',
+          path:      '/workload-model-config',
+          labelKey:  'opni.nav.workloadModel',
+          component: WorkloadModelConfig,
+          display:   true
+        },
+      ]
     },
     {
       name:      'configuration',

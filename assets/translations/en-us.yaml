@@ -6152,6 +6152,7 @@ opni:
         matchExpressions:
           label: Match Expressions
   nav:
+    aiOps: AIOps
     alertingBackend: Alerting
     alerting: Alerting
     backends: Backends
