@@ -47,7 +47,6 @@ export default {
           labelKey:      'tableHeaders.name',
           sort:          ['nameDisplay'],
           value:         'nameDisplay',
-          width:         250,
           formatter:     'TextWithClass',
           formatterOpts: {
             getClass(row, value) {
@@ -66,14 +65,19 @@ export default {
           labelKey:      'tableHeaders.id',
           sort:          ['id'],
           value:         'id',
-        },
-        {
-          name:          'capabilities',
-          labelKey:      'tableHeaders.capabilities',
-          sort:          ['capabilities'],
-          value:         'capabilities',
-          formatter:     'ListBubbles'
-        },
+          formatter:     'TextWithClass',
+          formatterOpts: {
+            getClass(row, value) {
+              // Value could either be a cluster ID in a UUID format or a
+              // friendly name set by the user, if available. If the value is
+              // a cluster ID, display it in a monospace font.
+              // This regex will match UUID versions 1-5.
+              const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+              return uuidRegex.test(value) ? 'monospace' : '';
+            }
+          }
+        }
       ]
     };
   },

@@ -4,11 +4,15 @@ import AsyncButton from '@/components/AsyncButton';
 import Banner from '@/components/Banner';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
-import Card from '@/components/Card';
 import Checkbox from '@/components/form/Checkbox';
 import UnitInput from '@/components/form/UnitInput';
-import { configureCluster, uninstallCluster, getClusterStatus, getClusterConfig } from '@/product/opni/utils/requests/monitoring';
+import { configureCluster, uninstallCluster, getClusterConfig } from '@/product/opni/utils/requests/monitoring';
+import { getClusterStats } from '@/product/opni/utils/requests';
 import { exceptionToErrorsArray } from '@/utils/error';
+import CapabilityTable from '@/product/opni/components/CapabilityTable';
+import { getCapabilities } from '@/product/opni/utils/requests/capability';
+import Tab from '@/components/Tabbed/Tab';
+import Tabbed from '@/components/Tabbed';
 import GrafanaConfig from '~/product/opni/components/GrafanaConfig';
 
 const SECONDS_IN_DAY = 86400;
@@ -17,13 +21,15 @@ export default {
   components: {
     AsyncButton,
     Banner,
-    Card,
     Checkbox,
     Loading,
     LabeledInput,
     LabeledSelect,
     UnitInput,
-    GrafanaConfig
+    GrafanaConfig,
+    CapabilityTable,
+    Tab,
+    Tabbed
   },
 
   async fetch() {
@@ -33,25 +39,14 @@ export default {
     this.updateEndpoint();
   },
 
-  created() {
-    this.$set(this, 'interval', setInterval(this.loadStatus, 2000));
-  },
-
-  beforeDestroy() {
-    if (this.interval) {
-      clearInterval(this.interval);
-      this.$set(this, 'interval', null);
-    }
-  },
-
   data() {
     return {
-      interval:                   null,
       error:                      '',
       loading:                    false,
       dashboardEnabled:           false,
       enabled:                    false,
       statsInterval:              null,
+      capabilities:               [],
       modes:                      [
         {
           label: 'Standalone',
@@ -140,26 +135,60 @@ export default {
 
   methods: {
     async load() {
-      await this.loadStatus();
-      this.$set(this, 'enabled', this.status !== 'NotInstalled');
-      if (this.status !== 'NotInstalled') {
-        const config = await getClusterConfig();
+      try {
+        await this.loadStatus();
+        this.$set(this, 'enabled', this.status !== 'NotInstalled');
+        if (this.status !== 'NotInstalled') {
+          const config = await getClusterConfig();
 
-        this.$set(this.config, 'mode', config.mode || 0);
-        this.$set(this, config.storage.backend, config.storage[config.storage.backend]);
-        this.$set(this.config.storage, 'backend', config.storage.backend);
-        this.$set(this.config, 'grafana', config.grafana || { enabled: false });
-      }
+          this.$set(this.config, 'mode', config.mode || 0);
+          this.$set(this, config.storage.backend, config.storage[config.storage.backend]);
+          this.$set(this.config.storage, 'backend', config.storage.backend);
+          this.$set(this.config, 'grafana', config.grafana || { enabled: false });
+        }
+      } catch (ex) {}
     },
 
-    async loadStatus() {
-      const status = (await getClusterStatus()).state;
+    async updateStatus(capabilities = []) {
+      try {
+        if (this.enabled) {
+          const stats = await getClusterStats(this);
 
-      this.$set(this, 'status', status);
+          capabilities.forEach(c => c.updateStats(stats));
+        }
+      } catch (ex) {}
+    },
+
+    async loadCapabilities(parent) {
+      return await getCapabilities('metrics', parent);
     },
 
     enable() {
       this.$set(this, 'enabled', true);
+    },
+
+    headerProvider(headers) {
+      const newHeaders = [...headers];
+
+      newHeaders.push(...[
+        {
+          name:      'numSeries',
+          labelKey:  'tableHeaders.numSeries',
+          sort:      ['numSeries'],
+          value:     'numSeries',
+          formatter: 'Number'
+        },
+        {
+          name:          'sampleRate',
+          labelKey:      'tableHeaders.sampleRate',
+          sort:          ['sampleRate'],
+          value:         'sampleRate',
+          formatter:     'Number',
+          formatterOpts: { suffix: '/s' }
+        }
+      ]);
+
+      return newHeaders;
     },
 
     async disable(buttonCallback) {
@@ -399,103 +428,112 @@ export default {
     </Banner>
     <div class="body">
       <div v-if="enabled" class="enabled">
-        <div class="row mb-20">
-          <div class="col span-12">
-            <LabeledSelect v-model="mode" :options="modes" label="Mode" />
-          </div>
-        </div>
+        <Tabbed class="mb-20">
+          <Tab name="options" label="Options" :weight="2">
+            <div class="row mb-10">
+              <div class="col span-12">
+                <LabeledSelect v-model="mode" :options="modes" label="Mode" />
+              </div>
+            </div>
 
-        <Card class="m-0 mb-20" :show-highlight-border="false" :show-actions="false">
-          <div slot="body" class="pl-10 pr-10">
-            <div class="row" :class="{border: config.storage.backend === 's3'}">
-              <div class="col span-6">
-                <LabeledSelect v-model="config.storage.backend" :options="storageOptions" label="Storage Type" />
-              </div>
-              <div class="col span-6">
-                <UnitInput v-model="s3RetentionPeriod" class="retention-period" label="Data Retention Period" suffix="days" tooltip="A value of 0 will retain data indefinitely" />
+            <div class="m-0">
+              <div>
+                <div class="row" :class="{border: config.storage.backend === 's3'}">
+                  <div class="col span-6">
+                    <LabeledSelect v-model="config.storage.backend" :options="storageOptions" label="Storage Type" />
+                  </div>
+                  <div class="col span-6">
+                    <UnitInput v-model="s3RetentionPeriod" class="retention-period" label="Data Retention Period" suffix="days" tooltip="A value of 0 will retain data indefinitely" />
+                  </div>
+                </div>
+                <div v-if="config.storage.backend === 's3'" class="mt-15">
+                  <h3>Target</h3>
+                  <div class="row mb-10">
+                    <div class="col span-6">
+                      <LabeledSelect v-model="s3.region" :options="regions" label="Region" @input="updateEndpoint" />
+                    </div>
+                    <div class="col span-6">
+                      <LabeledInput v-model="s3.bucketName" label="Bucket Name" :required="true" />
+                    </div>
+                  </div>
+                  <div class="row mb-10 border">
+                    <div class="col span-6">
+                      <LabeledInput v-model="s3.endpoint" label="Endpoint" :required="true" />
+                    </div>
+                    <div class="col span-6 middle">
+                      <Checkbox v-model="s3.insecure" label="Insecure" />
+                    </div>
+                  </div>
+                  <h3>Access</h3>
+                  <div class="row mb-10">
+                    <div class="col span-6">
+                      <LabeledInput v-model="s3.accessKeyID" label="Access Key ID" :required="true" />
+                    </div>
+                    <div class="col span-6">
+                      <LabeledInput v-model="s3.secretAccessKey" label="Secret Access Key" :required="true" type="password" />
+                    </div>
+                  </div>
+                  <div class="row mb-10">
+                    <div class="col span-6">
+                      <LabeledSelect v-model="s3.signatureVersion" :options="signatureVersionOptions" label="Signature Version" />
+                    </div>
+                  </div>
+                  <h3>Server Side Encryption</h3>
+                  <div class="row mb-10">
+                    <div class="col span-6">
+                      <LabeledSelect v-model="s3.sse.type" :options="sseTypes" label="Type" />
+                    </div>
+                  </div>
+                  <div v-if="s3.sse.type === 'SSE-KMS'" class="row mb-10">
+                    <div class="col span-6">
+                      <LabeledInput v-model="s3.sse.kmsKeyID" label="KMS Key Id" :required="true" />
+                    </div>
+                    <div class="col span-6">
+                      <LabeledInput v-model="s3.sse.kmsEncryptionContext" label="KMS Encryption Context" :required="true" />
+                    </div>
+                  </div>
+                  <h3>Connection</h3>
+                  <div class="row mb-10">
+                    <div class="col span-6">
+                      <UnitInput v-model="s3IdleConnTimeout" label="Idle Connection Timeout" placeholder="e.g. 30, 60" suffix="s" />
+                    </div>
+                    <div class="col span-6">
+                      <UnitInput v-model="s3ResponseHeaderTimeout" label="Response Header Timeout" placeholder="e.g. 30, 60" suffix="s" />
+                    </div>
+                  </div>
+                  <div class="row mb-10">
+                    <div class="col span-4">
+                      <UnitInput v-model="s3TlsHandshakeTimeout" label="TLS Handshake Timeout" placeholder="e.g. 30, 60" suffix="s" />
+                    </div>
+                    <div class="col span-2 middle">
+                      <Checkbox v-model="s3.http.insecureSkipVerify" label="Insecure Skip Verify" />
+                    </div>
+                    <div class="col span-6">
+                      <UnitInput v-model="s3ExpectContinueTimeout" label="Expect Continue Timeout" placeholder="e.g. 30, 60" suffix="s" />
+                    </div>
+                  </div>
+                  <div class="row mb-10">
+                    <div class="col span-4">
+                      <UnitInput v-model="s3.http.maxIdleConns" label="Max Idle Connections" suffix="" />
+                    </div>
+                    <div class="col span-4">
+                      <UnitInput v-model="s3.http.maxIdleConnsPerHost" label="Max Idle Connections Per Host" suffix="" />
+                    </div>
+                    <div class="col span-4">
+                      <UnitInput v-model="s3.http.maxConnsPerHost" label="Max Connections Per Host" suffix="" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div v-if="config.storage.backend === 's3'" class="mt-15">
-              <h3>Target</h3>
-              <div class="row mb-10">
-                <div class="col span-6">
-                  <LabeledSelect v-model="s3.region" :options="regions" label="Region" @input="updateEndpoint" />
-                </div>
-                <div class="col span-6">
-                  <LabeledInput v-model="s3.bucketName" label="Bucket Name" :required="true" />
-                </div>
-              </div>
-              <div class="row mb-10 border">
-                <div class="col span-6">
-                  <LabeledInput v-model="s3.endpoint" label="Endpoint" :required="true" />
-                </div>
-                <div class="col span-6 middle">
-                  <Checkbox v-model="s3.insecure" label="Insecure" />
-                </div>
-              </div>
-              <h3>Access</h3>
-              <div class="row mb-10">
-                <div class="col span-6">
-                  <LabeledInput v-model="s3.accessKeyID" label="Access Key ID" :required="true" />
-                </div>
-                <div class="col span-6">
-                  <LabeledInput v-model="s3.secretAccessKey" label="Secret Access Key" :required="true" type="password" />
-                </div>
-              </div>
-              <div class="row mb-10">
-                <div class="col span-6">
-                  <LabeledSelect v-model="s3.signatureVersion" :options="signatureVersionOptions" label="Signature Version" />
-                </div>
-              </div>
-              <h3>Server Side Encryption</h3>
-              <div class="row mb-10">
-                <div class="col span-6">
-                  <LabeledSelect v-model="s3.sse.type" :options="sseTypes" label="Type" />
-                </div>
-              </div>
-              <div v-if="s3.sse.type === 'SSE-KMS'" class="row mb-10">
-                <div class="col span-6">
-                  <LabeledInput v-model="s3.sse.kmsKeyID" label="KMS Key Id" :required="true" />
-                </div>
-                <div class="col span-6">
-                  <LabeledInput v-model="s3.sse.kmsEncryptionContext" label="KMS Encryption Context" :required="true" />
-                </div>
-              </div>
-              <h3>Connection</h3>
-              <div class="row mb-10">
-                <div class="col span-6">
-                  <UnitInput v-model="s3IdleConnTimeout" label="Idle Connection Timeout" placeholder="e.g. 30, 60" suffix="s" />
-                </div>
-                <div class="col span-6">
-                  <UnitInput v-model="s3ResponseHeaderTimeout" label="Response Header Timeout" placeholder="e.g. 30, 60" suffix="s" />
-                </div>
-              </div>
-              <div class="row mb-10">
-                <div class="col span-4">
-                  <UnitInput v-model="s3TlsHandshakeTimeout" label="TLS Handshake Timeout" placeholder="e.g. 30, 60" suffix="s" />
-                </div>
-                <div class="col span-2 middle">
-                  <Checkbox v-model="s3.http.insecureSkipVerify" label="Insecure Skip Verify" />
-                </div>
-                <div class="col span-6">
-                  <UnitInput v-model="s3ExpectContinueTimeout" label="Expect Continue Timeout" placeholder="e.g. 30, 60" suffix="s" />
-                </div>
-              </div>
-              <div class="row mb-10">
-                <div class="col span-4">
-                  <UnitInput v-model="s3.http.maxIdleConns" label="Max Idle Connections" suffix="" />
-                </div>
-                <div class="col span-4">
-                  <UnitInput v-model="s3.http.maxIdleConnsPerHost" label="Max Idle Connections Per Host" suffix="" />
-                </div>
-                <div class="col span-4">
-                  <UnitInput v-model="s3.http.maxConnsPerHost" label="Max Connections Per Host" suffix="" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
-        <GrafanaConfig v-model="config.grafana" :status="status" @enable="enableGrafana" @disable="disableGrafana" />
+          </Tab>
+          <Tab name="grafana-options" label="Grafana Options" :weight="1">
+            <GrafanaConfig v-model="config.grafana" :status="status" @enable="enableGrafana" @disable="disableGrafana" />
+          </Tab>
+          <Tab name="capability-installations" label="Capability Installations" :weight="0">
+            <CapabilityTable :capability-provider="loadCapabilities" :header-provider="headerProvider" :update-status-provider="updateStatus" />
+          </Tab>
+        </Tabbed>
       </div>
       <div v-else class="not-enabled">
         <h4>Monitoring is not currently enabled. Enabling it will install additional resources on this cluster.</h4>

@@ -20,6 +20,6 @@ export default {
 
 <template>
   <div>
-    <BadgeState :color="color" :label="value.message" />
+    <BadgeState :color="color" :label="value.shortMessage || value.message" />
   </div>
 </template>

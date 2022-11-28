@@ -1,5 +1,6 @@
 <script>
 import LoggingPools, { createEmptyPool } from '@/product/opni/components/LoggingPools/index';
+import CapabilityTable from '@/product/opni/components/CapabilityTable';
 import Loading from '@/components/Loading';
 import DashboardDetails from '@/product/opni/components/DashboardDetails';
 import AsyncButton from '@/components/AsyncButton';
@@ -10,15 +11,21 @@ import { exceptionToErrorsArray } from '@/utils/error';
 import Banner from '@/components/Banner';
 import LabeledInput from '@/components/form/LabeledInput';
 import { isEmpty } from 'lodash';
+import Tab from '@/components/Tabbed/Tab';
+import Tabbed from '@/components/Tabbed';
+import { getCapabilities } from '@/product/opni/utils/requests/capability';
 
 export default {
   components: {
     AsyncButton,
     Banner,
+    CapabilityTable,
     LoggingPools,
     Loading,
     DashboardDetails,
-    LabeledInput
+    LabeledInput,
+    Tab,
+    Tabbed
   },
 
   async fetch() {
@@ -190,6 +197,10 @@ export default {
         buttonCallback(false);
       }
     },
+
+    async loadCapabilities(parent) {
+      return await getCapabilities('logging', parent);
+    },
   },
   computed: {
     bannerColor() {
@@ -240,16 +251,26 @@ export default {
             </Banner>
           </div>
         </div>
-        <div class="row mb-20">
-          <div class="col span-6">
-            <LabeledInput v-model="config.ExternalURL" label="External URL" placeholder="e.g. example.com" :required="true" />
-          </div>
-          <div class="col span-6">
-            <LabeledInput v-model="config.DataRetention" label="Data Retention" placeholder="e.g. 7d, 30d, 6m" :required="true" />
-          </div>
-        </div>
-        <LoggingPools v-model="config.NodePools" />
-        <DashboardDetails v-model="config.Dashboards" @disable="disableDashboard" @enable="enableDashboard" />
+
+        <Tabbed class="mb-20">
+          <Tab name="options" label="Options" :weight="3">
+            <div class="row mb-20">
+              <div class="col span-6">
+                <LabeledInput v-model="config.ExternalURL" label="External URL" placeholder="e.g. example.com" :required="true" />
+              </div>
+              <div class="col span-6">
+                <LabeledInput v-model="config.DataRetention" label="Data Retention" placeholder="e.g. 7d, 30d, 6m" :required="true" />
+              </div>
+            </div>
+            <LoggingPools v-model="config.NodePools" />
+          </Tab>
+          <Tab name="dashboard-options" label="Dashboard Options" :weight="2">
+            <DashboardDetails v-model="config.Dashboards" @disable="disableDashboard" @enable="enableDashboard" />
+          </Tab>
+          <Tab name="capability-installations" label="Capability Installations" :weight="1">
+            <CapabilityTable :capability-provider="loadCapabilities" />
+          </Tab>
+        </Tabbed>
       </div>
       <div v-else class="not-enabled">
         <h4>Logging is not currently enabled. Enabling it will install additional resources on this cluster.</h4>
@@ -269,6 +290,7 @@ export default {
         :label="error"
       />
     </div>
+  </div>
   </div>
 </template>
 

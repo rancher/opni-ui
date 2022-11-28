@@ -1,10 +1,9 @@
 <script>
-import Card from '@/components/Card';
 import UnitInput from '@/components/form/UnitInput';
 import { get, set } from '@/utils/object';
 
 export default {
-  components: { Card, UnitInput },
+  components: { UnitInput },
 
   props: {
     value: {
@@ -65,19 +64,16 @@ export default {
 };
 </script>
 <template>
-  <Card class="mt-20 ml-0 mr-0" :show-highlight-border="false" :show-actions="false">
-    <header slot="title" class="text-default-text">
-      <h4>Dashboard</h4>
-      <button v-if="value.Enabled" class="btn bg-error" @click="$emit('disable')">
-        Disable
+  <div>
+    <header v-if="value.Enabled" slot="title" class="text-default-text border">
+      <div class="col span-4">
+        <UnitInput v-model="value.Replicas" label="Replicas" :suffix="false" />
+      </div>
+      <button v-if="value.Enabled" class="btn role-secondary" @click="$emit('disable')">
+        Disable Dashboard
       </button>
     </header>
     <div v-if="value.Enabled" slot="body">
-      <div class="row border">
-        <div class="col span-4">
-          <UnitInput v-model="value.Replicas" label="Replicas" :suffix="false" />
-        </div>
-      </div>
       <div class="row mt-10">
         <div class="col span-12">
           <h4>Resources</h4>
@@ -101,7 +97,7 @@ export default {
         Enable
       </button>
     </div>
-  </Card>
+  </div>
 </template>
 
 <style lang="scss" scoped>

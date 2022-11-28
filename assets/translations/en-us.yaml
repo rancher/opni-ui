@@ -4089,6 +4089,7 @@ tableHeaders:
   chart: Chart
   clusterCreatorDefault: Cluster Creator Default
   clusterFlow: Cluster Flow
+  clusterName: Cluster Name
   clusterOutput: Cluster Output
   clusters: Clusters
   clustersReady: Clusters Ready
