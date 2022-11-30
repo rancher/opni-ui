@@ -1,9 +1,10 @@
 <script>
+import Card from '@/components/Card';
 import UnitInput from '@/components/form/UnitInput';
 import { get, set } from '@/utils/object';
 
 export default {
-  components: { UnitInput },
+  components: { Card, UnitInput },
 
   props: {
     value: {
@@ -65,38 +66,45 @@ export default {
 </script>
 <template>
   <div>
-    <header v-if="value.Enabled" slot="title" class="text-default-text border">
-      <div class="col span-4">
-        <UnitInput v-model="value.Replicas" label="Replicas" :suffix="false" />
-      </div>
-      <button v-if="value.Enabled" class="btn role-secondary" @click="$emit('disable')">
-        Disable Dashboard
-      </button>
-    </header>
-    <div v-if="value.Enabled" slot="body">
-      <div class="row mt-10">
-        <div class="col span-12">
-          <h4>Resources</h4>
+    <Card class="m-0 mt-20 mb-20" :show-highlight-border="false" :show-actions="false">
+      <header v-if="value.Enabled" slot="title" class="text-default-text">
+        <h3>Dashboard</h3>
+        <button v-if="value.Enabled" class="btn role-secondary" @click="$emit('disable')">
+          Disable Dashboard
+        </button>
+      </header>
+      <div v-if="value.Enabled" slot="body">
+        <div class="row border">
+          <div class="col span-12">
+            <div class="col span-4">
+              <UnitInput v-model="value.Replicas" label="Replicas" :suffix="false" />
+            </div>
+          </div>
+        </div>
+        <div class="row mt-10">
+          <div class="col span-12">
+            <h4>Resources</h4>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col span-4">
+            <UnitInput v-model="memory" label="Memory" suffix="MiB" />
+          </div>
+          <div class="col span-4">
+            <UnitInput v-model="cpuLimit" label="CPU Limit" suffix="miliCpu" />
+          </div>
+          <div class="col span-4">
+            <UnitInput v-model="cpuRequired" label="CPU Required" suffix="miliCpu" />
+          </div>
         </div>
       </div>
-      <div class="row">
-        <div class="col span-4">
-          <UnitInput v-model="memory" label="Memory" suffix="MiB" />
-        </div>
-        <div class="col span-4">
-          <UnitInput v-model="cpuLimit" label="CPU Limit" suffix="miliCpu" />
-        </div>
-        <div class="col span-4">
-          <UnitInput v-model="cpuRequired" label="CPU Required" suffix="miliCpu" />
-        </div>
+      <div v-else slot="body" class="not-enabled">
+        <h5>The Dashboard is not currently enabled. Enabling it will install additional resources.</h5>
+        <button class="btn role-primary" @click="$emit('enable')">
+          Enable
+        </button>
       </div>
-    </div>
-    <div v-else slot="body" class="not-enabled">
-      <h5>The Dashboard is not currently enabled. Enabling it will install additional resources.</h5>
-      <button class="btn role-primary" @click="$emit('enable')">
-        Enable
-      </button>
-    </div>
+    </Card>
   </div>
 </template>
 

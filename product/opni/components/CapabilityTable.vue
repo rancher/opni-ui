@@ -1,4 +1,5 @@
 <script>
+import Loading from '@/components/Loading';
 import SortableTable from '@/components/SortableTable';
 import Banner from '@/components/Banner';
 import UninstallCapabilitiesDialog from './dialogs/UninstallCapabilitiesDialog';
@@ -8,6 +9,7 @@ export default {
   components: {
     Banner,
     CancelUninstallCapabilitiesDialog,
+    Loading,
     SortableTable,
     UninstallCapabilitiesDialog,
   },
@@ -138,7 +140,8 @@ export default {
 };
 </script>
 <template>
-  <div>
+  <Loading v-if="$fetchState.pending" />
+  <div v-else>
     <SortableTable
       :rows="capabilities"
       :headers="headers"

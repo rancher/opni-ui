@@ -1,9 +1,9 @@
 <script>
 import Main from '../components/Main';
-import Monitoring from '../components/Monitoring';
+import MonitoringBackend from '../components/MonitoringBackend';
 
 export default {
-  components: { Monitoring, Main },
+  components: { MonitoringBackend, Main },
   layout:     'standalone',
   head() {
     return { title: 'Opni - Monitoring' };
@@ -12,6 +12,6 @@ export default {
 </script>
 <template>
   <Main>
-    <Monitoring />
+    <MonitoringBackend />
   </Main>
 </template>

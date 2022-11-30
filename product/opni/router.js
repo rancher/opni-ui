@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 
 import { createRoutesFromNavigation } from '@/utils/navigation';
-import Monitoring from './pages/Monitoring';
+import MonitoringBackend from './pages/MonitoringBackend';
 import Clusters from './pages/Clusters';
 import Cluster from './pages/Cluster';
 import Roles from './pages/Roles';
@@ -62,7 +62,7 @@ export const NAVIGATION = {
       path:      '/monitoring',
       labelKey:  'opni.nav.monitoring',
       // icon:      'monitoring',
-      component: Monitoring,
+      component: MonitoringBackend,
       routes:    [
         {
           name:     'rbac',
