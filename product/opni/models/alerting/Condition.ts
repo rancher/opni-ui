@@ -197,6 +197,7 @@ export enum AlertConditionState {
   OK = 1, // eslint-disable-line no-unused-vars, camelcase
   FIRING = 2, // eslint-disable-line no-unused-vars, camelcase
   SILENCED = 3, // eslint-disable-line no-unused-vars, camelcase
+  INVALIDATED = 4 // eslint-disable-line no-unused-vars, camelcase
 }
 
 export const alertConditionStateMapping = {
@@ -204,6 +205,7 @@ export const alertConditionStateMapping = {
   OK:          1,
   FIRING:      2,
   SILENCED:    3,
+  INVALIDATED: 4,
 };
 
 export interface AlertStatusResponse {
@@ -286,6 +288,10 @@ export class Condition extends Resource {
       [AlertConditionState.UNSPECIFIED]: {
         message: 'Unspecified',
         state:   'warning'
+      },
+      [AlertConditionState.INVALIDATED]: {
+        message: 'Invalidated',
+        state:   'error'
       },
     };
 
