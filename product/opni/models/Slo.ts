@@ -1,12 +1,19 @@
 import { Resource } from './Resource';
 import { SloServiceResponse } from '~/product/opni/models/SloService';
-import { cloneSLO, deleteSLO, getSLOStatus } from '~/product/opni/utils/requests/slo';
+import { deleteSLO, getSLOStatus, cloneSLOToClusters } from '~/product/opni/utils/requests/slo';
 import { AttachedEndpoints } from '~/product/opni/models/alerting/Condition';
+import { Reference } from '~/product/opni/models/shared';
+import { Cluster } from '~/product/opni/models/Cluster';
 
 export type SloStatusStateResponse = 'InProgress' | 'Creating' | 'NoData' | 'Ok' | 'Warning' | 'Breaching' | 'PartialDataOk' | 'InternalError';
 
 export interface SloStatusResponse {
   state: SloStatusStateResponse;
+}
+
+export interface MultiClusterSLO {
+  cloneId: Reference;
+  clusters: Reference[];
 }
 
 export interface SloAlertResponse {
@@ -60,11 +67,13 @@ export interface SlosResponse {
 export class Slo extends Resource {
     private base: SloResponse;
     private state: SloStatusStateResponse;
+    private clusters: Cluster[];
 
-    constructor(base: SloResponse, vue: any) {
+    constructor(base: SloResponse, vue: any, clusters?: Cluster[]) {
       super(vue);
       this.base = base;
       this.state = 'Ok';
+      this.clusters = clusters || [];
     }
 
     get attachedEndpoints(): AttachedEndpoints {
@@ -93,6 +102,14 @@ export class Slo extends Resource {
 
     get clusterId(): string {
       return this.base.SLO.clusterId;
+    }
+
+    get cluster(): Cluster | undefined {
+      return this.clusters.find(c => c.id === this.clusterId);
+    }
+
+    get clusterNameDisplay(): string {
+      return this.cluster?.nameDisplay || this.clusterId;
     }
 
     get period(): string {
@@ -156,7 +173,7 @@ export class Slo extends Resource {
           enabled:   true,
         },
         {
-          action:    'clone',
+          action:    'cloneToClustersModal',
           altAction: 'clone',
           label:     'Clone',
           icon:      'icon icon-copy',
@@ -187,8 +204,11 @@ export class Slo extends Resource {
       super.remove();
     }
 
-    async clone() {
-      await cloneSLO(this.base.id);
-      super.clone();
+    async clone(clusterIds: string[]) {
+      await cloneSLOToClusters(this.id, clusterIds);
+    }
+
+    cloneToClustersModal() {
+      this.vue.$emit('clone', this);
     }
 }

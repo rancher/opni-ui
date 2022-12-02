@@ -52,6 +52,15 @@ export async function getAlertConditions(vue: any, clusters: Cluster[]): Promise
   return (response.items || []).map(item => new Condition(item, vue, clusters));
 }
 
+export async function cloneAlertCondition(condition: AlertCondition, clusterIds: string[]) {
+  const body = {
+    alertCondition: condition,
+    toClusters:     clusterIds
+  };
+
+  (await axios.post<AlertConditionList>('opni-api/AlertConditions/clone', body));
+}
+
 export async function updateAlertCondition(condition: UpdateAlertConditionRequest): Promise<any> {
   return await axios.put('opni-api/AlertConditions/configure', condition);
 }

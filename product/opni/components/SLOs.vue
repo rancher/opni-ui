@@ -2,13 +2,13 @@
 import SortableTable from '@/components/SortableTable';
 import Loading from '@/components/Loading';
 import { getClusterStatus } from '@/product/opni/utils/requests/alerts';
-import EditClusterDialog from './dialogs/EditClusterDialog';
+import CloneToClustersDialog from './dialogs/CloneToClustersDialog';
 import { getSLOs } from '~/product/opni/utils/requests/slo';
 import { getClusters } from '~/product/opni/utils/requests';
 
 export default {
   components: {
-    EditClusterDialog, Loading, SortableTable
+    CloneToClustersDialog, Loading, SortableTable
   },
   async fetch() {
     await this.load();
@@ -71,8 +71,8 @@ export default {
       this.load();
     },
 
-    onClone() {
-      this.load();
+    onClone(slo) {
+      this.$refs.dialog.open(slo, slo.clusterId);
     },
 
     async load() {
@@ -88,6 +88,8 @@ export default {
         }
 
         const clusters = await getClusters(this);
+
+        this.$set(this, 'clusters', clusters);
         const hasOneMonitoring = clusters.some(c => c.isCapabilityInstalled('metrics'));
 
         this.$set(this, 'hasOneMonitoring', hasOneMonitoring);
@@ -96,7 +98,7 @@ export default {
           return;
         }
 
-        this.$set(this, 'slos', await getSLOs(this));
+        this.$set(this, 'slos', await getSLOs(this, clusters));
         await this.updateStatuses();
       } finally {
         this.loading = false;
@@ -128,9 +130,16 @@ export default {
       :rows="slos"
       :headers="headers"
       :search="false"
+      group-by="clusterNameDisplay"
       default-sort-by="expirationDate"
       key-field="id"
-    />
+    >
+      <template #group-by="{group: thisGroup}">
+        <div v-trim-whitespace class="group-tab">
+          Cluster: {{ thisGroup.ref }}
+        </div>
+      </template>
+    </SortableTable>
     <div v-else-if="!isAlertingEnabled" class="not-enabled">
       <h4>
         Alerting must be enabled to use SLOs. <n-link :to="{name: 'alerting-backend'}">
@@ -145,7 +154,7 @@ export default {
         </n-link> to enable Monitoring.
       </h4>
     </div>
-    <EditClusterDialog ref="dialog" @save="load" />
+    <CloneToClustersDialog ref="dialog" :clusters="clusters" @save="load" />
   </div>
 </template>
 
