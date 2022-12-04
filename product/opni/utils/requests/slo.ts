@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { isEmpty } from 'lodash';
+import { Cluster } from '~/product/opni/models/Cluster';
 import { Slo, SlosResponse, SloStatusResponse, SloStatusStateResponse } from '~/product/opni/models/Slo';
 import { SloMetricsResponse } from '~/product/opni/models/SloMetric';
 import { SloService, SloServicesResponse } from '~/product/opni/models/SloService';
@@ -102,8 +103,13 @@ export function deleteSLO(id: string) {
   return axios.delete(`opni-api/SLO/slos/`, { data: { id } });
 }
 
-export function cloneSLO(id: string) {
-  return axios.post(`opni-api/SLO/slos/${ id }/clone`, { id });
+export function cloneSLOToClusters(id: string, clusterIds: string[]) {
+  const body = {
+    cloneId:  { id },
+    clusters: clusterIds.map(id => ({ id }))
+  };
+
+  return axios.post(`opni-api/SLO/slos/${ id }/clone`, body);
 }
 
 export async function getSLO(id: string, vue: any) {
@@ -120,10 +126,10 @@ export async function getSLO(id: string, vue: any) {
   return slo;
 }
 
-export async function getSLOs(vue: any) {
+export async function getSLOs(vue: any, clusters?: Cluster[]) {
   const response = (await axios.get<SlosResponse>('opni-api/SLO/slos'))?.data || { items: [] };
 
-  return response?.items?.map(item => new Slo(item, vue)) || [];
+  return response?.items?.map(item => new Slo(item, vue, clusters)) || [];
 }
 
 export async function getSLOStatus(id: string): Promise<SloStatusStateResponse> {

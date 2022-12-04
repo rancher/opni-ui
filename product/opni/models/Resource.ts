@@ -24,8 +24,4 @@ export class Resource {
   public remove() {
     this.vue.$emit('remove');
   }
-
-  public clone() {
-    this.vue.$emit('clone');
-  }
 }

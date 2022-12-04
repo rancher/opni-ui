@@ -2,10 +2,13 @@
 import SortableTable from '@/components/SortableTable';
 import Loading from '@/components/Loading';
 import { getClusterStatus, getAlertConditions } from '@/product/opni/utils/requests/alerts';
+import CloneToClustersDialog from './dialogs/CloneToClustersDialog';
 import { getClusters } from '~/product/opni/utils/requests';
 
 export default {
-  components: { Loading, SortableTable },
+  components: {
+    CloneToClustersDialog, Loading, SortableTable
+  },
   async fetch() {
     await this.load();
     await this.updateStatuses();
@@ -13,11 +16,12 @@ export default {
 
   data() {
     return {
-      loading:             false,
-      statsInterval:       null,
-      conditions:          [],
+      clusters:          [],
+      loading:           false,
+      statsInterval:     null,
+      conditions:        [],
       isAlertingEnabled: false,
-      headers:             [
+      headers:           [
         {
           name:          'status',
           labelKey:      'tableHeaders.status',
@@ -71,8 +75,8 @@ export default {
       this.load();
     },
 
-    onClone() {
-      this.load();
+    onClone(alarm) {
+      this.$refs.dialog.open(alarm, alarm.clusterId);
     },
 
     async load() {
@@ -89,6 +93,8 @@ export default {
         }
 
         const clusters = await getClusters(this);
+
+        this.$set(this, 'clusters', clusters);
 
         this.$set(this, 'conditions', await getAlertConditions(this, clusters));
         await this.updateStatuses();
@@ -141,6 +147,7 @@ export default {
         </n-link> to enable alerting.
       </h4>
     </div>
+    <CloneToClustersDialog ref="dialog" :clusters="clusters" @save="load" />
   </div>
 </template>
 

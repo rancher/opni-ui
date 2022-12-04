@@ -1,5 +1,5 @@
 import { Resource } from '../Resource';
-import { deleteAlertCondition, getAlertConditionStatus } from '~/product/opni/utils/requests/alerts';
+import { cloneAlertCondition, deleteAlertCondition, getAlertConditionStatus } from '~/product/opni/utils/requests/alerts';
 import { Duration, Reference, Status, Timestamp } from '~/product/opni/models/shared';
 import { Cluster } from '~/product/opni/models/Cluster';
 
@@ -318,6 +318,13 @@ export class Condition extends Resource {
         enabled:   true,
       },
       {
+        action:    'cloneToClustersModal',
+        altAction: 'clone',
+        label:     'Clone',
+        icon:      'icon icon-copy',
+        enabled:   true,
+      },
+      {
         action:     'promptRemove',
         altAction:  'delete',
         label:      'Delete',
@@ -340,5 +347,13 @@ export class Condition extends Resource {
   async remove() {
     await deleteAlertCondition(this.id);
     super.remove();
+  }
+
+  async clone(clusterIds: string[]) {
+    await cloneAlertCondition(this.base.alertCondition, clusterIds);
+  }
+
+  cloneToClustersModal() {
+    this.vue.$emit('clone', this);
   }
 }
