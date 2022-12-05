@@ -1,5 +1,5 @@
 import { Resource } from './Resource';
-import { deleteRoleBinding } from '~/product/opni/utils/requests';
+import { deleteRoleBinding } from '~/product/opni/utils/requests/management';
 
 export interface RoleBindingResponse {
   id: string;
