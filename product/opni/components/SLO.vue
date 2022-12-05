@@ -8,7 +8,7 @@ import Banner from '@/components/Banner';
 import Tab from '@/components/Tabbed/Tab';
 import Tabbed from '@/components/Tabbed';
 import { exceptionToErrorsArray } from '@/utils/error';
-import { getClusters } from '@/product/opni/utils/requests';
+import { getClusters } from '@/product/opni/utils/requests/management';
 import {
   createSLO, getMetrics, getServices, updateSLO, getEvents, getSLO
 } from '@/product/opni/utils/requests/slo';

@@ -4,8 +4,9 @@ import CopyCode from '@/components/CopyCode';
 import Checkbox from '@/components/form/Checkbox';
 import KeyValue from '@/components/form/KeyValue';
 import {
-  createAgent, getClusters, updateCluster, getClusterFingerprint, createToken, getDefaultImageRepository, getGatewayConfig
-} from '@/product/opni/utils/requests';
+  getClusters, updateCluster, getClusterFingerprint, createToken, getDefaultImageRepository, getGatewayConfig
+} from '@/product/opni/utils/requests/management';
+import { createAgent } from '@/product/opni/utils/requests';
 import Loading from '@/components/Loading';
 import Card from '@/components/Card';
 import Banner from '@/components/Banner';

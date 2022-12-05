@@ -1,7 +1,7 @@
 <script>
 import LabeledInput from '@/components/form/LabeledInput';
 import AsyncButton from '@/components/AsyncButton';
-import { createRole, getClusters } from '@/product/opni/utils/requests';
+import { createRole, getClusters } from '@/product/opni/utils/requests/management';
 import { exceptionToErrorsArray } from '@/utils/error';
 import Loading from '@/components/Loading';
 import Tab from '@/components/Tabbed/Tab';

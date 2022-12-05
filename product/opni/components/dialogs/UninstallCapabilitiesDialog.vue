@@ -3,7 +3,7 @@ import AsyncButton from '@/components/AsyncButton';
 import Card from '@/components/Card';
 import { exceptionToErrorsArray } from '@/utils/error';
 import RadioGroup from '@/components/form/RadioGroup';
-import { uninstallCapability } from '@/product/opni/utils/requests';
+import { uninstallCapability } from '@/product/opni/utils/requests/management';
 import Banner from '@/components/Banner';
 
 export default {

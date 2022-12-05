@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { TokensResponse, Token } from '@/product/opni/models/Token';
 import { CapabilitiesResponse, CapabilityInstallerResponse } from '@/product/opni/models/Capability';
 import {
-  Cluster, ClusterStats, ClusterStatsList, ClustersResponse, HealthResponse, CapabilityStatusResponse, ClusterResponse
+  Cluster, ClustersResponse, HealthResponse, CapabilityStatusResponse, ClusterResponse
 } from '@/product/opni/models/Cluster';
 import { MatchLabel, Role, RolesResponse } from '~/product/opni/models/Role';
 import { RoleBinding, RoleBindingsResponse } from '~/product/opni/models/RoleBinding';
@@ -118,12 +118,6 @@ export async function updateCluster(id: string, name: string, labels: { [key: st
   }));
 }
 
-export async function createAgent(tokenId: string) {
-  const fingerprint = await getClusterFingerprint();
-
-  (await axios.post<any>(`opni-test/agents`, { token: tokenId, pins: [fingerprint] }));
-}
-
 export async function getClusters(vue: any): Promise<Cluster[]> {
   const clustersResponse = (await axios.get<ClustersResponse>(`opni-api/management/clusters`)).data.items;
   const healthResponses = await Promise.allSettled(clustersResponse.map(clustersResponse => axios.get<HealthResponse>(`opni-api/management/clusters/${ clustersResponse.id }/health`)));
@@ -146,12 +140,6 @@ export async function getCluster(id: string, vue: any) {
   const clusterResponse = (await axios.get<ClusterResponse>(`opni-api/management/clusters/${ id }`)).data;
 
   return new Cluster(clusterResponse, null as any, vue);
-}
-
-export async function getClusterStats(vue: any): Promise<ClusterStats[]> {
-  const clustersResponse = (await axios.get<ClusterStatsList>(`opni-api/CortexAdmin/all_user_stats`)).data.items;
-
-  return clustersResponse;
 }
 
 export function deleteCluster(id: string): Promise<undefined> {

@@ -32,6 +32,7 @@ export enum AlertType {
   KUBE_STATE = 1, // eslint-disable-line no-unused-vars
   COMPOSITION = 2, // eslint-disable-line no-unused-vars
   CONTROL_FLOW = 3, // eslint-disable-line no-unused-vars
+  DOWNSTREAM_CAPABILTIY = 5, // eslint-disable-line no-unused-vars
 }
 
 export enum TimelineType {

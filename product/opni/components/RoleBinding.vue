@@ -2,7 +2,7 @@
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import AsyncButton from '@/components/AsyncButton';
-import { createRoleBinding, getRoles } from '@/product/opni/utils/requests';
+import { createRoleBinding, getRoles } from '@/product/opni/utils/requests/management';
 import { exceptionToErrorsArray } from '@/utils/error';
 import Loading from '@/components/Loading';
 import Tab from '@/components/Tabbed/Tab';
