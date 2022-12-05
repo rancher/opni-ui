@@ -1,6 +1,6 @@
 import day from 'dayjs';
 import { Resource } from './Resource';
-import { deleteToken } from '~/product/opni/utils/requests';
+import { deleteToken } from '~/product/opni/utils/requests/management';
 import { Labels, LABEL_KEYS } from '~/product/opni/models/shared';
 
 export interface TokenCapability{

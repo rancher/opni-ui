@@ -1,5 +1,5 @@
 import { Resource } from './Resource';
-import { deleteRole } from '~/product/opni/utils/requests';
+import { deleteRole } from '~/product/opni/utils/requests/management';
 import { findBy } from '~/utils/array';
 import { Cluster } from '~/product/opni/models/Cluster';
 

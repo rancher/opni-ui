@@ -4,7 +4,7 @@ import { Cluster } from '~/product/opni/models/Cluster';
 import { Slo, SlosResponse, SloStatusResponse, SloStatusStateResponse } from '~/product/opni/models/Slo';
 import { SloMetricsResponse } from '~/product/opni/models/SloMetric';
 import { SloService, SloServicesResponse } from '~/product/opni/models/SloService';
-import { getClusters } from '~/product/opni/utils/requests';
+import { getClusters } from '~/product/opni/utils/requests/management';
 
 export type Datasource = 'monitoring' | 'logging';
 
