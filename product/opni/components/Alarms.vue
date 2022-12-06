@@ -46,12 +46,6 @@ export default {
           labelKey:  'tableHeaders.type',
           value:     'typeDisplay'
         },
-        {
-          name:          'tags',
-          labelKey:      'tableHeaders.tags',
-          value:         'labels',
-          formatter:     'ListBubbles'
-        },
       ]
     };
   },

@@ -33,6 +33,10 @@ export enum AlertType {
   COMPOSITION = 2, // eslint-disable-line no-unused-vars
   CONTROL_FLOW = 3, // eslint-disable-line no-unused-vars
   DOWNSTREAM_CAPABILTIY = 5, // eslint-disable-line no-unused-vars
+  CPU = 5, // eslint-disable-line no-unused-vars
+  MEMORY = 6, // eslint-disable-line no-unused-vars
+  FS = 8, // eslint-disable-line no-unused-vars
+  MONITORING_BACKEND = 10, // eslint-disable-line no-unused-vars
 }
 
 export enum TimelineType {
@@ -68,11 +72,77 @@ export interface AlertConditionKubeState {
   for: Duration;
 }
 
+export interface AlertConditionDownstreamCapability {
+  clusterId: Reference;
+  capabilityState: string[];
+  for: Duration;
+}
+
+export interface AlertConditionMonitoringBackend {
+  backendComponents: string[];
+  for: Duration;
+}
+
+export type Operation = '<' | '>' | '<=' | '>=' | '=' | '!=';
+
+export interface Cores {
+  items: Number[];
+}
+
+export interface AlertConditionCPUSaturation {
+  clusterId: Reference;
+  // optional filters for nodes and cores, restrict observation to said nodes or cores,
+  // if empty, all nodes and cores are selected
+  nodeCoreFilters: { [key: string]: Cores };
+    // at least one cpu state should be specified
+  cpuStates: string[];
+  operation: Operation;
+  expectedRatio: Number; // 0-1
+  for: Duration;
+}
+
+export interface MemoryInfo {
+  devices: string[];
+}
+
+export interface MemoryNodeGroup {
+  nodes: { [key: string]: MemoryInfo };
+}
+
+export interface AlertConditionMemorySaturation {
+  clusterId: Reference;
+  nodeMemoryFilters: { [key: string]: MemoryInfo }; // nodes to devices
+  // at least one usageType is required
+  usageTypes: string[];
+  operation: Operation;
+  expectedRatio: Number;
+  for: Duration;
+}
+
+export interface FilesystemInfo {
+  mountpoints: string[];
+  devices: string[];
+}
+
+export interface AlertConditionFilesystemSaturation {
+  clusterId: Reference;
+  // optional filters, if none are set then everything is selected
+  nodeFilters: { [key: string]: FilesystemInfo};
+  operation: Operation;
+  expectedRatio: Number; // 0-1
+  for: Duration;
+}
+
 export interface AlertTypeDetails {
     system: AlertConditionSystem;
     kubeState: AlertConditionKubeState;
     composition: AlertConditionComposition;
     controlFlow: AlertConditionControlFlow;
+    downstreamCapability: AlertConditionDownstreamCapability;
+    monitoringBackend: AlertConditionMonitoringBackend;
+    cpu: AlertConditionCPUSaturation;
+    memory: AlertConditionMemorySaturation;
+    fs: AlertConditionFilesystemSaturation;
 }
 
 export interface AttachedEndpoint {
@@ -234,7 +304,7 @@ export class Condition extends Resource {
   }
 
   get clusterDisplay() {
-    const clusterId = this.alertType.clusterId?.id;
+    const clusterId = this.alertType.clusterId?.id || this.alertType.clusterId;
 
     if (!clusterId || !this.clusters) {
       return 'Disconnected';
@@ -257,8 +327,13 @@ export class Condition extends Resource {
 
   get typeDisplay(): string {
     const mapping: any = {
-      system:    'Agent Disconnect',
-      kubeState: 'Kube State'
+      system:               'Agent Disconnect',
+      kubeState:            'Kube State',
+      downstreamCapability: 'Downstream Capability',
+      monitoringBackend:    'Monitoring Backend',
+      cpu:                  'CPU',
+      memory:               'Memory',
+      fs:                   'Filesystem',
     };
 
     return mapping[this.type] || 'Unknown';
