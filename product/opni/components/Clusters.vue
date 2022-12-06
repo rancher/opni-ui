@@ -1,6 +1,7 @@
 <script>
 import SortableTable from '@/components/SortableTable';
-import { getClusters, getClusterStats } from '@/product/opni/utils/requests';
+import { getClusters } from '@/product/opni/utils/requests/management';
+import { getClusterStats } from '@/product/opni/utils/requests';
 import CapabilityButton from '@/product/opni/components/CapabilityButton';
 import Loading from '@/components/Loading';
 import { getClusterStatus as getMonitoringBackendStatus } from '@/product/opni/utils/requests/monitoring';

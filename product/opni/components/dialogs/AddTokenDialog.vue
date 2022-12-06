@@ -4,7 +4,7 @@ import Card from '@/components/Card';
 import { exceptionToErrorsArray } from '@/utils/error';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
-import { createToken } from '@/product/opni/utils/requests';
+import { createToken } from '@/product/opni/utils/requests/management';
 import Checkbox from '@/components/form/Checkbox';
 import Select from '@/components/form/Select';
 

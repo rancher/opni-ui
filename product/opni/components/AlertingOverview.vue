@@ -2,7 +2,7 @@
 import Loading from '@/components/Loading';
 import dayjs from 'dayjs';
 import { getAlertConditions, getConditionTimeline, getClusterStatus } from '~/product/opni/utils/requests/alerts';
-import { getClusters } from '~/product/opni/utils/requests';
+import { getClusters } from '~/product/opni/utils/requests/management';
 
 export default {
   components: { Loading },

@@ -4,6 +4,7 @@ import LabeledSelect from '@/components/form/LabeledSelect';
 import UnitInput from '@/components/form/UnitInput';
 import AsyncButton from '@/components/AsyncButton';
 import ArrayList from '@/components/form/ArrayList';
+import ArrayListSelect from '@/components/form/ArrayListSelect';
 import Loading from '@/components/Loading';
 import Tab from '@/components/Tabbed/Tab';
 import Tabbed from '@/components/Tabbed';
@@ -15,7 +16,7 @@ import AttachedEndpoints, { createDefaultAttachedEndpoints } from '~/product/opn
 import {
   createAlertCondition, getAlertConditionChoices, getAlertCondition, updateAlertCondition, deactivateSilenceAlertCondition, silenceAlertCondition
 } from '~/product/opni/utils/requests/alerts';
-import { getClusters } from '~/product/opni/utils/requests';
+import { getClusters } from '~/product/opni/utils/requests/management';
 
 export function createDefaultConfig() {
   return {
@@ -30,6 +31,7 @@ export function createDefaultConfig() {
 export default {
   components: {
     ArrayList,
+    ArrayListSelect,
     AsyncButton,
     AttachedEndpoints,
     LabeledInput,
@@ -57,7 +59,27 @@ export default {
         {
           label: 'Kube State',
           value: 'kubeState'
-        }
+        },
+        {
+          label: 'Downstream Capability',
+          value: 'downstreamCapability'
+        },
+        {
+          label: 'Monitoring Backend',
+          value: 'monitoringBackend'
+        },
+        {
+          label: 'CPU',
+          value: 'cpu'
+        },
+        {
+          label: 'Memory',
+          value: 'memory'
+        },
+        {
+          label: 'Filesystem',
+          value: 'fs'
+        },
       ],
       type: 'system',
 
@@ -71,7 +93,28 @@ export default {
           clusterId: '', objectType: '', objectName: '', namespace: '', state: '', for: '30s'
         }
       },
-
+      downstreamCapability: {
+        choices: { clusters: [], states: [] },
+        config:  {
+          clusterId: '', capabilityState: [], for: '30s'
+        }
+      },
+      monitoringBackend: {
+        choices: { },
+        config:  { }
+      },
+      cpu: {
+        choices: { },
+        config:  { }
+      },
+      memory: {
+        choices: { },
+        config:  { }
+      },
+      fs: {
+        choices: { },
+        config:  { }
+      },
       config: createDefaultConfig(),
 
       options: {
@@ -171,28 +214,24 @@ export default {
     },
 
     async loadChoices() {
-      const map = {
-        system:      {
-          value: AlertType.SYSTEM,
-          // handler: this.loadSystem
-        },
-        kubeState:   {
-          value: AlertType.KUBE_STATE,
-          // handler: this.loadKubeState
-        },
-        composition: {
-          value: AlertType.COMPOSITION,
-          // handler: this.loadComposition
-        },
-        controlFlow: {
-          value: AlertType.CONTROL_FLOW,
-          // handler: this.loadControlFlow
-        },
-      };
-      const allChoices = await getAlertConditionChoices({ alertType: map[this.type].value });
-      const choices = allChoices[this.type];
+      try {
+        const map = {
+          system:               AlertType.SYSTEM,
+          kubeState:            AlertType.KUBE_STATE,
+          composition:          AlertType.COMPOSITION,
+          controlFlow:          AlertType.CONTROL_FLOW,
+          downstreamCapability: AlertType.DOWNSTREAM_CAPABILTIY,
+          monitoringBackend:    AlertType.MONITORING_BACKEND,
+          cpu:                  AlertType.CPU,
+          memory:               AlertType.MEMORY,
+          fs:                   AlertType.FS,
+        };
 
-      this.$set(this[this.type], 'choices', { ...choices });
+        const allChoices = await getAlertConditionChoices({ alertType: map[this.type] });
+        const choices = allChoices[this.type];
+
+        this.$set(this[this.type], 'choices', { ...choices });
+      } catch (ex) {}
     },
 
     async loadClusters() {
@@ -344,6 +383,52 @@ export default {
       }
 
       return dayjs(this.config?.silence?.endsAt || undefined).format('dddd, MMMM D YYYY, h:mm:ss a');
+    },
+    downstreamCapabilityClusterOptions() {
+      const options = this.options.clusterOptions;
+
+      if (!this.options.clusterOptions.find(o => o.value === this.downstreamCapability.config.clusterId)) {
+        this.$set(this.downstreamCapability.config, 'clusterId', options[0]?.value || '');
+      }
+
+      return options;
+    },
+    downstreamCapabilityFor: {
+      get() {
+        return Number.parseInt(this.downstreamCapability.config.for || '0');
+      },
+
+      set(value) {
+        this.$set(this.downstreamCapability.config, 'for', `${ (value || 0) }s`);
+      }
+    },
+    downstreamCapabilityStateOptions() {
+      const options = this.downstreamCapability.choices.clusters[this.downstreamCapability.config.clusterId]?.states || [];
+
+      if (!options.find(o => o === this.downstreamCapability.config.state)) {
+        this.$set(this.downstreamCapability.config, 'capabilityState', [options[0]] || []);
+      }
+
+      return options;
+    },
+    monitoringBackendBackendComponentOptions() {
+      const options = this.monitoringBackend.choices.backendComponents || [];
+
+      if (!options.find(o => o === this.monitoringBackend.config.backendComponents)) {
+        this.$set(this.monitoringBackend.config, 'backendComponents', [options[0]] || []);
+      }
+
+      return options;
+    },
+
+    monitoringBackendFor: {
+      get() {
+        return Number.parseInt(this.monitoringBackend.config.for || '0');
+      },
+
+      set(value) {
+        this.$set(this.monitoringBackend.config, 'for', `${ (value || 0) }s`);
+      }
     }
   },
 
@@ -380,10 +465,10 @@ export default {
       >
         <div class="row bottom">
           <div class="col span-12">
-            <LabeledSelect v-model="type" label="Type" :options="conditionTypes" :required="true" :disabled="true" />
+            <LabeledSelect v-model="type" label="Type" :options="conditionTypes" :required="true" />
           </div>
         </div>
-        <div v-if="type == 'system'" class="row mt-20">
+        <div v-if="type === 'system'" class="row mt-20">
           <div class="col span-6">
             <LabeledSelect v-model="system.config.clusterId.id" label="Cluster" :options="systemClusterOptions" :required="true" />
           </div>
@@ -391,7 +476,7 @@ export default {
             <UnitInput v-model="systemTimeout" label="Timeout" suffix="s" :required="true" />
           </div>
         </div>
-        <div v-if="type == 'kubeState'">
+        <div v-if="type === 'kubeState'">
           <h4 class="mt-20">
             Target Metric
           </h4>
@@ -422,6 +507,53 @@ export default {
             </div>
             <div class="col span-6">
               <UnitInput v-model="kubeStateFor" label="Duration" suffix="s" :required="true" />
+            </div>
+          </div>
+        </div>
+        <div v-if="type === 'downstreamCapability'">
+          <h4 class="mt-20">
+            Target Metric
+          </h4>
+          <div class="row mt-10">
+            <div class="col span-6">
+              <LabeledSelect v-model="downstreamCapability.config.clusterId" label="Cluster" :options="downstreamCapabilityClusterOptions" :required="true" />
+            </div>
+            <div class="col span-6">
+              <UnitInput v-model="downstreamCapabilityFor" label="Duration" suffix="s" :required="true" />
+            </div>
+          </div>
+          <div class="row mt-10">
+            <div class="col span-12">
+              <ArrayListSelect
+                v-model="downstreamCapability.config.capabilityState"
+                label="State"
+                :disabled="downstreamCapabilityStateOptions.length === 0"
+                :options="downstreamCapabilityStateOptions"
+                :required="true"
+                add-label="Add State"
+              />
+            </div>
+          </div>
+        </div>
+        <div v-if="type === 'monitoringBackend'">
+          <h4 class="mt-20">
+            Target Metric
+          </h4>
+          <div class="row mt-10">
+            <div class="col span-6">
+              <UnitInput v-model="monitoringBackendFor" label="Duration" suffix="s" :required="true" />
+            </div>
+          </div>
+          <div class="row mt-10">
+            <div class="col span-12">
+              <ArrayListSelect
+                v-model="monitoringBackend.config.backendComponents"
+                label="Backend Components"
+                :disabled="monitoringBackendBackendComponentOptions.length === 0"
+                :options="(monitoringBackendBackendComponentOptions)"
+                :required="true"
+                add-label="Add Backend Component"
+              />
             </div>
           </div>
         </div>

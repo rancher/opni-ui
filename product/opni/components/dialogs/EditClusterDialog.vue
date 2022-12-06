@@ -4,7 +4,7 @@ import Card from '@/components/Card';
 import { exceptionToErrorsArray } from '@/utils/error';
 import LabeledInput from '@/components/form/LabeledInput';
 import KeyValue from '@/components/form/KeyValue';
-import { updateCluster } from '@/product/opni/utils/requests';
+import { updateCluster } from '@/product/opni/utils/requests/management';
 
 export default {
   components: {

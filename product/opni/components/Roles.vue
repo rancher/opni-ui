@@ -1,6 +1,6 @@
 <script>
 import SortableTable from '@/components/SortableTable';
-import { getClusters, getRoles } from '@/product/opni/utils/requests';
+import { getClusters, getRoles } from '@/product/opni/utils/requests/management';
 import Loading from '@/components/Loading';
 import AddTokenDialog from './dialogs/AddTokenDialog';
 

@@ -3,7 +3,7 @@ import SortableTable from '@/components/SortableTable';
 import Loading from '@/components/Loading';
 import { getClusterStatus, getAlertConditions } from '@/product/opni/utils/requests/alerts';
 import CloneToClustersDialog from './dialogs/CloneToClustersDialog';
-import { getClusters } from '~/product/opni/utils/requests';
+import { getClusters } from '~/product/opni/utils/requests/management';
 
 export default {
   components: {
@@ -45,12 +45,6 @@ export default {
           name:      'type',
           labelKey:  'tableHeaders.type',
           value:     'typeDisplay'
-        },
-        {
-          name:          'tags',
-          labelKey:      'tableHeaders.tags',
-          value:         'labels',
-          formatter:     'ListBubbles'
         },
       ]
     };

@@ -2,7 +2,7 @@
 import AsyncButton from '@/components/AsyncButton';
 import Card from '@/components/Card';
 import { exceptionToErrorsArray } from '@/utils/error';
-import { cancelCapabilityUninstall } from '@/product/opni/utils/requests';
+import { cancelCapabilityUninstall } from '@/product/opni/utils/requests/management';
 
 export default {
   components: {

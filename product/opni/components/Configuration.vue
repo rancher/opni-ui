@@ -5,7 +5,7 @@ import Loading from '@/components/Loading';
 import { exceptionToErrorsArray } from '@/utils/error';
 import AsyncButton from '@/components/AsyncButton';
 import Banner from '@/components/Banner';
-import { getGatewayConfig, updateGatewayConfig } from '~/product/opni/utils/requests';
+import { getGatewayConfig, updateGatewayConfig } from '~/product/opni/utils/requests/management';
 
 export default {
   components: {

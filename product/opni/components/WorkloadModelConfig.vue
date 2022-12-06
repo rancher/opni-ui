@@ -7,7 +7,7 @@ import {
   getDeployments, getModelStatus, trainModel, getModelTrainingParameters, hasGpu
 } from '@/product/opni/utils/requests/workload';
 import { isEmpty, sortBy, sum } from 'lodash';
-import { getClusters } from '@/product/opni/utils/requests';
+import { getClusters } from '@/product/opni/utils/requests/management';
 import Banner from '@/components/Banner';
 import { getLoggingCluster } from '@/product/opni/utils/requests/logging';
 
