@@ -32,7 +32,7 @@ export default {
       clusters:         [],
       queue:            {},
       lastParameters:   {},
-      status:           '',
+      status:           {},
       hasGpu:           false,
       isLoggingEnabled: false,
       ignoreSelection:  true,
@@ -108,7 +108,7 @@ export default {
     },
 
     async loadStatus() {
-      this.$set(this, 'status', (await getModelStatus()).id);
+      this.$set(this, 'status', (await getModelStatus()));
     },
 
     selection(selection) {
@@ -118,7 +118,7 @@ export default {
     },
 
     async train() {
-      this.$set(this, 'status', 'training');
+      this.$set(this.status, 'status', 'training');
       document.querySelector('main').scrollTop = 0;
       await trainModel(this.workloadList);
       this.$set(this, 'lastParameters', await getModelTrainingParameters());
@@ -175,9 +175,39 @@ export default {
       this.$set(this, 'queue', {});
       this.$set(this, 'lastParameters', {});
       this.$refs.table.clearSelection();
-      this.$set(this, 'status', 'training');
+      this.$set(this.status, 'status', 'training');
       document.querySelector('main').scrollTop = 0;
       await trainModel(this.workloadList);
+    },
+
+    getEta(secondsFromNow) {
+      const secondsInMinute = 60;
+      const secondsInHour = secondsInMinute * 60;
+      const result = [];
+
+      const hours = Math.floor(secondsFromNow / secondsInHour);
+
+      result.push(hours > 0 ? `${ hours }h` : '');
+
+      secondsFromNow -= hours * secondsInHour;
+      const minutes = Math.floor(secondsFromNow / secondsInMinute);
+
+      result.push(minutes > 0 || hours > 0 ? `${ minutes }m` : '');
+
+      secondsFromNow -= minutes * secondsInMinute;
+      const seconds = secondsFromNow;
+
+      result.push(seconds > 0 || minutes > 0 || hours > 0 ? `${ seconds }s` : '');
+
+      return result.filter(r => r).join(' ');
+    },
+
+    completed() {
+      if (this.status?.statistics?.percentageCompleted >= 100) {
+        return '';
+      }
+
+      return ` It's <b>${ this.status.statistics.percentageCompleted || 0 }% complete</b> and estimated to be done in <b>${ this.getEta(this.status.statistics.remainingTime) }</b>.`;
     }
   },
 
@@ -201,7 +231,7 @@ export default {
     },
 
     bannerColor() {
-      switch (this.status) {
+      switch (this.status.status) {
       case 'training':
         return 'warning';
       case 'completed':
@@ -212,9 +242,10 @@ export default {
     },
 
     bannerMessage() {
-      switch (this.status) {
+      this.completed();
+      switch (this.status.status) {
       case 'training':
-        return 'The deployment watchlist is being updated.';
+        return `The deployment watchlist is being updated.${ this.completed() }`;
       case 'completed':
         return 'There are already deployments on the watchlist. You can update the watchlist if needed.';
       case 'not started':
@@ -278,9 +309,7 @@ export default {
       </h4>
     </div>
     <div v-else>
-      <Banner v-if="bannerMessage" :color="bannerColor" class="mt-0">
-        {{ bannerMessage }}
-      </Banner>
+      <Banner v-if="bannerMessage" :color="bannerColor" class="mt-0" v-html="bannerMessage" />
       <SortableTable
         ref="table"
         class="primary"
