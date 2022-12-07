@@ -63,7 +63,7 @@ export default {
   },
 
   created() {
-    this.$set(this, 'statusInterval', setInterval(this.loadStatus, 10000));
+    this.$set(this, 'statusInterval', setInterval(this.loadStatus, 5000));
   },
 
   beforeDestroy() {
@@ -84,16 +84,27 @@ export default {
   },
 
   methods: {
-    async tryFn(fn) {
+    async tryFn(fn, finished) {
       try {
-        return await fn();
+        const val = await fn();
+
+        if (finished) {
+          finished(true);
+        }
+
+        return val;
       } catch (ex) {
+        if (finished) {
+          finished(false);
+        }
         this.$set(this, 'error', exceptionToErrorsArray(ex).join(';'));
       }
     },
 
     enable() {
+      this.$set(this, 'status', null);
       this.$set(this, 'editing', true);
+      this.load();
     },
 
     editFn() {
@@ -108,10 +119,13 @@ export default {
 
     async saveFn(cb) {
       await this.tryFn(async() => {
-        await this.save(cb);
+        this.$set(this, 'error', '');
+        await this.save();
         this.$set(this, 'editing', false);
         this.$set(this, 'enabled', true);
-      });
+        this.loadStatus();
+        document.querySelector('main').scrollTop = 0;
+      }, cb);
     },
 
     async disableFn() {
@@ -154,6 +168,7 @@ export default {
       const isEnabled = await this.isEnabled();
 
       this.$set(this, 'enabled', isEnabled);
+      await this.loadStatus();
 
       if (isEnabled) {
         const isUpgradeAvailable = await this.isUpgradeAvailable();
@@ -170,7 +185,7 @@ export default {
     <header>
       <h1>{{ title }}</h1>
       <button
-        v-if="(enabled && !editing)"
+        v-if="(enabled && !editing && $slots.details) "
         ref="actions"
         type="button"
         class="btn role-multi-action actions"
@@ -179,7 +194,7 @@ export default {
       >
         <i class="icon icon-actions"></i>
       </button>
-      <button v-if="(enabled && editing)" class="btn bg-error" @click="disable">
+      <button v-if="enabled && (editing || !$slots.details)" class="btn bg-error" @click="disable">
         Disable
       </button>
     </header>
@@ -203,11 +218,19 @@ export default {
       </div>
     </div>
     <div v-if="(enabled && !editing)" class="body">
-      <slot name="details" />
+      <slot name="details">
+        <slot name="editing" />
+        <div class="resource-footer mt-20">
+          <button class="btn role-secondary mr-10" @click="cancel">
+            Cancel
+          </button>
+          <AsyncButton mode="edit" @click="saveFn" />
+        </div>
+      </slot>
     </div>
     <div v-if="(editing || (enabled && !showDetail))" class="body">
       <slot name="editing" />
-      <div v-if="editing" class="resource-footer">
+      <div v-if="editing" class="resource-footer mt-20">
         <button class="btn role-secondary mr-10" @click="cancel">
           Cancel
         </button>

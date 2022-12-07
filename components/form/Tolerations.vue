@@ -216,4 +216,8 @@ export default {
   color: var(--input-label);
   margin-bottom: 10px;
 }
+
+::v-deep  .v-select {
+  top: 11px;
+}
 </style>

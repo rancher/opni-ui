@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import { Resource } from './Resource';
-import { uninstallCapabilityStatus } from '~/product/opni/utils/requests';
-import { installCapabilityV2 } from '~/product/opni/utils/requests/management';
+import { installCapabilityV2, uninstallCapabilityStatus } from '~/product/opni/utils/requests/management';
 import { Cluster } from '~/product/opni/models/Cluster';
 import { exceptionToErrorsArray } from '~/utils/error';
 

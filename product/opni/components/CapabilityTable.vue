@@ -1,15 +1,17 @@
 <script>
-import Loading from '@/components/Loading';
+import Card from '@/components/Card';
 import SortableTable from '@/components/SortableTable';
 import Banner from '@/components/Banner';
+import LoadingSpinner from '@/product/opni/components/LoadingSpinner';
 import UninstallCapabilitiesDialog from './dialogs/UninstallCapabilitiesDialog';
 import CancelUninstallCapabilitiesDialog from './dialogs/CancelUninstallCapabilitiesDialog';
 
 export default {
   components: {
     Banner,
+    Card,
     CancelUninstallCapabilitiesDialog,
-    Loading,
+    LoadingSpinner,
     SortableTable,
     UninstallCapabilitiesDialog,
   },
@@ -97,7 +99,7 @@ export default {
 
   methods: {
     openUninstallCapabilitiesDialog(capabilities) {
-      this.$refs.capabilitiesDialog.open(capabilities);
+      this.$refs.uninstallCapabilitiesDialog.open(capabilities);
     },
 
     openCancelUninstallCapabilitiesDialog(cluster, capabilities) {
@@ -133,32 +135,42 @@ export default {
     async onDialogSave() {
       this.$set(this, 'capabilities', await this.getCapabilities());
       await this.loadStatus();
-      this.$refs.capabilitiesDialog.close(false);
+      this.$refs.uninstallCapabilitiesDialog.close(false);
       this.$refs.cancelCapabilitiesDialog.close(false);
     },
   },
 };
 </script>
 <template>
-  <Loading v-if="$fetchState.pending" />
-  <div v-else>
-    <SortableTable
-      :rows="capabilities"
-      :headers="headers"
-      :search="false"
-      :sub-rows="true"
-      default-sort-by="nameDisplay"
-      key-field="id"
-    >
-      <template #sub-row="{row, fullColspan}">
-        <tr v-if="row.status.state === 'error' || row.status.state === 'warning'" class="sub-row">
-          <td :colspan="fullColspan">
-            <Banner class="sub-banner m-0" :label="row.status.message" :color="row.status.state" />
-          </td>
-        </tr>
-      </template>
-    </SortableTable>
-    <UninstallCapabilitiesDialog ref="capabilitiesDialog" @save="onDialogSave" @cancel="cancelCapabilityUninstall" />
+  <div>
+    <Card :show-highlight-border="false" :show-actions="false" class="m-0" title="Capability Management">
+      <div slot="title">
+        <h4 class="ml-10 mb-5">
+          Capability Management
+        </h4>
+      </div>
+      <div slot="body" class="p-10">
+        <LoadingSpinner v-if="$fetchState.pending" />
+        <SortableTable
+          v-else
+          :rows="capabilities"
+          :headers="headers"
+          :search="false"
+          :sub-rows="true"
+          default-sort-by="nameDisplay"
+          key-field="id"
+        >
+          <template #sub-row="{row, fullColspan}">
+            <tr v-if="row.status.state === 'error' || row.status.state === 'warning'" class="sub-row">
+              <td :colspan="fullColspan">
+                <Banner class="sub-banner m-0" :label="row.status.message" :color="row.status.state" />
+              </td>
+            </tr>
+          </template>
+        </SortableTable>
+      </div>
+    </Card>
+    <UninstallCapabilitiesDialog ref="uninstallCapabilitiesDialog" @save="onDialogSave" @cancel="cancelCapabilityUninstall" />
     <CancelUninstallCapabilitiesDialog ref="cancelCapabilitiesDialog" @save="onDialogSave" />
   </div>
 </template>
