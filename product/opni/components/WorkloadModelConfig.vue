@@ -31,7 +31,8 @@ export default {
       cluster:          '',
       clusters:         [],
       queue:            {},
-      status:           '',
+      lastParameters:   {},
+      status:           {},
       hasGpu:           false,
       isLoggingEnabled: false,
       ignoreSelection:  true,
@@ -81,10 +82,6 @@ export default {
           this.$set(this, 'hasGpu', await hasGpu());
         }
 
-        if (!this.hasGpu) {
-          return;
-        }
-
         const clusters = await getClusters();
 
         this.$set(this, 'clusters', clusters.map(c => ({ label: c.nameDisplay, value: c.id })));
@@ -111,26 +108,29 @@ export default {
     },
 
     async loadStatus() {
-      this.$set(this, 'status', (await getModelStatus()).id);
+      this.$set(this, 'status', (await getModelStatus()));
     },
 
     selection(selection) {
       if (!this.ignoreSelection && this.deployments[this.cluster]) {
-        this.$set(this.queue, this.cluster, selection);
+        this.$set(this.queue, this.cluster, [...selection]);
       }
     },
 
     async train() {
-      this.$set(this, 'status', 'training');
+      this.$set(this.status, 'status', 'training');
       document.querySelector('main').scrollTop = 0;
       await trainModel(this.workloadList);
+      this.$set(this, 'lastParameters', await getModelTrainingParameters());
     },
 
     async loadSelection() {
       const params = await getModelTrainingParameters();
+
+      this.$set(this, 'lastParameters', params);
       const queue = {};
 
-      params.list.forEach((workload) => {
+      params.items.forEach((workload) => {
         const flatDeployments = Object.values(this.deployments).flat();
         const deployment = flatDeployments.find((deployment) => {
           return workload.clusterId === deployment.clusterId && workload.namespace === deployment.namespace && workload.deployment === deployment.nameDisplay;
@@ -148,7 +148,7 @@ export default {
     },
 
     selectQueue() {
-      this.$nextTick(() => {
+      setTimeout(() => {
         const clusterQueue = this.queue[this.cluster] || [];
 
         clusterQueue.forEach((deployment) => {
@@ -162,13 +162,52 @@ export default {
         this.$nextTick(() => {
           this.$set(this, 'ignoreSelection', false);
         });
-      });
+      }, 0);
     },
 
     getClusterName(clusterId) {
       const cluster = this.clusters.find(c => c.value === clusterId);
 
       return cluster.label;
+    },
+
+    async removeAll() {
+      this.$set(this, 'queue', {});
+      this.$set(this, 'lastParameters', {});
+      this.$refs.table.clearSelection();
+      this.$set(this.status, 'status', 'training');
+      document.querySelector('main').scrollTop = 0;
+      await trainModel(this.workloadList);
+    },
+
+    getEta(secondsFromNow) {
+      const secondsInMinute = 60;
+      const secondsInHour = secondsInMinute * 60;
+      const result = [];
+
+      const hours = Math.floor(secondsFromNow / secondsInHour);
+
+      result.push(hours > 0 ? `${ hours }h` : '');
+
+      secondsFromNow -= hours * secondsInHour;
+      const minutes = Math.floor(secondsFromNow / secondsInMinute);
+
+      result.push(minutes > 0 || hours > 0 ? `${ minutes }m` : '');
+
+      secondsFromNow -= minutes * secondsInMinute;
+      const seconds = secondsFromNow;
+
+      result.push(seconds > 0 || minutes > 0 || hours > 0 ? `${ seconds }s` : '');
+
+      return result.filter(r => r).join(' ');
+    },
+
+    completed() {
+      if (this.status?.statistics?.percentageCompleted >= 100) {
+        return '';
+      }
+
+      return ` It's <b>${ this.status.statistics.percentageCompleted || 0 }% complete</b> and estimated to be done in <b>${ this.getEta(this.status.statistics.remainingTime) }</b>.`;
     }
   },
 
@@ -192,7 +231,7 @@ export default {
     },
 
     bannerColor() {
-      switch (this.status) {
+      switch (this.status.status) {
       case 'training':
         return 'warning';
       case 'completed':
@@ -203,9 +242,10 @@ export default {
     },
 
     bannerMessage() {
-      switch (this.status) {
+      this.completed();
+      switch (this.status.status) {
       case 'training':
-        return 'The deployment watchlist is being updated.';
+        return `The deployment watchlist is being updated.${ this.completed() }`;
       case 'completed':
         return 'There are already deployments on the watchlist. You can update the watchlist if needed.';
       case 'not started':
@@ -213,6 +253,35 @@ export default {
       default:
         return '';
       }
+    },
+
+    hasListChanged() {
+      const flat = Object.values(this.queue).flat();
+      const params = this.lastParameters?.items || [];
+
+      if (params.length !== flat.length ) {
+        return true;
+      }
+
+      return !params.some((parameters) => {
+        return flat.find((f) => {
+          return f.clusterId === parameters.clusterId &&
+            f.namespace === parameters.namespace &&
+            f.nameDisplay === parameters.deployment;
+        });
+      });
+    },
+
+    updateTooltip() {
+      if (!this.hasGpu) {
+        return `We can't update the watchlist without a GPU`;
+      }
+
+      if (!this.hasListChanged) {
+        return `No changes have been selected`;
+      }
+
+      return null;
     }
   },
 
@@ -239,14 +308,10 @@ export default {
         </n-link> to enable logging.
       </h4>
     </div>
-    <div v-else-if="!hasGpu" class="not-enabled">
-      <h4>Workload Insights are only available when a Nvidia GPU is present in the cluster that Opni is installed in.</h4>
-    </div>
     <div v-else>
-      <Banner v-if="bannerMessage" :color="bannerColor" class="mt-0">
-        {{ bannerMessage }}
-      </Banner>
+      <Banner v-if="bannerMessage" :color="bannerColor" class="mt-0" v-html="bannerMessage" />
       <SortableTable
+        ref="table"
         class="primary"
         :rows="deployments[cluster] || []"
         :headers="headers"
@@ -268,11 +333,16 @@ export default {
       <Flyout :is-open="true">
         <template #title>
           <h4>There are <b>{{ selectionCount }}</b> deployments currently selected to be watched</h4>
-          <button class="btn role-primary update-watchlist" :disabled="status === 'training' || selectionCount === 0" @click="train">
-            Update Watchlist
-          </button>
+          <div class="buttons">
+            <button class="btn role-secondary mr-10" @click="removeAll">
+              Clear Watchlist
+            </button>
+            <button v-tooltip="updateTooltip" class="btn role-primary" :disabled="!hasGpu || status === 'training' || !hasListChanged" @click="train">
+              Update Watchlist
+            </button>
+          </div>
         </template>
-        <div v-for="s in orderedSelection" :key="s.cluster" class="mt-10">
+        <div v-for="s in orderedSelection" :key="s.cluster" class="mt-20">
           <h3>{{ getClusterName(s.cluster) }}</h3>
           <SortableTable
             :rows="s.deployments || []"
@@ -335,7 +405,7 @@ export default {
     align-items: flex-start;
   }
 
-  .update-watchlist {
+  .buttons {
     position: relative;
 
     z-index: 10;

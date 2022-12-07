@@ -2,7 +2,7 @@ import { Resource } from './Resource';
 
 export interface DeploymentResponse {
   clusterId: string;
-  count: string;
+  logCount: string;
   deployment: string;
   namespace: string;
  }
@@ -33,7 +33,7 @@ export class Deployment extends Resource {
   }
 
   get logs(): number {
-    return Number.parseInt(this.base.count);
+    return Number.parseInt(this.base.logCount);
   }
 
   get availableActions(): any[] {

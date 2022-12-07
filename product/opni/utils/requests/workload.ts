@@ -1,37 +1,47 @@
 import axios from 'axios';
+import { isEmpty } from 'lodash';
 
 import { Deployment, DeploymentResponse } from '~/product/opni/models/Deployment';
 
 export async function getDeployments(clusterId: string): Promise<Deployment[]> {
-  const deployments = (await axios.post<{ list: DeploymentResponse[] }>(`opni-api/ModelTraining/workloadLogCount/${ clusterId }`, { id: clusterId })).data;
+  const deployments = (await axios.get<{ items: DeploymentResponse[] }>(`opni-api/ModelTraining/workload_aggregation/${ clusterId }`)).data;
 
-  return (deployments?.list || []).map(d => new Deployment(d, null));
+  return (deployments?.items || []).map(d => new Deployment(d, null));
 }
 
 export interface ModelStatus {
-  id: 'not started' | 'training' | 'completed';
+  status: 'not started' | 'training' | 'completed';
+  statistics: {
+    timeElapsed:string;
+    percentageCompleted:string;
+    remainingTime:string;
+    currentEpoch:string;
+    stage:string;
+  }
 }
 
 export async function getModelStatus(): Promise<ModelStatus> {
-  return await (await axios.get <ModelStatus>(`opni-api/ModelTraining/modelStatus`)).data;
+  return await (await axios.get <ModelStatus>(`opni-api/ModelTraining/model/status`)).data;
 }
 
-export interface WorkloadResponse {
+export interface ModelTrainingParameters {
   clusterId: string;
   namespace: string;
   deployment: string;
 }
 
-export interface WorkloadList {
-  list: WorkloadResponse[];
+export interface ModelTrainingParametersList {
+  items: ModelTrainingParameters[];
 }
 
-export async function trainModel(workloads: WorkloadResponse[]) {
-  await axios.post(`opni-api/ModelTraining/trainModel`, { list: workloads });
+export async function trainModel(parameters: ModelTrainingParameters[]) {
+  await axios.post(`opni-api/ModelTraining/model/train`, { items: parameters });
 }
 
-export async function getModelTrainingParameters(): Promise<WorkloadList> {
-  return (await axios.get<WorkloadList>(`opni-api/ModelTraining/modelTrainingParameters`)).data;
+export async function getModelTrainingParameters(): Promise<ModelTrainingParametersList> {
+  const response = (await axios.get<ModelTrainingParametersList>(`opni-api/ModelTraining/model/training_parameters`)).data;
+
+  return isEmpty(response) ? { items: [] } : response;
 }
 
 export interface GPUInfo {
@@ -41,12 +51,12 @@ export interface GPUInfo {
 }
 
 export interface GPUInfoList {
-  list: GPUInfo[];
+  items: GPUInfo[];
 }
 
 export async function hasGpu(): Promise<Boolean> {
-  const gpuList = (await axios.get<GPUInfoList>(`opni-api/ModelTraining/gpuPresentCluster`)).data;
-  const gpus = gpuList.list || [];
+  const gpuList = (await axios.get<GPUInfoList>(`opni-api/ModelTraining/gpu_info`)).data;
+  const gpus = gpuList.items || [];
 
   return gpus.some(gpu => Number.parseInt(gpu.allocatable) > 0);
 }
