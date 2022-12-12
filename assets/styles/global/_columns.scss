@@ -27,6 +27,12 @@ $DEFAULT_COLUMNS: 12;
     display: flex;
     flex: 1;
   }
+
+  &.middle {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
 }
 
 /* ROWS */
@@ -37,11 +43,12 @@ $DEFAULT_COLUMNS: 12;
 
 .row:before,
 .row:after {
-  content:"";
-  display:table;
+  content: "";
+  display: table;
 }
+
 .row:after {
-  clear:both;
+  clear: both;
 }
 
 /* COLUMNS */
@@ -49,24 +56,32 @@ $DEFAULT_COLUMNS: 12;
   $span: $cols;
   $suffix: null;
 
-  @if ( $cols != $DEFAULT_COLUMNS ) {
+  @if ($cols !=$DEFAULT_COLUMNS ) {
     $suffix: -of-#{$cols}
   }
 
-  @while $span > 0 {
+  @while $span >0 {
+
     // Normal column with a gutter
-    .span-#{$span}#{$suffix} { width: decimal-round( (math.div(100 - ($column-gutter * ($cols - 1)), $cols) * $span) + (($span - 1) * $column-gutter) , 3, 'floor'); }
+    .span-#{$span}#{$suffix} {
+      width: decimal-round((math.div(100 - ($column-gutter * ($cols - 1)), $cols) * $span) + (($span - 1) * $column-gutter), 3, 'floor');
+    }
 
     // Gutterless column
-    .gutless .span-#{$span}#{$suffix} { margin-right: 0; width: decimal-round( math.div($span, $cols) * 100%, 3, 'floor'); }
+    .gutless .span-#{$span}#{$suffix} {
+      margin-right: 0;
+      width: decimal-round(math.div($span, $cols) * 100%, 3, 'floor');
+    }
 
     // Offsets
     .offset-#{$span}#{$suffix} {
-      margin-left: decimal-round( (math.div($span, $cols)*100%) + $span*math.div($column-gutter, $cols), 3, 'floor' );
+      margin-left: decimal-round((math.div($span, $cols)*100%) + $span*math.div($column-gutter, $cols), 3, 'floor');
     }
 
     // Gutterless offset
-    .gutless .offset-#{$span}#{$suffix} { margin-left: decimal-round( (math.div($span, $cols)*100%), 3, 'floor' ); }
+    .gutless .offset-#{$span}#{$suffix} {
+      margin-left: decimal-round((math.div($span, $cols)*100%), 3, 'floor');
+    }
 
     $span: $span - 1;
   }

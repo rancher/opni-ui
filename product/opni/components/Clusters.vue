@@ -8,19 +8,15 @@ import { getClusterStatus as getMonitoringBackendStatus } from '@/product/opni/u
 import { getLoggingCluster } from '@/product/opni/utils/requests/logging';
 import { isEmpty } from 'lodash';
 import EditClusterDialog from './dialogs/EditClusterDialog';
-import UninstallCapabilitiesDialog from './dialogs/UninstallCapabilitiesDialog';
-import CancelUninstallCapabilitiesDialog from './dialogs/CancelUninstallCapabilitiesDialog';
 import CantDeleteClusterDialog from './dialogs/CantDeleteClusterDialog';
 
 export default {
   components: {
     CapabilityButton,
-    CancelUninstallCapabilitiesDialog,
     CantDeleteClusterDialog,
     EditClusterDialog,
     Loading,
     SortableTable,
-    UninstallCapabilitiesDialog,
   },
   async fetch() {
     await this.load();
@@ -47,7 +43,6 @@ export default {
           labelKey:      'tableHeaders.name',
           sort:          ['nameDisplay'],
           value:         'nameDisplay',
-          width:         250,
           formatter:     'TextWithClass',
           formatterOpts: {
             getClass(row, value) {
@@ -66,14 +61,19 @@ export default {
           labelKey:      'tableHeaders.id',
           sort:          ['id'],
           value:         'id',
-        },
-        {
-          name:          'capabilities',
-          labelKey:      'tableHeaders.capabilities',
-          sort:          ['capabilities'],
-          value:         'capabilities',
-          formatter:     'ListBubbles'
-        },
+          formatter:     'TextWithClass',
+          formatterOpts: {
+            getClass(row, value) {
+              // Value could either be a cluster ID in a UUID format or a
+              // friendly name set by the user, if available. If the value is
+              // a cluster ID, display it in a monospace font.
+              // This regex will match UUID versions 1-5.
+              const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+              return uuidRegex.test(value) ? 'monospace' : '';
+            }
+          }
+        }
       ]
     };
   },
@@ -82,8 +82,6 @@ export default {
     this.$on('remove', this.onClusterDelete);
     this.$on('edit', this.openEditDialog);
     this.$on('copy', this.copyClusterID);
-    this.$on('uninstallCapabilities', this.openUninstallCapabilitiesDialog);
-    this.$on('cancelUninstallCapabilities', this.openCancelUninstallCapabilitiesDialog);
     this.$on('cantDeleteCluster', this.openCantDeleteClusterDialog);
     this.statsInterval = setInterval(this.loadStats, 10000);
   },
@@ -92,8 +90,6 @@ export default {
     this.$off('remove');
     this.$off('edit');
     this.$off('copy');
-    this.$off('uninstallCapabilities');
-    this.$off('cancelUninstallCapabilities');
     this.$off('cantDeleteCluster');
     if (this.statsInterval) {
       clearInterval(this.statsInterval);
@@ -138,8 +134,6 @@ export default {
       }
     },
     async loadStats() {
-      await Promise.all(this.clusters.map(c => c.updateCabilityLogs()));
-
       try {
         const [monitoringStatus, loggingStatus] = await Promise.all([getMonitoringBackendStatus(), getLoggingCluster()]);
 
@@ -210,8 +204,6 @@ export default {
       </template>
     </SortableTable>
     <EditClusterDialog ref="dialog" @save="load" />
-    <UninstallCapabilitiesDialog ref="capabilitiesDialog" @save="onDialogSave" @cancel="cancelCapabilityUninstall" />
-    <CancelUninstallCapabilitiesDialog ref="cancelCapabilitiesDialog" @save="onDialogSave" />
     <CantDeleteClusterDialog ref="cantDeleteClusterDialog" />
   </div>
 </template>

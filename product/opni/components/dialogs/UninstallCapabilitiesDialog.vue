@@ -17,31 +17,38 @@ export default {
     return {
       errors:       [],
       capabilities: [],
-      labels:       [],
       deleteData:   false,
-      cluster:      null,
-      confirm:      ''
+      confirm:      '',
+      opened:         false,
     };
   },
   methods: {
     close(cancel = true) {
+      this.$set(this, 'opened', false);
       this.$modal.hide('uninstall-capabilities-dialog');
       if (cancel) {
         this.$emit('cancel', this.cluster, this.capabilities);
       }
     },
 
-    open(cluster, capabilities) {
-      this.$set(this, 'cluster', cluster);
-      this.$set(this, 'capabilities', capabilities);
-      this.$set(this, 'labels', capabilities.map(c => ({ metrics: 'Monitoring', logs: 'Logging' }[c])));
-      this.$set(this, 'confirm', '');
-      this.$modal.show('uninstall-capabilities-dialog');
+    open(capabilities) {
+      if (this.opened) {
+        this.$set(this, 'capabilities', [...this.capabilities, ...capabilities]);
+      } else {
+        this.$set(this, 'opened', true);
+        this.$set(this, 'capabilities', capabilities);
+        this.$set(this, 'confirm', '');
+        this.$modal.show('uninstall-capabilities-dialog');
+      }
     },
 
     async save(buttonDone) {
       try {
-        await Promise.all(this.capabilities.map(cap => uninstallCapability(this.cluster.id, cap, this.deleteData)));
+        const uninstalls = this.capabilities
+          .filter(cap => cap.isInstalled)
+          .map(cap => uninstallCapability(cap.rawCluster.id, cap.rawType, this.deleteData));
+
+        await Promise.all(uninstalls);
         this.$emit('save');
       } catch (err) {
         this.errors = exceptionToErrorsArray(err);
@@ -50,8 +57,12 @@ export default {
     },
   },
   computed: {
-    clusterName() {
-      return this.cluster?.nameDisplay;
+    clusters() {
+      return this.capabilities.map(c => c.rawCluster );
+    },
+
+    label() {
+      return { metrics: 'Monitoring', logs: 'Logging' }[(this.capabilities[0] || {}).rawType];
     }
   }
 };
@@ -73,7 +84,12 @@ export default {
       :show-highlight-border="false"
     >
       <div slot="body" class="pt-10">
-        <h4 class="text-default-text pt-4 mb-20" v-html="`Uninstall <b>${labels.join(' and ')}</b> from <b>${ clusterName }</b>`" />
+        <h4 class="text-default-text pt-4 mb-20" v-html="`Uninstall <b>${label}</b> from the following clusters:`" />
+        <ul>
+          <li v-for="cap in capabilities" :key="cap.id">
+            {{ cap.clusterNameDisplay }}
+          </li>
+        </ul>
         <div class="row">
           <div class="col span-12">
             <RadioGroup
@@ -88,9 +104,9 @@ export default {
         <div class="row">
           <div class="col span-12">
             <Banner color="warning">
-              Uninstalling capabilities will permentantly remove them. Are you sure you want to uninstall <b>{{ labels.join(' and ') }}</b>?
+              Uninstalling capabilities will permentantly remove them. Are you sure you want to uninstall <b>{{ label }}</b>?
             </Banner>
-            To confirm uninstall enter <b>{{ labels[0] }}</b> below:
+            To confirm uninstall enter <b>{{ label }}</b> below:
             <input v-model="confirm" class="no-label mt-5" type="text" />
           </div>
         </div>
@@ -100,7 +116,7 @@ export default {
           {{ t("generic.cancel") }}
         </button>
 
-        <AsyncButton mode="edit" :disabled="labels[0] !== confirm" @click="save" />
+        <AsyncButton mode="edit" :disabled="label !== confirm" @click="save" />
       </div>
     </Card>
   </modal>

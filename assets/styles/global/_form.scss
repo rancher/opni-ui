@@ -30,8 +30,11 @@ TEXTAREA,
   LABEL {
     color: var(--input-label);
   }
+
   &:hover {
-    &, .vs__dropdown-menu {
+
+    &,
+    .vs__dropdown-menu {
       background: var(--input-hover-bg);
     }
   }
@@ -40,19 +43,25 @@ TEXTAREA,
     color: var(--input-placeholder);
   }
 
-  &.disabled, &.disabled .selected, &[disabled], &[disabled]:hover, &.view {
+  &.disabled,
+  &.disabled .selected,
+  &[disabled],
+  &[disabled]:hover,
+  &.view {
     color: var(--input-disabled-text);
     background-color: var(--input-disabled-bg);
     outline-width: 0;
     border-color: var(--input-disabled-border);
     cursor: not-allowed;
+
     label {
       color: var(--input-disabled-label);
       display: inline-block;
       z-index: 1;
     }
+
     &::placeholder {
-        color: var(--input-disabled-placeholder);
+      color: var(--input-disabled-placeholder);
     }
   }
 
@@ -82,17 +91,18 @@ FORM {
       font-size: 14px;
     }
 
-    &.radio, &.checkbox {
+    &.radio,
+    &.checkbox {
       cursor: pointer;
       margin: 5px 0;
 
-      > INPUT {
+      >INPUT {
         margin-right: 5px;
       }
     }
 
-    &.radio + LABEL.radio,
-    &.checkbox + LABEL.checkbox {
+    &.radio+LABEL.radio,
+    &.checkbox+LABEL.checkbox {
       margin-left: 20px;
     }
   }
@@ -125,11 +135,18 @@ INPUT.inline-input {
 }
 
 .input-title {
-    clear: both;
-    margin-left: 24px;
-    font-size: 12px;
+  clear: both;
+  margin-left: 24px;
+  font-size: 12px;
 }
 
-.fixed select, .fixed.v-select, .fixed input:not(.vs__search){
+.fixed select,
+.fixed.v-select,
+.fixed input:not(.vs__search) {
   height: 50px;
+}
+
+.border-bottom {
+  border-bottom: 1px solid #dcdee7;
+  padding-bottom: 15px;
 }

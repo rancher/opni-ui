@@ -13,10 +13,8 @@ export default {
     return {
       errors:       [],
       capabilities: [],
-      labels:       [],
-      deleteData:   false,
-      cluster:      null,
-      confirm:      ''
+      confirm:      '',
+      opened:       false
     };
   },
   methods: {
@@ -27,17 +25,23 @@ export default {
       }
     },
 
-    open(cluster, capabilities) {
-      this.$set(this, 'cluster', cluster);
-      this.$set(this, 'capabilities', capabilities);
-      this.$set(this, 'labels', capabilities.map(c => ({ metrics: 'Monitoring', logs: 'Logging' }[c])));
-      this.$set(this, 'confirm', '');
-      this.$modal.show('cancel-uninstall-capabilities-dialog');
+    open(capabilities) {
+      if (this.opened) {
+        this.$set(this, 'capabilities', [...this.capabilities, ...capabilities]);
+      } else {
+        this.$set(this, 'opened', true);
+        this.$set(this, 'capabilities', capabilities);
+        this.$set(this, 'confirm', '');
+        this.$modal.show('cancel-uninstall-capabilities-dialog');
+      }
     },
 
     async save(buttonDone) {
       try {
-        await Promise.all(this.capabilities.map(cap => cancelCapabilityUninstall(this.cluster.id, cap)));
+        const cancels = this.capabilities
+          .map(cap => cancelCapabilityUninstall(cap.rawCluster.id, cap.rawType));
+
+        await Promise.all(cancels);
         this.$emit('save');
       } catch (err) {
         this.errors = exceptionToErrorsArray(err);
@@ -48,6 +52,14 @@ export default {
   computed: {
     clusterName() {
       return this.cluster?.nameDisplay;
+    },
+
+    clusters() {
+      return this.capabilities.map(c => c.rawCluster );
+    },
+
+    label() {
+      return { metrics: 'Monitoring', logs: 'Logging' }[(this.capabilities[0] || {}).rawType];
     }
   }
 };
@@ -68,7 +80,12 @@ export default {
       :show-highlight-border="false"
     >
       <div slot="body" class="pt-10">
-        <h4 class="text-default-text pt-4 mb-20" v-html="`Stop the uninstall of <b>${labels.join(' and ')}</b> from <b>${ clusterName }</b>?`" />
+        <h4 class="text-default-text pt-4 mb-20" v-html="`Stop the uninstall of <b>${label}</b> from:`" />
+        <ul>
+          <li v-for="cap in capabilities" :key="cap.id">
+            {{ cap.clusterNameDisplay }}
+          </li>
+        </ul>
       </div>
       <div slot="actions" class="buttons">
         <button class="btn role-secondary mr-10" @click="close">

@@ -1,6 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
 import { TokensResponse, Token } from '@/product/opni/models/Token';
-import { CapabilitiesResponse, CapabilityInstallerResponse } from '@/product/opni/models/Capability';
 import {
   Cluster, ClustersResponse, HealthResponse, CapabilityStatusResponse, ClusterResponse
 } from '@/product/opni/models/Cluster';
@@ -16,6 +15,10 @@ export async function installCapabilityV2(capability: string, clusterId: string)
 
 export async function uninstallCapabilityStatusV2(capability: string, clusterId: string) {
   return await axios.get(`opni-api/management/clusters/${ clusterId }/capabilities/${ capability }/uninstall/status`);
+}
+
+export interface CapabilityInstallerResponse {
+  command: string;
 }
 
 export interface DashboardGlobalSettings {
@@ -39,7 +42,7 @@ export async function getDefaultImageRepository() {
 }
 
 export async function getCapabilities(vue: any) {
-  const capabilitiesResponse = (await axios.get<CapabilitiesResponse>(`opni-api/management/capabilities`)).data.items;
+  const capabilitiesResponse = (await axios.get<any>(`opni-api/management/capabilities`)).data.items;
 
   return capabilitiesResponse;
 }
@@ -47,7 +50,7 @@ export async function getCapabilities(vue: any) {
 export function uninstallCapability(clusterId: string, capability: string, deleteStoredData: boolean, vue: any) {
   const initialDelay = deleteStoredData ? { initialDelay: '1m' } : {};
 
-  return axios.post<CapabilitiesResponse>(`opni-api/management/clusters/${ clusterId }/capabilities/${ capability }/uninstall`, { options: { ...initialDelay, deleteStoredData } });
+  return axios.post<any>(`opni-api/management/clusters/${ clusterId }/capabilities/${ capability }/uninstall`, { options: { ...initialDelay, deleteStoredData } });
 }
 
 export async function cancelCapabilityUninstall(clusterId: string, capabilityName: string) {
