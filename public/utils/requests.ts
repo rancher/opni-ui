@@ -229,7 +229,7 @@ export async function getPodBreakdown(range: Range, clusterId: string, keywords:
 export async function getLogTemplates(range: Range, clusterId: string): Promise<LogTemplate[]> {
   const response = await search(getLogTemplatesQuery(range, clusterId));
 
-  const templates = response.rawResponse.aggregations.templates.buckets.map(bucket => ({
+  const templates = (response.rawResponse.aggregations?.templates?.buckets || []).map(bucket => ({
     template: '',
     templateId: bucket.key,
     count: bucket.doc_count,

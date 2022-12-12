@@ -11,8 +11,8 @@ import {
   Axis,
   AreaSeries,
   LineAnnotation,
-  AnnotationDomainTypes,
-  LineAnnotationStyle
+  LineAnnotationStyle,
+  AnnotationDomainType
 } from '@elastic/charts';
 import { COLORS } from '../../utils/colors';
 import moment from 'moment';
@@ -112,7 +112,7 @@ export default class InsightsChart extends Component<InsightsChartProps, Insight
     const lineAnnotation = annotationData.length > 0
       ? <LineAnnotation
           id="events"
-          domainType={AnnotationDomainTypes.XDomain}
+          domainType={AnnotationDomainType.XDomain}
           dataValues={annotationData as any}
           customTooltip={eventTooltip as any}
           marker={<EuiIcon type="clock" />}
