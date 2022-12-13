@@ -55,7 +55,9 @@ export function exceptionToErrorsArray(err) {
   if ( err?.response?.data ) {
     const body = err.response.data;
 
-    if ( body && body.message ) {
+    if (typeof body === 'string') {
+      return [body];
+    } else if ( body && body.message ) {
       return [body.message];
     } else {
       return [err];
