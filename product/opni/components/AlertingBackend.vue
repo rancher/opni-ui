@@ -4,6 +4,13 @@ import {
   getClusterConfiguration, configureCluster, getClusterStatus, installCluster, uninstallCluster
 } from '@/product/opni/utils/requests/alerts';
 import Backend from '@/product/opni/components/Backend';
+import { wait } from '~/utils/time';
+
+export async function isEnabled() {
+  const status = (await getClusterStatus()).state;
+
+  return status !== 'NotInstalled';
+}
 
 export default {
   components: {
@@ -15,13 +22,6 @@ export default {
     try {
       await this.load();
     } catch (ex) {}
-  },
-
-  beforeDestroy() {
-    if (this.interval) {
-      clearInterval(this.interval);
-      this.$set(this, 'interval', null);
-    }
   },
 
   data() {
@@ -49,8 +49,11 @@ export default {
       this.$set(this, 'config', await getClusterConfiguration());
     },
 
-    async disable(buttonCallback) {
+    async disable() {
       await uninstallCluster();
+      while (await this.isEnabled()) {
+        await wait(2000);
+      }
     },
 
     async save() {
@@ -86,9 +89,7 @@ export default {
     },
 
     async isEnabled() {
-      const status = (await getClusterStatus()).state;
-
-      return status !== 'NotInstalled';
+      return await isEnabled();
     },
 
     async isUpgradeAvailable() {

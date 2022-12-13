@@ -11,8 +11,15 @@ import isEmpty from 'lodash/isEmpty';
 import Checkbox from '@/components/form/Checkbox';
 import { capitalize } from 'lodash';
 import AiOpsPretrained from '@/product/opni/components/AiOpsPretrained';
+import { NavigationEmitter } from '@/utils/navigation';
 
 const SENTINEL = '--___SENTINEL___--';
+
+export async function isEnabled() {
+  const config = await getAISettings();
+
+  return !isEmpty(config);
+}
 
 export default {
   components: {
@@ -68,7 +75,7 @@ export default {
       this.$set(this, 'advancedRancher', config.rancher || { replicas: 1 });
       this.$set(this, 'advancedLonghorn', config.longhorn || { replicas: 1 });
 
-      this.$set(this, 'enabled', !isEmpty(this.lastConfig));
+      this.$set(this, 'enabled', await isEnabled());
       this.$set(this, 'isUpgradeAvailable', await isUpgradeAvailable());
     },
 
@@ -79,6 +86,7 @@ export default {
     async disable(buttonCallback) {
       try {
         await deleteAISettings();
+        NavigationEmitter.$emit('update');
         buttonCallback(true);
         this.$set(this, 'enabled', false);
       } catch (err) {
@@ -111,7 +119,8 @@ export default {
         this.updatePretrainedBeforeSave('longhorn');
 
         await updateAISettings(this.config);
-        this.load();
+        await this.load();
+        NavigationEmitter.$emit('update');
 
         this.$set(this, 'error', '');
         buttonCallback(true);

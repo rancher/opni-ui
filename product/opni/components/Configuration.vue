@@ -75,22 +75,9 @@ export default {
 <template>
   <Loading v-if="loading || $fetchState.pending" />
   <div v-else>
-    <header>
+    <header class="m-0">
       <div class="title">
         <h1>Configuration</h1>
-      </div>
-      <div slot="actions" class="row actions-container">
-        <AsyncButton
-          class="btn role-primary mr-10"
-          action-label="Save and Restart"
-          waiting-label="Saving..."
-          success-label="Restarting..."
-          error-label="Error"
-          @click="save"
-        />
-        <button class="btn role-secondary mr-10" @click="reset">
-          Reset
-        </button>
       </div>
     </header>
     <Banner
@@ -106,6 +93,19 @@ export default {
         :read-only="false"
         class="yaml-editor"
       />
+      <div class="row actions-container mt-10">
+        <button class="btn role-secondary mr-10" @click="reset">
+          Reset
+        </button>
+        <AsyncButton
+          class="btn role-primary mr-10"
+          action-label="Save and Restart"
+          waiting-label="Saving..."
+          success-label="Restarting..."
+          error-label="Error"
+          @click="save"
+        />
+      </div>
     </div>
   </div>
 </template>
