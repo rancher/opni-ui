@@ -54,3 +54,9 @@ export function safeSetTimeout(timeout, callback, that) {
     }, timeout);
   }
 }
+
+export function wait(ms) {
+  return new Promise((resolve) => {
+    setTimeout((resolve), ms);
+  });
+}

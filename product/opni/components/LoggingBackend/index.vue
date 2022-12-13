@@ -160,6 +160,10 @@ export default {
         delete modifiedConfig.controlplaneNodes;
       }
 
+      if (!modifiedConfig.Dashboards?.Enabled) {
+        modifiedConfig.Dashboards = { Enabled: false };
+      }
+
       await createOrUpdateOpensearchCluster(modifiedConfig);
     },
 

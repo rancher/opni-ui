@@ -1,3 +1,5 @@
+import Vue from 'vue';
+
 export function traverseNavigation(navigation, fn) {
   function impl(parentPath, route, depth) {
     const path = parentPath + (route.path || '');
@@ -28,8 +30,9 @@ export function createRoutesFromNavigation(navigation) {
   return routes;
 }
 
-export function createNavItemsFromNavigation(navigation, t, customizeNavItem = navItem => navItem) {
+export async function createNavItemsFromNavigation(navigation, t, customizeNavItem = navItem => navItem) {
   const navItems = [];
+  const promises = [];
 
   traverseNavigation(navigation, (path, route, depth, isParent) => {
     if (route.display === false) {
@@ -47,9 +50,31 @@ export function createNavItemsFromNavigation(navigation, t, customizeNavItem = n
     });
 
     if (navItem) {
+      const showChildren = Promise.resolve(route.showChildren ? route.showChildren() : true);
+
+      showChildren.then((show) => {
+        navItem.showChildren = show;
+      });
+      promises.push(showChildren);
       navItems.push(navItem);
     }
   });
 
-  return navItems;
+  await Promise.all(promises);
+
+  let depth = 0;
+  let filtering = false;
+
+  return navItems.filter((item) => {
+    if (filtering && (depth < item.depth)) {
+      return false;
+    }
+
+    depth = item.depth;
+    filtering = !item.showChildren;
+
+    return true;
+  });
 }
+
+export const NavigationEmitter = new Vue();

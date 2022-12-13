@@ -32,7 +32,7 @@ export default {
       clusters:         [],
       queue:            {},
       lastParameters:   {},
-      status:           {},
+      status:           { statistics: {} },
       hasGpu:           false,
       isLoggingEnabled: false,
       ignoreSelection:  true,
@@ -108,7 +108,7 @@ export default {
     },
 
     async loadStatus() {
-      this.$set(this, 'status', (await getModelStatus()));
+      this.$set(this, 'status', { statistics: {}, ...(await getModelStatus()) });
     },
 
     selection(selection) {

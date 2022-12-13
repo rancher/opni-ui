@@ -6,10 +6,6 @@ export default {
     item: {
       type:     Object,
       required: true
-    },
-    selected: {
-      type:    Boolean,
-      default: false
     }
   },
   methods: {
@@ -38,7 +34,7 @@ export default {
     :to="item.route"
     tag="li"
     class="child nav-type"
-    :class="{[`depth-${item.depth}`]: true, selected}"
+    :class="{[`depth-${item.depth}`]: true}"
   >
     <a>
       <span class="label" :class="{'no-icon': !item.icon}">
@@ -67,7 +63,7 @@ A {
   align-items: center;
 }
 
-.selected {
+.router-link-exact-active {
   padding: 0;
 
   A, A I {
@@ -76,6 +72,10 @@ A {
 
   A {
     background-color: var(--nav-active);
+
+    &:focus, &.focused {
+      outline: none;
+    }
   }
 }
 

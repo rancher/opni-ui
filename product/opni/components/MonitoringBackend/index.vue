@@ -11,6 +11,12 @@ import { clone } from 'lodash';
 import Grafana from './Grafana';
 import Storage, { SECONDS_IN_DAY } from './Storage';
 
+export async function isEnabled() {
+  const status = (await getClusterStatus()).state;
+
+  return status !== 'NotInstalled';
+}
+
 export default {
   components: {
     Backend,
@@ -197,9 +203,7 @@ export default {
     },
 
     async isEnabled() {
-      const status = (await getClusterStatus()).state;
-
-      return status !== 'NotInstalled';
+      return await isEnabled();
     },
 
     async isUpgradeAvailable() {

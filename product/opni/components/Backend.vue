@@ -3,6 +3,7 @@ import Loading from '@/components/Loading';
 import AsyncButton from '@/components/AsyncButton';
 import { exceptionToErrorsArray } from '@/utils/error';
 import Banner from '@/components/Banner';
+import { NavigationEmitter } from '@/utils/navigation';
 
 export default {
   components: {
@@ -84,7 +85,7 @@ export default {
   },
 
   methods: {
-    async tryFn(fn, finished) {
+    async tryFn(fn, finished, always) {
       try {
         const val = await fn();
 
@@ -98,6 +99,10 @@ export default {
           finished(false);
         }
         this.$set(this, 'error', exceptionToErrorsArray(ex).join(';'));
+      } finally {
+        if (always) {
+          always();
+        }
       }
     },
 
@@ -123,9 +128,9 @@ export default {
         await this.save();
         this.$set(this, 'editing', false);
         this.$set(this, 'enabled', true);
-        this.loadStatus();
+        await this.loadStatus();
         document.querySelector('main').scrollTop = 0;
-      }, cb);
+      }, cb, () => NavigationEmitter.$emit('update'));
     },
 
     async disableFn() {
@@ -133,35 +138,13 @@ export default {
         await this.disable();
         this.$set(this, 'editing', false);
         this.$set(this, 'enabled', false);
-      });
+        await this.loadStatus();
+      }, undefined, () => NavigationEmitter.$emit('update'));
     },
 
     cancel() {
       this.$set(this, 'editing', false);
-    },
-
-    showActions() {
-      this.$store.commit('action-menu/show', {
-        resources: {
-          edit:             this.editFn,
-          disable:          this.disableFn,
-          availableActions: [
-            {
-              action:     'edit',
-              enabled:    true,
-              icon:       'icon icon-fw icon-edit',
-              label:      'Edit',
-            },
-            {
-              action:     'disable',
-              enabled:    true,
-              icon:       'icon icon-fw icon-delete',
-              label:      'Disable',
-            },
-          ]
-        },
-        elem: this.$refs.actions,
-      });
+      this.$set(this, 'error', '');
     },
 
     async load() {
@@ -184,18 +167,18 @@ export default {
   <div v-else>
     <header>
       <h1>{{ title }}</h1>
-      <button
-        v-if="(enabled && !editing && $slots.details) "
-        ref="actions"
-        type="button"
-        class="btn role-multi-action actions"
-        aria-haspopup="true"
-        @click="showActions"
-      >
-        <i class="icon icon-actions"></i>
-      </button>
-      <button v-if="enabled && (editing || !$slots.details)" class="btn bg-error" @click="disable">
-        Disable
+
+      <div v-if="(enabled && !editing && $slots.details) ">
+        <button class="btn role-secondary mr-5" @click="editFn">
+          Edit Config
+        </button>
+        <button class="btn bg-error" @click="disableFn">
+          Uninstall
+        </button>
+      </div>
+
+      <button v-if="enabled && (editing || !$slots.details)" class="btn bg-error" @click="disableFn">
+        Uninstall
       </button>
     </header>
     <Banner v-if="((enabled || editing) && status && status.message)" :color="status.state" class="mt-0">
@@ -211,9 +194,9 @@ export default {
     </Banner>
     <div v-if="(!enabled && !editing)" class="body">
       <div class="not-enabled">
-        <h4>{{ title }} is not currently enabled. Enabling it will install additional resources on this cluster.</h4>
+        <h4>{{ title }} is not currently installed. Installing it will use additional resources on this cluster.</h4>
         <button class="btn role-primary" @click="enable">
-          Enable
+          Install
         </button>
       </div>
     </div>

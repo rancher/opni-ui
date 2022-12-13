@@ -244,6 +244,7 @@ export default {
     position: relative;
 
     .CodeMirror {
+      height: 500px;
       background-color: var(--yaml-editor-bg);
       & .CodeMirror-gutters {
         background-color: var(--yaml-editor-bg);

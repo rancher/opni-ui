@@ -82,6 +82,19 @@ export interface StatusResponse {
   details: string;
 }
 
+export enum Status {
+  // eslint-disable-next-line no-unused-vars
+  ClusterStatusPending = 1,
+  // eslint-disable-next-line no-unused-vars
+  ClusterStatusGreen,
+  // eslint-disable-next-line no-unused-vars
+  ClusterStatusYellow,
+  // eslint-disable-next-line no-unused-vars
+  ClusterStatusRed,
+  // eslint-disable-next-line no-unused-vars
+  ClusterStatusError
+}
+
 export async function getOpensearchCluster(): Promise<OpensearchClusterV2> {
   return (await axios.get('opni-api/LoggingAdminV2/logging/cluster')).data;
 }
