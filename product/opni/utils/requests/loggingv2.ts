@@ -1,13 +1,13 @@
 import axios from 'axios';
 
 export interface CPUResource {
-    Request: string;
-    Limit: string;
+  request: string;
+  limit: string;
 }
 
 export interface DataPersistence {
-    Enabled?: boolean;
-    StorageClass?: string;
+  enabled?: boolean;
+  storageClass?: string;
 }
 
 export interface Toleration {
@@ -18,13 +18,13 @@ export interface Toleration {
 }
 
 export interface ComputeResourceQuantities {
-  CPU: string;
-  Memory: string;
+  cpu: string;
+  memory: string;
 }
 
 export interface ResourceRequirements {
-  Requests: ComputeResourceQuantities;
-  Limits: ComputeResourceQuantities;
+  requests: ComputeResourceQuantities;
+  limits: ComputeResourceQuantities;
 }
 
 export interface DataDetails {
@@ -35,13 +35,13 @@ export interface DataDetails {
   enableAntiAffinity ?: boolean;
   nodeSelector: {[key: string]: string};
   tolerations: Toleration[];
-  Persistence?: DataPersistence;
+  persistence?: DataPersistence;
 }
 
 export interface DashboardsDetails {
-    Enabled?: boolean;
-    Replicas?: string;
-    Resources: ResourceRequirements;
+    enabled?: boolean;
+    replicas?: string;
+    resources: ResourceRequirements;
 }
 
 export interface IngestDetails {
@@ -57,7 +57,7 @@ export interface ControlplaneDetails {
   replicas?: string;
   nodeSelector: { [key: string]: string };
   tolerations: Toleration[];
-  Persistence?: DataPersistence;
+  persistence?: DataPersistence;
 }
 
 export interface OpensearchClusterV2 {
@@ -65,16 +65,16 @@ export interface OpensearchClusterV2 {
   dataNodes: DataDetails;
   ingestNodes?: IngestDetails;
   controlplaneNodes?: ControlplaneDetails;
-  Dashboards?: DashboardsDetails;
-  DataRetention?: string;
+  dashboards?: DashboardsDetails;
+  dataRetention?: string;
 }
 
 export interface UpgradeAvailableResponse {
-  UpgradePending: boolean;
+  upgradePending: boolean;
 }
 
 export interface StorageClassResponse {
-  StorageClasses: string[];
+  storageClasses: string[];
 }
 
 export interface StatusResponse {

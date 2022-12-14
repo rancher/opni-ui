@@ -21,21 +21,16 @@ export default {
     },
   },
 
-  async fetch() {
-  },
-
   data() {
     return {};
   },
-
-  methods: {},
 };
 </script>
 <template>
-  <EnabledDisabled v-model="value.Enabled" disabled-message="Would you like to enable the separation of Ingest Pods?" disable-label="Disable pod separation">
+  <EnabledDisabled v-model="value.enabled" disabled-message="Would you like to enable the separation of Ingest Pods?" disable-label="Disable pod separation">
     <div class="row border-bottom mb-10">
       <div class="col span-6">
-        <UnitInput v-model="value.replicas" label="Replicas" :suffix="false" />
+        <UnitInput v-model="value.replicas" label="replicas" :suffix="false" />
       </div>
       <div class="col span-6 middle">
         <Checkbox v-model="value.enableAntiAffinity" label="Spread across nodes" />

@@ -39,32 +39,32 @@ export default {
       loading:          true,
       config:           {
         externalURL:   '',
-        DataRetention: '7d',
+        dataRetention: '7d',
 
         dataNodes: {
-          replicas:     '0',
+          replicas:     '1',
           diskSize:     '35Gi',
           memoryLimit:  '2048Mi',
           cpuResources: {
-            Request: '',
-            Limit:   ''
+            request: '',
+            limit:   ''
           },
           enableAntiAffinity: false,
           nodeSelector:       {},
           tolerations:        [],
-          Persistence:        {
-            Enabled:      false,
-            StorageClass: undefined
+          persistence:        {
+            enabled:      false,
+            storageClass: undefined
           }
         },
 
         ingestNodes: {
-          Enabled:      false,
-          replicas:     '0',
+          enabled:      false,
+          replicas:     '1',
           memoryLimit:  '1024Mi',
           cpuResources: {
-            Request: '',
-            Limit:   ''
+            request: '',
+            limit:   ''
           },
           enableAntiAffinity: false,
           nodeSelector:       { },
@@ -72,18 +72,18 @@ export default {
         },
 
         controlplaneNodes: {
-          Enabled:      false,
-          replicas:     '',
+          enabled:      false,
+          replicas:     '1',
           nodeSelector: { },
           tolerations:  [],
-          Persistence:  {
-            Enabled:      false,
-            StorageClass: undefined
+          persistence:  {
+            enabled:      false,
+            storageClass: undefined
           },
         },
 
-        Dashboards:    {
-          Enabled: true, Replicas: '0', Resources: { limits: {}, requests: {} }
+        dashboards:    {
+          enabled: true, replicas: '1', resources: { limits: { memory: '1024Mi' }, requests: { cpu: '3m' } }
         },
 
       },
@@ -100,35 +100,6 @@ export default {
       await deleteOpensearchCluster();
     },
 
-    enableDashboard() {
-      this.$set(this.config.Dashboards, 'Enabled', true);
-    },
-
-    disableDashboard() {
-      this.$set(this.config.Dashboards, 'Enabled', false);
-    },
-
-    numberSuffix(i) {
-      const j = i % 10;
-      const k = i % 100;
-
-      if (j === 1 && k !== 11) {
-        return `${ i }st`;
-      }
-      if (j === 2 && k !== 12) {
-        return `${ i }nd`;
-      }
-      if (j === 3 && k !== 13) {
-        return `${ i }rd`;
-      }
-
-      return `${ i }th`;
-    },
-
-    isStringMissing(s) {
-      return s === '' || typeof s === 'undefined';
-    },
-
     upgrade() {
       upgradeLoggingCluster();
       this.$set(this, 'upgradeable', false);
@@ -139,29 +110,29 @@ export default {
         throw new Error('External URL is required');
       }
 
-      if (this.config.DataRetention === '') {
+      if (this.config.dataRetention === '') {
         throw new Error('Data Retention is required');
       }
 
-      if (!(/\d+(d|m)/g).test(this.config.DataRetention)) {
+      if (!(/\d+(d|m)/g).test(this.config.dataRetention)) {
         throw new Error('Data Retention must be of the form <integer><time unit> i.e. 7d, 30d, 6m');
       }
       const modifiedConfig = cloneDeep(this.config);
 
-      if (modifiedConfig.ingestNodes?.Enabled) {
-        delete modifiedConfig.ingestNodes.Enabled;
-      } else if (modifiedConfig.ingestNodes && !modifiedConfig.ingestNodes.Enabled) {
+      if (modifiedConfig.ingestNodes?.enabled) {
+        delete modifiedConfig.ingestNodes.enabled;
+      } else if (modifiedConfig.ingestNodes && !modifiedConfig.ingestNodes.enabled) {
         delete modifiedConfig.ingestNodes;
       }
 
-      if (modifiedConfig.controlplaneNodes?.Enabled) {
-        delete modifiedConfig.controlplaneNodes.Enabled;
-      } else if (modifiedConfig.controlplaneNodes && !modifiedConfig.controlplaneNodes.Enabled) {
+      if (modifiedConfig.controlplaneNodes?.enabled) {
+        delete modifiedConfig.controlplaneNodes.enabled;
+      } else if (modifiedConfig.controlplaneNodes && !modifiedConfig.controlplaneNodes.enabled) {
         delete modifiedConfig.controlplaneNodes;
       }
 
-      if (!modifiedConfig.Dashboards?.Enabled) {
-        modifiedConfig.Dashboards = { Enabled: false };
+      if (!modifiedConfig.dashboards?.enabled) {
+        modifiedConfig.dashboards = { enabled: false };
       }
 
       await createOrUpdateOpensearchCluster(modifiedConfig);
@@ -221,8 +192,8 @@ export default {
         const cluster = await getOpensearchCluster();
         const config = { ...this.config, ...cluster };
 
-        config.ingestNodes.Enabled = !!cluster.ingestNodes;
-        config.controlplaneNodes.Enabled = !!cluster.controlplaneNodes;
+        config.ingestNodes.enabled = !!cluster.ingestNodes;
+        config.controlplaneNodes.enabled = !!cluster.controlplaneNodes;
 
         this.$set(this, 'config', config );
         this.$set(this, 'storageClassOptions', await getStorageClassOptions());
@@ -246,11 +217,11 @@ export default {
           <LabeledInput v-model="config.externalURL" label="External URL" placeholder="e.g. example.com" :required="true" />
         </div>
         <div class="col span-6">
-          <LabeledInput v-model="config.DataRetention" label="Data Retention" placeholder="e.g. 7d, 30d, 6m" :required="true" />
+          <LabeledInput v-model="config.dataRetention" label="Data Retention" placeholder="e.g. 7d, 30d, 6m" :required="true" />
         </div>
       </div>
       <Tabbed :side-tabs="true">
-        <Tab :weight="4" name="data-pods" label="Data Pods" tooltip="Data Pods are responsible for storing the data and running search and indexing operations.">
+        <Tab :weight="4" name="data-pods" label="Primary Pods" tooltip="Primary Pods are responsible for storing the data and running search and indexing operations.">
           <DataPods v-model="config.dataNodes" :storage-class-options="storageClassOptions" />
         </Tab>
         <Tab :weight="3" name="ingest-pods" label="Ingest Pods" tooltip="Ingest Pods are responsible for running the Opni ingest plugins, as well as indexing data.">
@@ -260,7 +231,7 @@ export default {
           <ControlplanePods v-model="config.controlplaneNodes" :storage-class-options="storageClassOptions" />
         </Tab>
         <Tab :weight="1" name="dashboard" label="Dashboard" tooltip="This is responsible for running the OpenSearch Dashboard UI.">
-          <Dashboard v-model="config.Dashboards" />
+          <Dashboard v-model="config.dashboards" />
         </Tab>
       </Tabbed>
     </template>

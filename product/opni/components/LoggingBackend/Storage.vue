@@ -36,8 +36,8 @@ export default {
   },
 
   created() {
-    if (!this.value.Persistence) {
-      this.$set(this.value, 'Persistence', {});
+    if (!this.value.persistence) {
+      this.$set(this.value, 'persistence', {});
     }
   },
 
@@ -88,10 +88,10 @@ export default {
         <UnitInput v-model="diskSize" label="Disk Size" suffix="GiB" placeholder="e.g. 24" :required="true" />
       </div>
       <div class="col span-4 middle">
-        <Checkbox v-model="value.Persistence.Enabled" class="role" label="Persistent" />
+        <Checkbox v-model="value.persistence.enabled" class="role" label="Persistent" />
       </div>
       <div class="col span-4">
-        <LabeledSelect v-model="value.Persistence.StorageClass" :options="storageClassOptions" label="Storage Class" :disabled="!value.Persistence.Enabled" />
+        <LabeledSelect v-model="value.persistence.storageClass" :options="storageClassOptions" label="Storage Class" :disabled="!value.persistence.enabled" />
       </div>
     </div>
   </div>
