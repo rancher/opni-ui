@@ -13,6 +13,7 @@ import AgentDisconnect from './AgentDisconnect';
 import KubeState from './KubeState';
 import DownstreamCapability from './DownstreamCapability';
 import MonitoringBackend from './MonitoringBackend';
+import Prometheus from './Prometheus';
 import { Severity, SeverityResponseToEnum } from '~/product/opni/models/alerting/Condition';
 import AttachedEndpoints, { createDefaultAttachedEndpoints } from '~/product/opni/components/AttachedEndpoints';
 import {
@@ -45,6 +46,7 @@ export default {
     Tab,
     Tabbed,
     Banner,
+    Prometheus,
   },
 
   async fetch() {
@@ -57,17 +59,20 @@ export default {
       KubeState,
       DownstreamCapability,
       MonitoringBackend,
+      Prometheus,
       conditionTypes: [
         AgentDisconnect.TYPE_OPTION,
         KubeState.TYPE_OPTION,
         DownstreamCapability.TYPE_OPTION,
+        Prometheus.TYPE_OPTION,
         MonitoringBackend.TYPE_OPTION,
       ],
       type:   AgentDisconnect.TYPE,
       ...AgentDisconnect.DEFAULT_CONFIG,
       ...KubeState.DEFAULT_CONFIG,
       ...DownstreamCapability.DEFAULT_CONFIG,
-      // ...MonitoringBackend.TYPE_OPTION,
+      ...Prometheus.DEFAULT_CONFIG,
+      ...MonitoringBackend.DEFAULT_CONFIG,
       config: createDefaultConfig(),
 
       options: {
@@ -251,6 +256,7 @@ export default {
         <KubeState v-if="type === KubeState.TYPE" v-model="kubeState" />
         <DownstreamCapability v-if="type === DownstreamCapability.TYPE" v-model="downstreamCapability" />
         <MonitoringBackend v-if="type === MonitoringBackend.TYPE" v-model="monitoringBackend" />
+        <Prometheus v-if="type === Prometheus.TYPE" v-model="prometheusQuery" />
       </Tab>
       <Tab
         name="messaging"
@@ -311,32 +317,4 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-.resource-footer {
-  display: flex;
-  flex-direction: row;
-
-  justify-content: flex-end;
-}
-
-.middle {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.install-command {
-  width: 100%;
-}
-
-::v-deep .warning {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.bottom {
-  border-bottom: 1px solid var(--header-border);
-  padding-bottom: 20px;
-}
 </style>

@@ -18,11 +18,16 @@ export interface EmailEndpoint {
     smtpRequireTLS: boolean;
 }
 
+export interface PagerDutyEndpoint {
+  integrationKey: string;
+}
+
 export interface AlertEndpoint {
     name: string;
     description: string;
     slack?: SlackEndpoint;
     email?: EmailEndpoint;
+    pagerDuty?: PagerDutyEndpoint;
 }
 
 export interface AlertEndpointWithId {
@@ -71,6 +76,10 @@ export class Endpoint extends Resource {
 
       if (this.base.endpoint.slack) {
         return 'slack';
+      }
+
+      if (this.base.endpoint.pagerDuty) {
+        return 'PagerDuty';
       }
 
       return 'unknown';

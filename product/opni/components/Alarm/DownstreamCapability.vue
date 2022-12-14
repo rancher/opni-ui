@@ -15,7 +15,7 @@ const CONSTS = {
     value: TYPE
   },
   DEFAULT_CONFIG: {
-    downstreamCapability: {
+    [TYPE]: {
       clusterId: { id: '' }, capabilityState: [], for: '30s'
     }
   },

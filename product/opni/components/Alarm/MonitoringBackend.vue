@@ -13,11 +13,7 @@ const CONSTS = {
     label: 'Monitoring Backend',
     value: TYPE
   },
-  DEFAULT_CONFIG: {
-    monitoringBackend: {
-      clusterId: { id: '' }, capabilityState: [], for: '30s'
-    }
-  },
+  DEFAULT_CONFIG: { [TYPE]: { clusterId: { id: '' }, for: '30s' } },
 };
 
 export default {
