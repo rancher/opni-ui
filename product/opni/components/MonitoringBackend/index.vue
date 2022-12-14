@@ -7,7 +7,7 @@ import { getCapabilities } from '@/product/opni/utils/requests/capability';
 import Backend from '@/product/opni/components/Backend';
 import Tab from '@/components/Tabbed/Tab';
 import Tabbed from '@/components/Tabbed';
-import { clone } from 'lodash';
+import { cloneDeep } from 'lodash';
 import Grafana from './Grafana';
 import Storage, { SECONDS_IN_DAY } from './Storage';
 
@@ -31,9 +31,12 @@ export default {
   async fetch() {
     try {
       const config = await getClusterConfig();
+      const clone = cloneDeep(this.config);
 
       this.$set(this.config, 'mode', config.mode || 0);
-      this.$set(this.config, config.storage.backend, config.storage[config.storage.backend]);
+      this.$set(this, 'config', { ...clone, ...config });
+      this.$set(this.config, 'storage', { ...clone.storage, ...config.storage });
+      this.$set(this.config.storage, config.storage.backend, { ...clone.storage[config.storage.backend], ...config.storage[config.storage.backend] });
       this.$set(this.config.storage, 'backend', config.storage.backend);
       this.$set(this.config, 'grafana', config.grafana || { enabled: false });
     } catch (ex) {}
@@ -136,7 +139,7 @@ export default {
 
     async disable() {
       await uninstallCluster();
-      this.$set(this, 's3.secretAccessKey', '');
+      this.$set(this.config.storage.s3, 'secretAccessKey', '');
     },
 
     async save() {
@@ -145,15 +148,15 @@ export default {
       }
 
       if (this.config.storage.backend === 's3') {
-        if (this.s3.endpoint === '') {
+        if (this.config.storage.s3.endpoint === '') {
           throw new Error('Endpoint is required');
         }
 
-        if (this.s3.bucketName === '') {
+        if (this.config.storage.s3.bucketName === '') {
           throw new Error('Bucketname is required');
         }
 
-        if (this.s3.secretAccessKey === '') {
+        if (this.config.storage.s3.secretAccessKey === '') {
           throw new Error('Secret Access Key is required');
         }
       }
@@ -165,15 +168,15 @@ export default {
         }
       }
 
-      const copy = clone(this.config.storage);
+      const copy = cloneDeep(this.config);
 
-      if (this.config.mode === 's3') {
-        delete copy.filesystem;
+      if (this.config.storage.backend === 's3') {
+        delete copy.storage.filesystem;
       } else {
-        delete copy.s3;
+        delete copy.storage.s3;
       }
 
-      await configureCluster(this.config);
+      await configureCluster(copy);
       this.load();
     },
 

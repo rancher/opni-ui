@@ -134,18 +134,6 @@ export default {
         this.$set(this.value.storage.s3.http, 'expectContinueTimeout', `${ value || 0 }s`);
       }
     },
-    mode: {
-      get() {
-        return this.config.mode;
-      },
-      set(val) {
-        this.$set(this.config, 'mode', val);
-        if (val !== 0 && this.config.storage.backend === 'filesystem') {
-          // switch to the next available mode
-          this.$set(this.config.storage, 'backend', this.storageOptions[0].value);
-        }
-      }
-    },
   },
   methods: {
     updateEndpoint() {
