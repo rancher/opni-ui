@@ -60,6 +60,7 @@ export default {
       const clusters = await getClusters(this);
       const [conditions, response] = await Promise.all([getAlertConditions(this, clusters), getConditionTimeline({ lookbackWindow: '24h' })]);
       const DEFAULT_CLUSTER_ID = 'default';
+      const UPSTREAM_CLUSTER_ID = 'UPSTREAM_CLUSTER_ID';
 
       const timelines = Object.entries(response?.items || {})
         .map(([id, value]) => {
@@ -86,6 +87,10 @@ export default {
       const groups = {
         [DEFAULT_CLUSTER_ID]: {
           name:      'Disconnected',
+          timelines: []
+        },
+        [UPSTREAM_CLUSTER_ID]: {
+          name:      'Upstream',
           timelines: []
         }
       };

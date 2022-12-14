@@ -43,8 +43,8 @@ export default {
 
         dataNodes: {
           replicas:     '0',
-          diskSize:     '20Gi',
-          memoryLimit:  '1024Mi',
+          diskSize:     '35Gi',
+          memoryLimit:  '2048Mi',
           cpuResources: {
             Request: '',
             Limit:   ''
@@ -83,7 +83,7 @@ export default {
         },
 
         Dashboards:    {
-          Enabled: true, Replicas: '', Resources: { limits: {}, requests: {} }
+          Enabled: true, Replicas: '0', Resources: { limits: {}, requests: {} }
         },
 
       },

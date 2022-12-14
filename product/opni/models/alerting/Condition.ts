@@ -283,6 +283,8 @@ export interface AlertStatusResponse {
   state: AlertConditionState;
 }
 
+const UPSTREAM_CLUSTER_ID = 'UPSTREAM_CLUSTER_ID';
+
 export class Condition extends Resource {
   private base: AlertConditionWithId;
   private statusRaw;
@@ -305,6 +307,10 @@ export class Condition extends Resource {
 
   get clusterDisplay() {
     const clusterId = this.alertType.clusterId?.id || this.alertType.clusterId;
+
+    if (clusterId === UPSTREAM_CLUSTER_ID) {
+      return 'Upstream';
+    }
 
     if (!clusterId || !this.clusters) {
       return 'Disconnected';

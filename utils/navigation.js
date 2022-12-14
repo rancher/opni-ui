@@ -54,13 +54,17 @@ export async function createNavItemsFromNavigation(navigation, t, customizeNavIt
 
       showChildren.then((show) => {
         navItem.showChildren = show;
+      }, () => {
+        navItem.showChildren = true;
       });
       promises.push(showChildren);
       navItems.push(navItem);
     }
   });
 
-  await Promise.all(promises);
+  try {
+    await Promise.all(promises);
+  } catch (ex) {}
 
   let depth = 0;
   let filtering = false;

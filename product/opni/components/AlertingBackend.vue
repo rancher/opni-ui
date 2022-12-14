@@ -57,8 +57,17 @@ export default {
     },
 
     async save() {
-      await installCluster();
+      const status = (await getClusterStatus()).state;
+
+      if (status === 'NotInstalled') {
+        await installCluster();
+      }
+
       const config = await getClusterConfiguration();
+
+      while ((await getClusterStatus()).state !== 'Installed') {
+        wait(3000);
+      }
 
       await configureCluster({ ...config, ...this.config });
       this.load();
