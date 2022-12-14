@@ -53,7 +53,7 @@ interface OpensearchCluster {
 }
 
 export async function getStorageClasses(): Promise<string[]> {
-  return (await axios.get('opni-api/LoggingAdmin/logging/storageclasses')).data?.StorageClasses || [];
+  return (await axios.get('opni-api/LoggingAdmin/logging/storageclasses')).data?.storageClasses || [];
 }
 
 export async function getLoggingCluster(): Promise<OpensearchCluster> {

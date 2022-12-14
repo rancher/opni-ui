@@ -39,13 +39,13 @@ export default {
 
   computed: {
     memoryKey() {
-      return this.useResourceRequirements ? 'Limits.Memory' : 'memoryLimit';
+      return this.useResourceRequirements ? 'limits.memory' : 'memoryLimit';
     },
     cpuLimitKey() {
-      return this.useResourceRequirements ? 'Limits.CPU' : 'cpuResources.Limit';
+      return this.useResourceRequirements ? 'limits.cpu' : 'cpuResources.limit';
     },
     cpuRequiredKey() {
-      return this.useResourceRequirements ? 'Requests.CPU' : 'cpuResources.Request';
+      return this.useResourceRequirements ? 'requests.cpu' : 'cpuResources.request';
     },
     memory: {
       get() {
