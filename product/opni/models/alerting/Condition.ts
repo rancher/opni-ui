@@ -36,6 +36,7 @@ export enum AlertType {
   CPU = 5, // eslint-disable-line no-unused-vars
   MEMORY = 6, // eslint-disable-line no-unused-vars
   FS = 8, // eslint-disable-line no-unused-vars
+  PROMETHEUS_QUERY = 9, // eslint-disable-line no-unused-vars
   MONITORING_BACKEND = 10, // eslint-disable-line no-unused-vars
 }
 
@@ -69,6 +70,12 @@ export interface AlertConditionKubeState {
   objectName: string;
   namespace: string;
   state: string;
+  for: Duration;
+}
+
+export interface AlertConditionPrometheusQuery {
+  clusterId: Reference;
+  query: string;
   for: Duration;
 }
 
@@ -143,6 +150,7 @@ export interface AlertTypeDetails {
     cpu: AlertConditionCPUSaturation;
     memory: AlertConditionMemorySaturation;
     fs: AlertConditionFilesystemSaturation;
+    prometheusQuery: AlertConditionPrometheusQuery;
 }
 
 export interface AttachedEndpoint {
@@ -340,6 +348,7 @@ export class Condition extends Resource {
       cpu:                  'CPU',
       memory:               'Memory',
       fs:                   'Filesystem',
+      prometheusQuery:      'Prometheus'
     };
 
     return mapping[this.type] || 'Unknown';

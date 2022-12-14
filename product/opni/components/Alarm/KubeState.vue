@@ -15,7 +15,7 @@ const CONSTS = {
     value: 'kubeState'
   },
   DEFAULT_CONFIG: {
-    kubeState: {
+    [TYPE]: {
       clusterId: '', objectType: '', objectName: '', namespace: '', state: '', for: '30s'
     }
   },

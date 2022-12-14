@@ -47,12 +47,18 @@ export default {
         {
           label: 'Email',
           value: 'email'
+        },
+        {
+          label: 'PagerDuty',
+          value: 'pagerDuty'
         }
       ],
       config: {
         name:        '',
         description: '',
-        endpoint:    { slack: {}, email: {} }
+        endpoint:    {
+          slack: {}, email: {}, pagerDuty: {}
+        }
       }
     };
   },
@@ -189,6 +195,11 @@ export default {
             <div class="col span-6">
               <Checkbox v-model="config.endpoint.email.smtpRequireTLS" label="Required TLS" />
             </div>
+          </div>
+        </div>
+        <div v-if="type === 'pagerDuty'" class="row mt-20">
+          <div class="col span-12">
+            <LabeledInput v-model="config.endpoint.pagerDuty.integrationKey" label="Integration Key" :required="true" />
           </div>
         </div>
       </Tab>

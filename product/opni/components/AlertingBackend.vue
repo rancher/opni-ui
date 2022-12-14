@@ -40,7 +40,12 @@ export default {
         },
       ],
       status:     '',
-      config: { numReplicas: 1 }
+      config: {
+        numReplicas:    1,
+        resourceLimits: {
+          storage: '500Mi', cpu: '500m', memory: '200Mi'
+        }
+      }
     };
   },
 
@@ -52,7 +57,7 @@ export default {
     async disable() {
       await uninstallCluster();
       while (await this.isEnabled()) {
-        await wait(2000);
+        await wait(3000);
       }
     },
 
@@ -69,7 +74,9 @@ export default {
         wait(3000);
       }
 
-      await configureCluster({ ...config, ...this.config });
+      await configureCluster({
+        ...config, ...this.config, resourceLimits: { ...this.config.resourceLimits, ...config.resourceLimits }
+      });
       this.load();
     },
     bannerMessage(status) {

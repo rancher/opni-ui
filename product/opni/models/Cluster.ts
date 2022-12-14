@@ -172,6 +172,10 @@ export class Cluster extends Resource {
     return this.base.metadata.capabilities;
   }
 
+  isCapabilityInstalled(type: string) {
+    return this.capabilities.includes(type);
+  }
+
   get nodes(): [] {
     return [];
   }

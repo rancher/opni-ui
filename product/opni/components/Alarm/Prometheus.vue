@@ -1,19 +1,24 @@
 <script>
 import LabeledSelect from '@/components/form/LabeledSelect';
 import UnitInput from '@/components/form/UnitInput';
+import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
 import Loading from '@/components/Loading';
 import { loadClusters, loadChoices } from './shared';
 import { AlertType } from '~/product/opni/models/alerting/Condition';
 
-const TYPE = 'system';
+const TYPE = 'prometheusQuery';
 const CONSTS = {
   TYPE,
-  ENUM:        AlertType.SYSTEM,
+  ENUM:        AlertType.PROMETHEUS_QUERY,
   TYPE_OPTION: {
-    label: 'Agent Disconnect',
+    label: 'Prometheus',
     value: TYPE
   },
-  DEFAULT_CONFIG: { [TYPE]: { clusterId: { id: '' }, timeout: '30s' } },
+  DEFAULT_CONFIG: {
+    [TYPE]: {
+      clusterId: { id: '' }, for: '30s', query: ''
+    }
+  },
 };
 
 export default {
@@ -23,6 +28,7 @@ export default {
     LabeledSelect,
     Loading,
     UnitInput,
+    TextAreaAutoGrow
   },
 
   props: {
@@ -55,36 +61,45 @@ export default {
   },
 
   computed: {
-    systemClusterOptions() {
+    prometheusQueryClusterOptions() {
       const options = this.clusterOptions;
 
-      if (!options.find(o => o.value === this.value.clusterId.id)) {
+      if (!this.clusterOptions.find(o => o.value === this.value.clusterId.id)) {
         this.$set(this.value.clusterId, 'id', options[0]?.value || '');
       }
 
       return options;
     },
 
-    systemTimeout: {
+    prometheusQueryFor: {
       get() {
-        return Number.parseInt(this.value.timeout || '0');
+        return Math.floor(Number.parseInt(this.value.for || '0') / 60);
       },
-
       set(value) {
-        this.$set(this.value, 'timeout', `${ (value || 0) }s`);
+        this.$set(this.value, 'for', `${ (value || 0) * 60 }s`);
       }
-    },
+    }
   },
 };
 </script>
 <template>
   <Loading v-if="$fetchState.pending" />
-  <div v-else class="row">
-    <div class="col span-6">
-      <LabeledSelect v-model="value.clusterId.id" label="Cluster" :options="systemClusterOptions" :required="true" />
+  <div v-else>
+    <div class="row mt-20">
+      <div class="col span-6">
+        <LabeledSelect v-model="value.clusterId.id" label="Cluster" :options="prometheusQueryClusterOptions" :required="true" />
+      </div>
+      <div class="col span-6">
+        <UnitInput v-model="prometheusQueryFor" label="Duration" suffix="mins" :required="true" />
+      </div>
     </div>
-    <div class="col span-6">
-      <UnitInput v-model="systemTimeout" label="Timeout" suffix="s" :required="true" />
+    <div class="row mt-20">
+      <div class="col span-12">
+        <h4>
+          Query
+        </h4>
+        <TextAreaAutoGrow v-model="value.query" :min-height="250" :required="true" />
+      </div>
     </div>
   </div>
 </template>
