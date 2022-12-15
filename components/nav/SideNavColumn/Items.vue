@@ -18,6 +18,10 @@ export default {
     $route() {
       this.$set(this, 'selectedIndex', this.items.findLastIndex(i => this.$router.history.current.path.includes(i.route)));
     },
+
+    items() {
+      this.$set(this, 'selectedIndex', this.items.findLastIndex(i => this.$router.history.current.path.includes(i.route)));
+    }
   },
 };
 </script>

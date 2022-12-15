@@ -30,6 +30,7 @@ export default {
     async load() {
       const allNavItems = await createNavItemsFromNavigation(NAVIGATION, this.t.bind(this));
 
+      console.log(allNavItems);
       this.$set(this, 'allNavItems', allNavItems);
     }
   },
