@@ -3,7 +3,6 @@ import Loading from '@/components/Loading';
 import AsyncButton from '@/components/AsyncButton';
 import { exceptionToErrorsArray } from '@/utils/error';
 import Banner from '@/components/Banner';
-import { NavigationEmitter } from '@/utils/navigation';
 
 export default {
   components: {
@@ -130,7 +129,7 @@ export default {
         this.$set(this, 'enabled', true);
         await this.loadStatus();
         document.querySelector('main').scrollTop = 0;
-      }, cb, () => NavigationEmitter.$emit('update'));
+      }, cb);
     },
 
     async disableFn() {
@@ -139,7 +138,7 @@ export default {
         this.$set(this, 'editing', false);
         this.$set(this, 'enabled', false);
         await this.loadStatus();
-      }, undefined, () => NavigationEmitter.$emit('update'));
+      }, undefined);
     },
 
     cancel() {

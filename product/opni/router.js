@@ -2,9 +2,6 @@ import Vue from 'vue';
 import Router from 'vue-router';
 
 import { createRoutesFromNavigation } from '@/utils/navigation';
-import { isEnabled as alertingIsEnabled } from '@/product/opni/components/AlertingBackend';
-import { isEnabled as monitoringIsEnabled } from '@/product/opni/components/MonitoringBackend';
-import { isEnabled as aiOpsIsEnabled } from '@/product/opni/components/AiOpsBackend';
 import MonitoringBackend from './pages/MonitoringBackend';
 import Clusters from './pages/Clusters';
 import Cluster from './pages/Cluster';
@@ -66,9 +63,6 @@ export const NAVIGATION = {
       labelKey:  'opni.nav.monitoring',
       // icon:      'monitoring',
       component: MonitoringBackend,
-      async showChildren() {
-        return await monitoringIsEnabled();
-      },
       routes:    [
         {
           name:     'rbac',
@@ -122,9 +116,6 @@ export const NAVIGATION = {
       labelKey:  'opni.nav.alerting',
       display:   true,
       component: AlertingBackend,
-      async showChildren() {
-        return await alertingIsEnabled();
-      },
       // redirect:  { name: 'slos' },
       routes:    [
         {
@@ -220,9 +211,6 @@ export const NAVIGATION = {
       path:      '/ai-ops',
       labelKey:  'opni.nav.aiOps',
       component: AiOpsBackend,
-      async showChildren() {
-        return await aiOpsIsEnabled();
-      },
       display:   true,
       routes:    [
         {

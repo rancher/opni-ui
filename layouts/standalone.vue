@@ -4,7 +4,7 @@ import PromptRemove from '@/components/PromptRemove';
 import HeaderBar from '@/components/nav/HeaderBar';
 import SideNavColumn from '@/components/nav/SideNavColumn';
 import SideNavColumnItems from '@/components/nav/SideNavColumn/Items';
-import { createNavItemsFromNavigation, NavigationEmitter } from '@/utils/navigation';
+import { createNavItemsFromNavigation } from '@/utils/navigation';
 import SideNavColumnItem from '@/components/nav/SideNavColumn/Item';
 import { NAVIGATION } from '@/product/opni/router';
 
@@ -16,14 +16,6 @@ export default {
 
   async fetch() {
     await this.load();
-  },
-
-  created() {
-    NavigationEmitter.$on('update', this.load);
-  },
-
-  beforeDestroy() {
-    NavigationEmitter.$off('update');
   },
 
   data() {
