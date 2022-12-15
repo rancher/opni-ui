@@ -1,6 +1,16 @@
 <script>
 import SideNavColumnItem from '@/components/nav/SideNavColumn/Item';
 
+function findLastIndex(arr, fn) {
+  for (let i = arr.length - 1; i >= 0; i--) {
+    if (fn( arr[i], i, arr )) {
+      return i;
+    }
+  }
+
+  return null;
+}
+
 export default {
   components: { SideNavColumnItem },
   props:      {
@@ -11,16 +21,16 @@ export default {
   },
 
   data() {
-    return { selectedIndex: this.items.findLastIndex(i => this.$router.history.current.path.includes(i.route)) };
+    return { selectedIndex: findLastIndex(this.items, i => this.$router.history.current.path.includes(i.route)) };
   },
 
   watch: {
     $route() {
-      this.$set(this, 'selectedIndex', this.items.findLastIndex(i => this.$router.history.current.path.includes(i.route)));
+      this.$set(this, 'selectedIndex', findLastIndex(this.items, i => this.$router.history.current.path.includes(i.route)));
     },
 
     items() {
-      this.$set(this, 'selectedIndex', this.items.findLastIndex(i => this.$router.history.current.path.includes(i.route)));
+      this.$set(this, 'selectedIndex', findLastIndex(this.items, i => this.$router.history.current.path.includes(i.route)));
     }
   },
 };
