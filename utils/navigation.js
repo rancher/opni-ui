@@ -1,14 +1,15 @@
 export function traverseNavigation(navigation, fn) {
-  function impl(parentPath, route, depth) {
+  function impl(parentPath, route, depth, parentResult) {
     const path = parentPath + (route.path || '');
+    let result;
 
     if (path) {
       const isParent = parentPath && (route.routes || []).length > 0 && route.routes.some(r => r.display);
 
-      fn(path, route, depth, isParent);
+      result = fn(path, route, depth, isParent, parentResult);
     }
 
-    (route.routes || []).forEach(subRoute => impl(path, subRoute, depth + 1));
+    (route.routes || []).forEach(subRoute => impl(path, subRoute, depth + 1, result));
   }
 
   return impl('', navigation, 0);
@@ -31,7 +32,7 @@ export function createRoutesFromNavigation(navigation) {
 export function createNavItemsFromNavigation(navigation, t, customizeNavItem = navItem => navItem) {
   const navItems = [];
 
-  traverseNavigation(navigation, (path, route, depth, isParent) => {
+  traverseNavigation(navigation, (path, route, depth, isParent, parent) => {
     if (route.display === false) {
       return;
     }
@@ -42,13 +43,19 @@ export function createNavItemsFromNavigation(navigation, t, customizeNavItem = n
       route:    path,
       label:    t(route.labelKey),
       routes:   undefined,
-      parent:   isParent,
-      children: route.children ? traverseNavigation(route.children) : []
+      parent,
+      children: []
     });
 
     if (navItem) {
       navItems.push(navItem);
+
+      if (parent) {
+        parent.children.push(navItem);
+      }
     }
+
+    return navItem;
   });
 
   return navItems;

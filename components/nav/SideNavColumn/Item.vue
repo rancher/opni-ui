@@ -11,10 +11,20 @@ export default {
       default: false
     }
   },
+  created() {
+    this.$set(this.item, 'open', this.$router.history.current.path.includes(this.item.route));
+  },
   methods: {
     removeFavorite() {
       this.$store.dispatch('type-map/removeFavorite', this.type.name);
     },
+    toggle(ev) {
+      if (ev.target.tagName === 'I') {
+        return this.$set(this.item, 'open', !this.item.open);
+      }
+
+      this.$set(this.item, 'open', true);
+    }
   },
   computed: {
     iconClass() {
@@ -25,41 +35,85 @@ export default {
       return `icon-${ this.item.icon }`;
     },
     hasChildren() {
-      return this.item.children && this.item.children.some(c => c.display);
+      return this.item.children && this.item.children.some(c => c.display !== false);
+    },
+
+    rootParent() {
+      if (!this.item.parent) {
+        return;
+      }
+
+      let item = this.item;
+
+      while (item.parent) {
+        item = item.parent;
+      }
+
+      return item;
+    },
+
+    isOpen() {
+      const parent = this.rootParent;
+
+      if (!parent) {
+        return true;
+      }
+
+      return parent.open;
+    },
+
+    isRoot() {
+      return !this.rootParent;
     }
   }
 };
 </script>
 
 <template>
-  <n-link
-    :to="item.route"
-    tag="li"
-    class="child nav-type"
-    :class="{[`depth-${item.depth}`]: true, selected}"
-  >
-    <a>
-      <span class="label" :class="{'no-icon': !item.icon}">
-        <i v-if="iconClass" class="icon icon-fw" :class="iconClass" />
-        {{ item.label }}
-      </span>
-      <i v-if="hasChildren" class="icon toggle icon-chevron-down"></i>
-    </a>
-  </n-link>
+  <div v-if="isOpen" class="item" @click="toggle">
+    <n-link
+      :to="item.route"
+      tag="li"
+      class="child nav-type"
+      :class="{[`depth-${item.depth}`]: true, selected}"
+    >
+      <a>
+        <span class="label" :class="{'no-icon': !item.icon}">
+          <i v-if="iconClass" class="icon icon-fw" :class="iconClass" />
+          {{ item.label }}
+        </span>
+      </a>
+    </n-link>
+    <i v-if="hasChildren && isRoot" class="icon toggle icon-chevron-down" :class="{'icon-chevron-down': item.open, 'icon-chevron-up': !item.open}"></i>
+  </div>
 </template>
 <style lang="scss" scoped>
 li {
   list-style-type: none;
+  outline: none;
 }
+
+A:focus {
+  outline: none;
+}
+
 A I {
   position: relative;
   color: var(--muted);
 }
-A {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+.item {
+  position: relative;
+  outline: none;
+
+  i {
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    cursor: pointer;
+    $size: 20px;
+    width: $size;
+    height: $size;
+  }
 }
 .selected {
   padding: 0;
