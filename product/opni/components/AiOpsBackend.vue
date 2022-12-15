@@ -11,7 +11,6 @@ import isEmpty from 'lodash/isEmpty';
 import Checkbox from '@/components/form/Checkbox';
 import { capitalize } from 'lodash';
 import AiOpsPretrained from '@/product/opni/components/AiOpsPretrained';
-import { NavigationEmitter } from '@/utils/navigation';
 
 const SENTINEL = '--___SENTINEL___--';
 
@@ -86,7 +85,6 @@ export default {
     async disable(buttonCallback) {
       try {
         await deleteAISettings();
-        NavigationEmitter.$emit('update');
         buttonCallback(true);
         this.$set(this, 'enabled', false);
       } catch (err) {
@@ -120,7 +118,6 @@ export default {
 
         await updateAISettings(this.config);
         await this.load();
-        NavigationEmitter.$emit('update');
 
         this.$set(this, 'error', '');
         buttonCallback(true);
@@ -266,12 +263,12 @@ export default {
         </div>
       </div>
       <div v-else class="not-enabled">
-        <h4>AIOps is not currently enabled. Enabling it will install additional resources on this cluster.</h4>
+        <h4>AIOps is not currently enabled. Installing it will add additional resources on this cluster.</h4>
         <AsyncButton
           class="btn role-primary"
           mode="edit"
-          action-label="Enable"
-          waiting-label="Enabling"
+          action-label="Install"
+          waiting-label="Installing"
           @click="enable"
         />
       </div>

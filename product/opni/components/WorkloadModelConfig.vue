@@ -3,6 +3,7 @@ import SortableTable from '@/components/SortableTable';
 import Loading from '@/components/Loading';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import Flyout from '@/product/opni/components/Flyout';
+import DependencyWall from '@/product/opni/components/DependencyWall';
 import {
   getDeployments, getModelStatus, trainModel, getModelTrainingParameters, hasGpu
 } from '@/product/opni/utils/requests/workload';
@@ -10,10 +11,12 @@ import { isEmpty, sortBy, sum } from 'lodash';
 import { getClusters } from '@/product/opni/utils/requests/management';
 import Banner from '@/components/Banner';
 import { getLoggingCluster } from '@/product/opni/utils/requests/logging';
+import { isEnabled as isAiOpsEnabled } from '@/product/opni/components/AiOpsBackend';
 
 export default {
   components: {
     Banner,
+    DependencyWall,
     Flyout,
     Loading,
     SortableTable,
@@ -35,6 +38,7 @@ export default {
       status:           { statistics: {} },
       hasGpu:           false,
       isLoggingEnabled: false,
+      isAiOpsEnabled:   false,
       ignoreSelection:  true,
       headers:          [
         {
@@ -73,6 +77,11 @@ export default {
           return;
         }
         this.$set(this, 'isLoggingEnabled', true);
+
+        if (!await isAiOpsEnabled()) {
+          return;
+        }
+        this.$set(this, 'isAiOpsEnabled', true);
 
         if (window.location.search.includes('gpu=false')) {
           this.$set(this, 'hasGpu', false);
@@ -301,13 +310,8 @@ export default {
         <h1>Workload Insights</h1>
       </div>
     </header>
-    <div v-if="!isLoggingEnabled" class="not-enabled">
-      <h4>
-        Logging must be enabled to use Workload Insights. <n-link :to="{name: 'logging-config'}">
-          Click here
-        </n-link> to enable logging.
-      </h4>
-    </div>
+    <DependencyWall v-if="!isLoggingEnabled" title="Workload Insights" dependency-name="Logging" route-name="logging-config" />
+    <DependencyWall v-else-if="!isAiOpsEnabled" title="Workload Insights" dependency-name="AIOps" route-name="ai-ops" />
     <div v-else>
       <Banner v-if="bannerMessage" :color="bannerColor" class="mt-0" v-html="bannerMessage" />
       <SortableTable

@@ -9,17 +9,22 @@ export default {
       required: true
     }
   },
-  computed: {
-    selectedIndex() {
-      return this.items.findLastIndex(i => this.$router.history.current.path.includes(i.route));
-    }
+
+  data() {
+    return { selectedIndex: this.items.findLastIndex(i => this.$router.history.current.path.includes(i.route)) };
+  },
+
+  watch: {
+    $route() {
+      this.$set(this, 'selectedIndex', this.items.findLastIndex(i => this.$router.history.current.path.includes(i.route)));
+    },
   },
 };
 </script>
 
 <template>
   <div class="items">
-    <SideNavColumnItem v-for="(item, i) in items" :key="i" :item="item" />
+    <SideNavColumnItem v-for="(item, i) in items" :key="i" :item="item" :selected="selectedIndex === i" />
   </div>
 </template>
 <style lang="scss" scoped>
