@@ -21,12 +21,12 @@ steps:
       - mv src/* OpenSearch-Dashboards/plugins/opni-dashboards-plugin
       - mv OpenSearch-Dashboards src/OpenSearch-Dashboards
   - name: plugin-replace-versions
-    image: node:14
+    image: node:14.20.0
     commands:
     - cd OpenSearch-Dashboards/plugins/opni-dashboards-plugin
     - sed -i "s/{VERSION}/${DRONE_TAG/plugin-/}/g" package.json opensearch_dashboards.json
   - name: plugin-build
-    image: node:14
+    image: node:14.20.0
     commands: 
     # The reason for the user/su usage is because opensearch plugins disallow you 
     # from using root when building and by default we're executing as root
