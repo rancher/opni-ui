@@ -99,9 +99,9 @@ export default {
 <template>
   <Loading v-if="$fetchState.pending" />
   <div v-else>
-    <h4>
-      Target Metric
-    </h4>
+    <h5>
+      Status
+    </h5>
     <div class="row mt-10">
       <div class="col span-6">
         <LabeledSelect v-model="value.clusterId.id" label="Cluster" :options="downstreamCapabilityClusterOptions" :required="true" />
