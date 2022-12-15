@@ -84,7 +84,7 @@ export default {
         </span>
       </a>
     </n-link>
-    <i v-if="hasChildren && isRoot" class="icon toggle icon-chevron-down" :class="{'icon-chevron-down': item.open, 'icon-chevron-up': !item.open}"></i>
+    <i v-if="hasChildren && isRoot" class="icon toggle" :class="{'icon-chevron-down': !item.open, 'icon-chevron-up': item.open}"></i>
   </div>
 </template>
 <style lang="scss" scoped>
