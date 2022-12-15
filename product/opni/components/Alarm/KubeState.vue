@@ -145,7 +145,7 @@ export default {
   <Loading v-if="$fetchState.pending" />
   <div v-else>
     <h4 class="mt-20">
-      Target Metric
+      Kubernetes Object
     </h4>
     <div class="row mt-10">
       <div class="col span-12">
