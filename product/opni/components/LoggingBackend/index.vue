@@ -139,7 +139,7 @@ export default {
     },
 
     async loadCapabilities(parent) {
-      return await getCapabilities('logging', parent);
+      return await getCapabilities('logs', parent);
     },
 
     async isEnabled() {
