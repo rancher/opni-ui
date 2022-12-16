@@ -69,7 +69,10 @@ export default {
       this.$set(this, 'lastConfig', await getAISettings());
       const config = this.lastConfig || {};
 
-      this.$set(this, 'config', { gpuSettings: { ...config.gpuSettings }, ...config });
+      this.$set(this, 'config', { ...config });
+      if (config.gpuSettings) {
+        this.$set(this.config, 'gpuSettings', { ...config.gpuSettings });
+      }
       this.$set(this, 'advancedControlplane', config.controlplane || { replicas: 1 });
       this.$set(this, 'advancedRancher', config.rancher || { replicas: 1 });
       this.$set(this, 'advancedLonghorn', config.longhorn || { replicas: 1 });
