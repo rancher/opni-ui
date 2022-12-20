@@ -86,7 +86,7 @@ export default class EventsTable extends Component<TemplatesTableProps, Template
       {
         field: 'count',
         name: 'Count',
-        width: 100,
+        width: '100',
         render: (count, row) => {
           const templateId = row.templateId;
           const clusterQuery = clusterId !== 'all' ? `,('$state':(store:appState),meta:(alias:!n,disabled:!f,key:cluster_id,negate:!f,params:(query:'${clusterId}'),type:phrase),query:(match_phrase:(cluster_id:'${clusterId}')))` : '';
@@ -100,10 +100,20 @@ export default class EventsTable extends Component<TemplatesTableProps, Template
 
 
 
-    const onChange = () => {};
+    const onChange = ({page = {} as any}) => {
+      this.setState({
+        pagination: {
+          pageIndex: page.index,
+          pageSize: page.size,
+          totalItemCount: this.state.pagination.totalItemCount
+        }
+      })
+    };
 
     const getPagedTemplates = () => {
-      return this.state.templates.slice(this.state.pagination.pageIndex * this.state.pagination.pageSize, this.state.pagination.pageSize);
+      const start = this.state.pagination.pageIndex * this.state.pagination.pageSize;
+      const end = start + this.state.pagination.pageSize;
+      return this.state.templates.slice(start, end);
     };
 
     const itemIdToExpandedRowMap = this.state.templates.reduce((agg, template) => {
