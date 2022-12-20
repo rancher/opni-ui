@@ -1,7 +1,7 @@
 import moment from "moment";
 import Axios from 'axios';
 import { Granularity, Range } from "./time";
-import _ from "lodash";
+import _, { sortBy } from "lodash";
 
 export type Severity = 'anomolous' | 'suspicious' | 'normal';
 
@@ -227,31 +227,33 @@ export async function getPodBreakdown(range: Range, clusterId: string, keywords:
 }
 
 export async function getLogTemplates(range: Range, clusterId: string): Promise<LogTemplate[]> {
-  const response = await search(getLogTemplatesQuery(range, clusterId));
+  const [templateLogCountResponse, templatesResponse] = await Promise.all([search(getLogTemplatesQuery(range, clusterId)), search(getLogTemplateAddonQuery(), 'templates*')]);
 
-  const templates = (response.rawResponse.aggregations?.templates?.buckets || []).map(bucket => ({
-    template: '',
+  const templateLogCounts = (templateLogCountResponse.rawResponse.aggregations?.templates?.buckets || []).map(bucket => ({
     templateId: bucket.key,
     count: bucket.doc_count,
-    log: ''
   }));
 
-  const templateIds = templates.map(t => t.templateId);
-  const addonResponse = await search(getLogTemplateAddonQuery(templateIds), 'templates*');
-  const templateLookup = {};
-
-  addonResponse.rawResponse.hits.hits.forEach(addOn => {
-    templateLookup[addOn._id] = addOn._source.doc;
+  const templateLogCountLookup = {};
+  templateLogCounts.forEach(t => {
+    templateLogCountLookup[t.templateId] = t;
   });
 
-  templates.forEach(template => {
-    template.template = templateLookup[template.templateId]?.template_matched;
-    template.log = templateLookup[template.templateId]?.log;
+  const templates = templatesResponse.rawResponse.hits.hits;
+
+  const allData = templates.map(at => {
+    const found = templateLogCountLookup[at._id];
+
+    return {
+      templateId: at._id,
+      count: found?.count || 0,
+      template: at._source.doc.template_matched,
+      log: at._source.doc.log
+    }
   });
 
-
-
-  return templates.filter(t => t.template && t.log);
+  const dataWithCounts = allData.filter(d => d.count);
+  return sortBy(dataWithCounts, 'count').reverse();
 }
 
 export async function getLogTypes(): Promise<String[]> {
@@ -606,17 +608,8 @@ function getLonghornBreakdownQuery(range: Range, clusterId: string) {
   }
 }
 
-function getLogTemplateAddonQuery(templateIds: string[]) {
+function getLogTemplateAddonQuery() {
   return {
-    "query": {
-      "bool": {
-        "filter": [{
-          "terms": {
-            "doc.template_cluster_id": templateIds
-          }
-        }],
-      }
-    },
     "size": 10000,
   }
 }
