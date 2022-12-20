@@ -341,7 +341,7 @@ export default {
             <button class="btn role-secondary mr-10" @click="removeAll">
               Clear Watchlist
             </button>
-            <button v-tooltip="updateTooltip" class="btn role-primary" :disabled="!hasGpu || status === 'training' || !hasListChanged" @click="train">
+            <button v-tooltip="updateTooltip" class="btn role-primary" :disabled="!hasGpu || status.status === 'training' || !hasListChanged" @click="train">
               Update Watchlist
             </button>
           </div>
