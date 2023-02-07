@@ -132,7 +132,7 @@ export default {
         return 'Silenced Event';
       }
 
-      return 'Agent Disconnect';
+      return 'Agent Capability Unhealthy';
     }
   },
   computed: {
