@@ -4,6 +4,9 @@ import React, { Component } from 'react';
 import {
   EuiPanel,
   EuiBasicTable,
+  EuiText,
+  EuiSpacer,
+  EuiHorizontalRule,
 } from '@elastic/eui';
 
 import Loading from '../Loading';
@@ -52,6 +55,8 @@ export default class EventsTable extends Component<TemplatesTableProps, Template
 
     const templates = (await templatesRequest)
       .map((template, i) => ({...template, id: i}));
+
+    console.log(templates.length, templates);
 
     this.setState({
       templates,
@@ -121,17 +126,43 @@ export default class EventsTable extends Component<TemplatesTableProps, Template
       return agg;
     }, {});
 
+    const resultsCount =
+    this.state.pagination.pageSize === 0 ? (
+      <strong>All</strong>
+    ) : (
+      <>
+        <strong>
+          {this.state.pagination.pageSize * this.state.pagination.pageIndex + 1}-{Math.min(this.state.pagination.pageSize * this.state.pagination.pageIndex + this.state.pagination.pageSize, this.state.pagination.totalItemCount)}
+        </strong>{' '}
+        of {this.state.pagination.totalItemCount}
+      </>
+    );
+
     return (
       <div className="events-table" style={{ padding: '15px 15px', paddingTop: 0 }}>
           <EuiPanel>
             <Loading promise={this.state.templatesRequest}>
-              <EuiBasicTable
-                pagination={this.state.pagination}
-                items={getPagedTemplates()}
-                columns={columns}
-                itemIdToExpandedRowMap={itemIdToExpandedRowMap}
-                onChange={onChange}
-              />
+              <div>
+                <div>
+                  <EuiText size="xs">
+                    Showing {resultsCount} <strong>Log Templates</strong>
+                  </EuiText>
+                </div>
+                <div>
+                  <EuiSpacer size="s" />
+                  <EuiHorizontalRule margin="none" style={{ height: 1 }} />
+                  <EuiSpacer size="s" />
+                </div>
+                <div>
+                  <EuiBasicTable
+                    pagination={this.state.pagination}
+                    items={getPagedTemplates()}
+                    columns={columns}
+                    itemIdToExpandedRowMap={itemIdToExpandedRowMap}
+                    onChange={onChange}
+                  />
+                </div>
+              </div>
             </Loading>
           </EuiPanel>
         </div>

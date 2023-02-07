@@ -242,10 +242,11 @@ export async function getLogTemplates(range: Range, clusterId: string): Promise<
   const templates = templatesResponse.rawResponse.hits.hits;
 
   const allData = templates.map(at => {
-    const found = templateLogCountLookup[at._id];
+    const id = at._source.doc.template_cluster_id;
+    const found = templateLogCountLookup[id];
 
     return {
-      templateId: at._id,
+      templateId: id,
       count: found?.count || 0,
       template: at._source.doc.template_matched,
       log: at._source.doc.log
@@ -253,6 +254,7 @@ export async function getLogTemplates(range: Range, clusterId: string): Promise<
   });
 
   const dataWithCounts = allData.filter(d => d.count);
+  console.log('fffff', dataWithCounts, allData);
   return sortBy(dataWithCounts, 'count').reverse();
 }
 
@@ -625,7 +627,7 @@ function getLogTemplatesQuery(range: Range, clusterId: string) {
     "size": 0,
     "aggs": {
       "templates": {
-        "terms": { "field": "template_cluster_id", "size": 10000 },
+        "terms": { "field": "template_cluster_id", "size": 30000 },
       },
     },
   }
