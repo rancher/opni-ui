@@ -137,6 +137,7 @@ export default {
       >
         <span v-if="col.sort" @click="$router.applyQuery(queryFor(col))">
           <span v-html="labelFor(col)" />
+          <span v-if="col.tooltip"><i v-tooltip="col.tooltip" class="icon icon-info" /></span>
           <span class="icon-stack">
             <i class="icon icon-sort icon-stack-1x faded" />
             <i v-if="isCurrent(col) && !descending" class="icon icon-sort-down icon-stack-1x" />
@@ -179,6 +180,11 @@ export default {
 
     & A {
       color: var(--body-text);
+    }
+
+    .icon-info {
+      position: relative;
+      bottom: -1px;
     }
 
     // Aligns with COLUMN_BREAKPOINTS

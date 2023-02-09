@@ -58,7 +58,8 @@ export default {
         },
         {
           name:          'id',
-          labelKey:      'tableHeaders.id',
+          labelKey:      'tableHeaders.clusterId',
+          tooltip:       'Derived from kube-system namespace',
           sort:          ['id'],
           value:         'id',
           formatter:     'TextWithClass',
