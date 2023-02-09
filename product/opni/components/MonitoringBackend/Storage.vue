@@ -19,7 +19,9 @@ export default {
   },
 
   created() {
-    this.updateEndpoint();
+    if (!this.value.storage.s3.endpoint) {
+      this.updateEndpoint();
+    }
   },
 
   data() {
