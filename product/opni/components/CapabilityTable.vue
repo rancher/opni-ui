@@ -49,7 +49,7 @@ export default {
       },
       {
         name:          'nameDisplay',
-        labelKey:      'tableHeaders.clusterName',
+        labelKey:      'tableHeaders.agentName',
         sort:          ['clusterNameDisplay'],
         value:         'clusterNameDisplay',
         formatter:     'TextWithClass',

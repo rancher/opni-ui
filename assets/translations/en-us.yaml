@@ -4073,6 +4073,7 @@ tableHeaders:
   accessKey: Access Key
   address: Address
   age: Age
+  agentName: Agent Name
   anomaly: Anomaly
   apiGroup: API Groups
   area: Area
@@ -4089,6 +4090,7 @@ tableHeaders:
   chart: Chart
   clusterCreatorDefault: Cluster Creator Default
   clusterFlow: Cluster Flow
+  clusterId: Cluster Id
   clusterName: Cluster Name
   clusterOutput: Cluster Output
   clusters: Clusters
