@@ -79,7 +79,7 @@ export class Endpoint extends Resource {
       }
 
       if (this.base.endpoint.pagerDuty) {
-        return 'PagerDuty';
+        return 'pagerDuty';
       }
 
       return 'unknown';
