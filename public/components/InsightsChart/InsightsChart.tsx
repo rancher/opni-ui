@@ -3,7 +3,8 @@ import './style.scss';
 import React, { Component } from 'react';
 import {
   EuiPanel,
-  EuiIcon
+  EuiIcon,
+  EuiTitle
 } from '@elastic/eui';
 import {
   Chart,
@@ -26,6 +27,7 @@ export interface InsightsChartProps {
   granularity: Granularity; 
   clusterId: string;
   keywords: string[];
+  showTitle?: boolean;
   insightsProvider(range: Range, granularity: Granularity, clusterId: string, keywords: string[]): Promise<Insight[]>;
   eventsProvider?(range: Range, clusterId: string): Promise<K8SEvent[]>;
 };
@@ -121,9 +123,16 @@ export default class InsightsChart extends Component<InsightsChartProps, Insight
         />
       : null;
 
+    const title = this.props.showTitle 
+      ? <EuiTitle size="xs" >
+          <h2>Overall Insights</h2>
+        </EuiTitle>
+      : null;
+
     return (
         <div className="insights-chart">
           <EuiPanel>
+              {title}
               <Loading promise={this.state.loadingPromise}>
                   <Chart size={{ height: 300 }}>
                       <Settings showLegend={true} legendPosition="bottom" tooltip={{headerFormatter: (data) => xFormat(data.value)}}/>
