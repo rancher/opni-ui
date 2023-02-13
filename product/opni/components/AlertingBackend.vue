@@ -52,6 +52,7 @@ export default {
   methods: {
     async load() {
       this.$set(this, 'config', await getClusterConfiguration());
+      this.$set(this.config, 'numReplicas', this.config.numReplicas || 1);
     },
 
     async disable() {

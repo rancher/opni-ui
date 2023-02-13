@@ -11,10 +11,10 @@ export enum Severity {
 }
 
 export const SeverityResponseToEnum = {
-  INFO:     0,
-  WARNING:  1,
-  ERROR:    2,
-  CRITICAL: 3,
+  Info:     0,
+  Warning:  1,
+  Error:    2,
+  Critical: 3,
 };
 
 export enum ControlFlowAction {
@@ -276,7 +276,8 @@ export enum AlertConditionState {
   OK = 1, // eslint-disable-line no-unused-vars, camelcase
   FIRING = 2, // eslint-disable-line no-unused-vars, camelcase
   SILENCED = 3, // eslint-disable-line no-unused-vars, camelcase
-  INVALIDATED = 4 // eslint-disable-line no-unused-vars, camelcase
+  INVALIDATED = 4, // eslint-disable-line no-unused-vars, camelcase
+  PENDING = 5, // eslint-disable-line no-unused-vars, camelcase
 }
 
 export const alertConditionStateMapping = {
@@ -285,6 +286,7 @@ export const alertConditionStateMapping = {
   FIRING:      2,
   SILENCED:    3,
   INVALIDATED: 4,
+  PENDING:     5,
 };
 
 export interface AlertStatusResponse {
@@ -383,6 +385,10 @@ export class Condition extends Resource {
       [AlertConditionState.INVALIDATED]: {
         message: 'Invalidated',
         state:   'error'
+      },
+      [AlertConditionState.PENDING]: {
+        message: 'Pending',
+        state:   'warning'
       },
     };
 
