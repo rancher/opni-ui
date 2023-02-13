@@ -84,7 +84,7 @@ class Main extends Component<any, MainState> {
       <PrimaryLayout loadingPromise={this.state.clustersRequest}>
         <Selector settings={this.state.settings} onChange={this.onSettingsChange} clusterIds={this.state.clusters} onRefresh={this.onRefresh}/>
         <EuiFlexGroup style={{ padding: '0 15px' }} className="selector">
-          <EuiFlexItem><InsightsChart range={this.state.range} granularity={this.state.granularity} clusterId={this.state.cluster} insightsProvider={getInsights} eventsProvider={(range, clusterId) => getK8sEvents(range, clusterId, 'Warning')} keywords={this.state.keywords} /></EuiFlexItem>
+          <EuiFlexItem><InsightsChart range={this.state.range} granularity={this.state.granularity} clusterId={this.state.cluster} insightsProvider={getInsights} eventsProvider={(range, clusterId) => getK8sEvents(range, clusterId, 'Warning')} keywords={this.state.keywords} showTitle={true} /></EuiFlexItem>
           <EuiFlexItem><AnomalyChart range={this.state.range} granularity={this.state.granularity} clusterId={this.state.cluster} /></EuiFlexItem>
         </EuiFlexGroup>
         <Breakdowns granularity={this.state.granularity} range={this.state.range} clusterId={this.state.cluster} keywords={this.state.keywords} />

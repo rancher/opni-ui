@@ -2,7 +2,7 @@ import './style.scss';
 
 import React, { Component } from 'react';
 import {
-  EuiPanel,
+  EuiPanel, EuiTitle,
 } from '@elastic/eui';
 import {
   Chart,
@@ -97,6 +97,9 @@ export default class InsightsChart extends Component<AnomalyChartProps, AnomalyC
     return (
         <div className="anomaly-chart">
           <EuiPanel>
+              <EuiTitle size="xs" >
+                <h2>Control Plane Anomalies</h2>
+              </EuiTitle>
               <Loading promise={this.state.anomalyRequest}>
                   <Chart size={{ height: 300 }}>
                       <Settings showLegend={true} legendPosition="bottom" tooltip={{headerFormatter: (data) => xFormat(data.value)}}/>
