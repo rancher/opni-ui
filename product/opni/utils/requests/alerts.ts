@@ -33,7 +33,7 @@ export async function testAlertEndpoint(request: TestAlertEndpointRequest) {
 }
 
 export function deleteEndpoint(id: string) {
-  return axios.post(`opni-api/AlertEndpoints/delete/`, { id: { id }, forceDelete: false });
+  return axios.post(`opni-api/AlertEndpoints/delete`, { id: { id }, forceDelete: false });
 }
 
 export function createAlertCondition(alertCondition: AlertCondition) {
