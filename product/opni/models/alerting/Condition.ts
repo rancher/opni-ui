@@ -281,12 +281,12 @@ export enum AlertConditionState {
 }
 
 export const alertConditionStateMapping = {
-  UNSPECIFIED: 0,
-  OK:          1,
-  FIRING:      2,
-  SILENCED:    3,
-  INVALIDATED: 4,
-  PENDING:     5,
+  Unspecified: 0,
+  Ok:          1,
+  Firing:      2,
+  Silenced:    3,
+  Invalidated: 4,
+  Pending:     5,
 };
 
 export interface AlertStatusResponse {
