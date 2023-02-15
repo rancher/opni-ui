@@ -2,22 +2,19 @@
 import Loading from '@/components/Loading';
 import AsyncButton from '@/components/AsyncButton';
 import Banner from '@/components/Banner';
-import LabeledSelect from '@/components/form/LabeledSelect';
-import {
-  getAISettings, getRuntimeClasses, upgrade, isUpgradeAvailable, updateAISettings, deleteAISettings
-} from '@/product/opni/utils/requests/aiops';
+import { getAISettings, upgrade, isUpgradeAvailable, updateAISettings } from '@/product/opni/utils/requests/aiops';
 import { exceptionToErrorsArray } from '@/utils/error';
 import isEmpty from 'lodash/isEmpty';
 import Checkbox from '@/components/form/Checkbox';
 import { capitalize } from 'lodash';
 import AiOpsPretrained from '@/product/opni/components/AiOpsPretrained';
-
-const SENTINEL = '--___SENTINEL___--';
+import DependencyWall from '@/product/opni/components/DependencyWall';
+import { isEnabled as isAiOpsEnabled } from '@/product/opni/components/AiOpsBackend';
 
 export async function isEnabled() {
   const config = await getAISettings();
 
-  return window.location.search.includes('aiops=true') || !isEmpty(config);
+  return !isEmpty(config);
 }
 
 export default {
@@ -26,8 +23,8 @@ export default {
     AsyncButton,
     Banner,
     Checkbox,
+    DependencyWall,
     Loading,
-    LabeledSelect,
   },
 
   async fetch() {
@@ -42,16 +39,13 @@ export default {
       interval:                   null,
       error:                      '',
       loading:                    false,
-      enabled:                    false,
-      runtimeClasses:       [
-        { label: 'None', value: SENTINEL }
-      ],
       isUpgradeAvailable:   false,
       showAdvanced:         false,
       advancedControlplane: { replicas: 1 },
       advancedRancher:      { replicas: 1 },
       advancedLonghorn:     { replicas: 1 },
       status:               '',
+      isAiOpsEnabled:       false,
       config:               {
         controlplane: { },
         rancher:      { },
@@ -62,9 +56,10 @@ export default {
 
   methods: {
     async load() {
-      const runtimeClasses = (await getRuntimeClasses()).RuntimeClasses.map(r => ({ label: r, value: r }));
-
-      this.$set(this, 'runtimeClasses', [...this.runtimeClasses, ...runtimeClasses]);
+      if (!await isAiOpsEnabled()) {
+        return;
+      }
+      this.$set(this, 'isAiOpsEnabled', true);
 
       this.$set(this, 'lastConfig', await getAISettings());
       const config = this.lastConfig || {};
@@ -83,17 +78,6 @@ export default {
 
     enable() {
       this.$set(this, 'enabled', true);
-    },
-
-    async disable(buttonCallback) {
-      try {
-        await deleteAISettings();
-        buttonCallback(true);
-        this.$set(this, 'enabled', false);
-      } catch (err) {
-        buttonCallback(false);
-        this.$set(this, 'error', exceptionToErrorsArray(err).join('; '));
-      }
     },
 
     updatePretrainedBeforeSave(key) {
@@ -124,7 +108,7 @@ export default {
 
         this.$set(this, 'error', '');
         buttonCallback(true);
-        this.$router.replace({ name: 'ai-ops' });
+        this.$router.replace({ name: 'pretrained-models' });
       } catch (err) {
         this.$set(this, 'error', exceptionToErrorsArray(err).join('; '));
         buttonCallback(false);
@@ -188,24 +172,6 @@ export default {
       }
     },
 
-    runtimeClass: {
-      get() {
-        return (this.config.gpuSettings || {}).runtimeClass ? this.config.gpuSettings.runtimeClass : SENTINEL;
-      },
-
-      set(val) {
-        this.$set(this.config.gpuSettings, 'runtimeClass', val === SENTINEL ? undefined : val);
-      }
-    },
-
-    runtimeClassDisabled() {
-      return this.runtimeClasses.length === 1 || !this.gpu;
-    },
-
-    runtimeClassTooltip() {
-      return this.runtimeClassDisabled && this.gpu ? `There aren't any Runtime Classes available.` : null;
-    },
-
     hasExistingConfig() {
       return !!this.lastConfig;
     }
@@ -216,44 +182,16 @@ export default {
   <Loading v-if="loading || $fetchState.pending" />
   <div v-else>
     <header>
-      <h1>AIOps</h1>
-      <AsyncButton
-        v-if="enabled"
-        class="btn bg-error"
-        mode="edit"
-        action-label="Disable"
-        waiting-label="Disabling"
-        :disabled="!hasExistingConfig"
-        @click="disable"
-      />
+      <h1>Pretrained Models</h1>
     </header>
-    <Banner v-if="enabled && isUpgradeAvailable" color="info">
-      <div>There's an upgrade currently available.</div>
-      <button class="btn role-primary" @click="upgrade">
-        Upgrade
-      </button>
-    </Banner>
-    <div class="body">
-      <div v-if="enabled" class="enabled">
-        <div class="row">
-          <h4>Use GPU</h4>
-        </div>
-        <div class="row mb-20 border">
-          <div class="col span-6 middle">
-            <Checkbox v-model="gpu" label="Enable GPU services" />
-          </div>
-          <div class="col span-6">
-            <LabeledSelect v-model="runtimeClass" :options="runtimeClasses" label="Runtime Class" :disabled="runtimeClassDisabled" :tooltip="runtimeClassTooltip" />
-          </div>
-        </div>
+    <DependencyWall v-if="!isAiOpsEnabled" title="Pretrained Models" dependency-name="Log Anomaly" route-name="log-anomaly" />
+    <div v-else class="body">
+      <div class="enabled">
         <div class="row mb-20 border">
           <div class="col span-6">
-            <h4 class="mt-0">
-              Use Pretrained Models
-            </h4>
-            <div><Checkbox v-model="controlPlane" label="Controlplane" /></div>
-            <div><Checkbox v-model="rancher" label="Rancher" /></div>
-            <div><Checkbox v-model="longhorn" label="Longhorn" /></div>
+            <div><Checkbox v-model="controlPlane" label="Controlplane" tooltip="Insights are provided for logs associated with the Kubernetes control plane, optimized for K3s, RKE1, RKE2, and vanilla K8s distributions" /></div>
+            <div><Checkbox v-model="rancher" label="Rancher" tooltip="Insights are provided for logs associated with Rancher manager and Rancher agent" /></div>
+            <div><Checkbox v-model="longhorn" label="Longhorn" tooltip="Insights are provided for logs associated with Longhorn" /></div>
           </div>
         </div>
         <div class="row mb-20">
@@ -265,21 +203,11 @@ export default {
           <AiOpsPretrained v-model="advancedLonghorn" :disabled="!config.longhorn" title="Longhorn" />
         </div>
       </div>
-      <div v-else class="not-enabled">
-        <h4>AIOps is not currently enabled. Installing it will add additional resources on this cluster.</h4>
-        <AsyncButton
-          class="btn role-primary"
-          mode="edit"
-          action-label="Install"
-          waiting-label="Installing"
-          @click="enable"
-        />
-      </div>
-      <div v-if="enabled" class="resource-footer">
-        <n-link class="btn role-secondary mr-10" :to="{name: 'clusters'}">
+      <div v-if="isAiOpsEnabled" class="resource-footer">
+        <n-link class="btn role-secondary mr-10" :to="{name: 'log-anomaly'}">
           Cancel
         </n-link>
-        <AsyncButton mode="edit" :disabled="!enabled" @click="save" />
+        <AsyncButton mode="edit" @click="save" />
       </div>
       <Banner
         v-if="error"
