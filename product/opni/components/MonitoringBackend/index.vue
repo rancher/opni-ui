@@ -229,21 +229,6 @@ export default {
         return null;
       }
     }
-  },
-  computed: {
-    mode: {
-      get() {
-        return this.config.mode;
-      },
-      set(val) {
-        this.$set(this.config, 'mode', val);
-        if (val !== 0 && this.config.storage.backend === 'filesystem') {
-          // switch to the next available mode
-          this.$set(this.config.storage, 'backend', this.storageOptions[0].value);
-        }
-      }
-    },
-
   }
 };
 </script>
@@ -259,7 +244,7 @@ export default {
     <template #editing>
       <div class="row mb-20">
         <div class="col span-12">
-          <LabeledSelect v-model="mode" :options="modes" label="Mode" />
+          <LabeledSelect v-model="config.mode" :options="modes" label="Mode" />
         </div>
       </div>
       <Tabbed :side-tabs="true">
