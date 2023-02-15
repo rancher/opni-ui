@@ -172,6 +172,16 @@ export default {
         return this.$set(this.value.storage.s3, 'endpoint', `${ endpoints[this.value.storage.s3.region] }`);
       }
     },
+  },
+
+  watch: {
+    storageOptions() {
+      const vals = this.storageOptions.map(so => so.value);
+
+      if (!vals.includes(this.value.storage.backend)) {
+        this.$set(this.value.storage, 'backend', vals[0]);
+      }
+    }
   }
 };
 </script>
