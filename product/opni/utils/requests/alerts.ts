@@ -141,8 +141,14 @@ export async function getClusterConfiguration(): Promise<ClusterConfiguration> {
   return (await axios.get<ClusterConfiguration>(`opni-api/AlertingAdmin/configuration`)).data;
 }
 // Install/Uninstall the alerting cluster by setting enabled=true/false
-export function configureCluster(config: ClusterConfiguration) {
-  return axios.post(`opni-api/AlertingAdmin/configure`, config);
+export async function configureCluster(config: ClusterConfiguration) {
+  try {
+    await axios.post(`opni-api/AlertingAdmin/configure`, config);
+  } catch (ex) {
+    if (ex?.response?.data !== 'no changes to apply') {
+      throw ex;
+    }
+  }
 }
 export async function getClusterStatus(): Promise<InstallStatus> {
   return (await axios.get<InstallStatus>(`opni-api/AlertingAdmin/status`)).data;
