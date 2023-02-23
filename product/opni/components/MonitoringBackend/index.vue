@@ -101,11 +101,9 @@ export default {
 
     async updateStatus(capabilities = []) {
       try {
-        if (this.enabled) {
-          const stats = await getClusterStats(this);
+        const stats = await getClusterStats(this);
 
-          capabilities.forEach(c => c.updateStats(stats));
-        }
+        capabilities.forEach(c => c.updateStats(stats));
       } catch (ex) {}
     },
 
