@@ -58,11 +58,13 @@ export class Role extends Resource {
         throw new Error('You must call setClusters to use clusterNames.');
       }
 
-      return this.clusterIds.map((clusterId) => {
-        const cluster = findBy(this.clusters || [], 'id', clusterId);
+      return this.clusterIds
+        .map((clusterId) => {
+          const cluster = findBy(this.clusters || [], 'id', clusterId);
 
-        return cluster.nameDisplay;
-      });
+          return cluster?.nameDisplay;
+        })
+        .filter(n => n);
     }
 
     get matchExpressionsDisplay() {
