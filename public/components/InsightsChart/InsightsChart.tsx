@@ -16,11 +16,10 @@ import {
   AnnotationDomainType
 } from '@elastic/charts';
 import { COLORS } from '../../utils/colors';
-import moment from 'moment';
 import { Insight, K8SEvent } from '../../utils/requests';
 import Loading from '../Loading/Loading';
 import { Granularity, isSameRange, Range } from '../../utils/time';
-import { formatShort } from '../../utils/format';
+import { formatChartTimeLabel, formatShort } from '../../utils/format';
 
 export interface InsightsChartProps {
   range: Range;
@@ -74,10 +73,6 @@ export default class InsightsChart extends Component<InsightsChartProps, Insight
   };
 
   render() {
-    function xFormat(ms) {
-      return moment(ms).format('HH:mm');
-    }
-
     const keywords = this.props.keywords.length > 0 
       ? <AreaSeries
             id="keywords"
@@ -101,7 +96,7 @@ export default class InsightsChart extends Component<InsightsChartProps, Insight
 
       return <div className="event-tooltip">
         <div className="heading">
-          <span className="time">{xFormat(event.timestamp)}</span>
+          <span className="time">{formatChartTimeLabel(event.timestamp)}</span>
           <span>- Event</span>
         </div>
         <div className="content">
@@ -135,7 +130,7 @@ export default class InsightsChart extends Component<InsightsChartProps, Insight
               {title}
               <Loading promise={this.state.loadingPromise}>
                   <Chart size={{ height: 300 }}>
-                      <Settings showLegend={true} legendPosition="bottom" tooltip={{headerFormatter: (data) => xFormat(data.value)}}/>
+                      <Settings showLegend={true} legendPosition="bottom" tooltip={{headerFormatter: (data) => formatChartTimeLabel(data.value)}}/>
                       <AreaSeries
                           id="anomalous"
                           name="Anomalous"
@@ -156,7 +151,7 @@ export default class InsightsChart extends Component<InsightsChartProps, Insight
                           color={COLORS.normal}
                       />
                       {lineAnnotation}
-                      <Axis id="bottom-axis" position="bottom" showGridLines tickFormat={xFormat} />
+                      <Axis id="bottom-axis" position="bottom" showGridLines tickFormat={formatChartTimeLabel} />
                       <Axis
                           id="left-axis"
                           position="left"

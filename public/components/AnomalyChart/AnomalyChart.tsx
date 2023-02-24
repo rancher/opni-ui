@@ -15,7 +15,7 @@ import moment from 'moment';
 import { getAnomalies, AnomalyByComponent } from '../../utils/requests';
 import Loading from '../Loading/Loading';
 import { Granularity, isSameRange, Range } from '../../utils/time';
-import { formatShort } from '../../utils/format';
+import { formatChartTimeLabel, formatShort } from '../../utils/format';
 
 export interface AnomalyChartProps {
   range: Range; 
@@ -60,10 +60,6 @@ export default class InsightsChart extends Component<AnomalyChartProps, AnomalyC
   };
 
   render() {
-    function xFormat(ms) {
-      return moment(ms).format('HH:mm');
-    }
-
     const getBars = () => {
       const bars = Object.entries(this.state.anomalies).map(([component, anomalies]) => {
         return <BarSeries
@@ -102,9 +98,9 @@ export default class InsightsChart extends Component<AnomalyChartProps, AnomalyC
               </EuiTitle>
               <Loading promise={this.state.anomalyRequest}>
                   <Chart size={{ height: 300 }}>
-                      <Settings showLegend={true} legendPosition="bottom" tooltip={{headerFormatter: (data) => xFormat(data.value)}}/>
+                      <Settings showLegend={true} legendPosition="bottom" tooltip={{headerFormatter: (data) => formatChartTimeLabel(data.value)}}/>
                       {getBars()}
-                      <Axis id="bottom-axis" position="bottom" showGridLines tickFormat={xFormat} />
+                      <Axis id="bottom-axis" position="bottom" showGridLines tickFormat={formatChartTimeLabel} />
                       <Axis
                           id="left-axis"
                           position="left"
