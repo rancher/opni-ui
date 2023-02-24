@@ -70,7 +70,8 @@ export default {
       installPrometheus:      false,
       useOCI:                 false,
       defaultImageRepository: '',
-      newTokenInervalHandle:  null
+      newTokenInervalHandle:  null,
+      generatedName:          generateName()
     };
   },
 
@@ -95,7 +96,7 @@ export default {
 
   methods: {
     save() {
-      updateCluster(this.newCluster.id, this.name || generateName(), { ...(this.newCluster.labels || {}), ...this.labels });
+      updateCluster(this.newCluster.id, this.friendlyName, { ...(this.newCluster.labels || {}), ...this.labels });
 
       this.$router.replace({ name: 'agents' });
     },
@@ -106,11 +107,11 @@ export default {
 
     async lookForNewCluster() {
       const clusters = await getClusters();
-      const newClusterCount = clusters.length;
+      const foundCluster = clusters.find(c => c.name === this.friendlyName);
 
-      if (newClusterCount > this.clusterCount) {
+      if (foundCluster) {
         clearInterval(this.clusterCountInterval);
-        this.newCluster = clusters[clusters.length - 1];
+        this.newCluster = foundCluster;
         this.clusterCountInterval = null;
         this.newClusterFound = true;
       }
@@ -121,13 +122,16 @@ export default {
     },
   },
   computed: {
+    friendlyName() {
+      return this.name || this.generatedName;
+    },
     installCommand() {
       const prometheus = this.installPrometheus ? '--set kube-prometheus-stack.enabled=true' : '';
       const defaultImageRepository = this.defaultImageRepository ? `--set image.repository=${ this.defaultImageRepository }` : '';
       const imageCrd = this.useOCI ? 'oci://ghcr.io/rancher/opni-agent-crd' : 'opni/opni-agent-crd';
       const imageMain = this.useOCI ? 'oci://ghcr.io/rancher/opni-agent' : 'opni/opni-agent';
 
-      return `helm -n ${ this.namespace } install  opni-agent-crd ${ imageCrd } --create-namespace && helm -n ${ this.namespace } install opni-agent ${ imageMain } ${ prometheus } --set address=${ this.gatewayAddress } --set pin=${ this.pin } --set token=${ this.token } --create-namespace ${ defaultImageRepository }`;
+      return `helm -n ${ this.namespace } install  opni-agent-crd ${ imageCrd } --create-namespace && helm -n ${ this.namespace } install opni-agent ${ imageMain } ${ prometheus } --set address=${ this.gatewayAddress } --set pin=${ this.pin } --set token=${ this.token } --set friendlyName=${ this.friendlyName } --create-namespace ${ defaultImageRepository }`;
     },
     gatewayUrl() {
       return this.installCommand.match(/gateway-url=.+/s)?.[0]?.replace('gateway-url=', '').replace('"  ', '').replace('https://', '').replace('http://', '');
