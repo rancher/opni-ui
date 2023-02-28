@@ -24,4 +24,5 @@ export type State = 'success' | 'warning' | 'error';
 export interface Status {
   state: State;
   message: string;
+  longMessage?: string;
 }

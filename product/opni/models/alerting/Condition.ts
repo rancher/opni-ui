@@ -1,5 +1,5 @@
 import { Resource } from '../Resource';
-import { cloneAlertCondition, deleteAlertCondition, getAlertConditionStatus } from '~/product/opni/utils/requests/alerts';
+import { cloneAlertCondition, deleteAlertCondition } from '~/product/opni/utils/requests/alerts';
 import { Duration, Reference, Status, Timestamp } from '~/product/opni/models/shared';
 import { Cluster } from '~/product/opni/models/Cluster';
 
@@ -180,6 +180,7 @@ export interface SilenceInfo {
 }
 
 export interface AlertCondition {
+  id: string;
   name: string;
   description: string;
   labels: string[];
@@ -291,19 +292,27 @@ export const alertConditionStateMapping = {
 
 export interface AlertStatusResponse {
   state: AlertConditionState;
+  reason?: string;
+}
+
+export interface AlertConditionWithStatus {
+  alertCondition: AlertCondition;
+  status: AlertStatusResponse;
+}
+
+export interface ListStatusResponse {
+  alertConditions: { [key: string]: AlertConditionWithStatus };
 }
 
 const UPSTREAM_CLUSTER_ID = 'UPSTREAM_CLUSTER_ID';
 
 export class Condition extends Resource {
-  private base: AlertConditionWithId;
-  private statusRaw;
+  private base: AlertConditionWithStatus;
   private clusters;
 
-  constructor(base: AlertConditionWithId, vue: any, clusters?: Cluster[]) {
+  constructor(base: AlertConditionWithStatus, vue: any, clusters?: Cluster[]) {
     super(vue);
     this.base = base;
-    this.statusRaw = AlertConditionState.UNSPECIFIED;
     this.clusters = clusters;
   }
 
@@ -334,7 +343,7 @@ export class Condition extends Resource {
   }
 
   get id() {
-    return this.base.id.id;
+    return this.base.alertCondition.id;
   }
 
   get type(): string {
@@ -361,7 +370,7 @@ export class Condition extends Resource {
   }
 
   get labels(): string[] {
-    return this.base.alertCondition.labels || [];
+    return this.base?.alertCondition.labels || [];
   }
 
   get status(): Status {
@@ -392,17 +401,13 @@ export class Condition extends Resource {
       },
     };
 
-    const enumeration = (alertConditionStateMapping as any)[this.statusRaw] as any;
+    const enumeration = (alertConditionStateMapping as any)[this.base.status.state] as any;
 
-    return mapping[enumeration] || mapping[AlertConditionState.UNSPECIFIED];
-  }
+    const status = { ...mapping[enumeration] || mapping[AlertConditionState.UNSPECIFIED] };
 
-  async updateStatus() {
-    try {
-      this.statusRaw = (await getAlertConditionStatus(this.id)).state;
-    } catch (ex) {
-      this.statusRaw = AlertConditionState.UNSPECIFIED;
-    }
+    status.longMessage = this.base.status.reason;
+
+    return status;
   }
 
   get availableActions(): any[] {

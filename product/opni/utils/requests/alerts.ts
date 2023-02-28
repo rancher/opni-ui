@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import {
-  AlertCondition, AlertConditionList, AlertDetailChoicesRequest, AlertStatusResponse, Condition, ListAlertTypeDetails, SilenceRequest, TimelineRequest, TimelineResponse, UpdateAlertConditionRequest
+  AlertCondition, AlertConditionList, AlertDetailChoicesRequest, AlertStatusResponse, Condition, ListAlertTypeDetails, ListStatusResponse, SilenceRequest, TimelineRequest, TimelineResponse, UpdateAlertConditionRequest
 } from '~/product/opni/models/alerting/Condition';
 import {
   AlertEndpoint, AlertEndpointList, Endpoint, TestAlertEndpointRequest, UpdateAlertEndpointRequest
@@ -41,15 +41,13 @@ export function createAlertCondition(alertCondition: AlertCondition) {
 }
 
 export async function getAlertCondition(id: string, vue: any): Promise<Condition> {
-  const response = (await axios.post<AlertCondition>(`opni-api/AlertConditions/list/${ id }`, { id })).data;
-
-  return new Condition({ id: { id }, alertCondition: response }, vue);
+  return (await getAlertConditionsWithStatus(vue, [])).find(c => c.id === id) as Condition;
 }
 
-export async function getAlertConditions(vue: any, clusters: Cluster[]): Promise<Condition[]> {
-  const response = (await axios.get<AlertConditionList>('opni-api/AlertConditions/list')).data;
+export async function getAlertConditionsWithStatus(vue: any, clusters: Cluster[]) {
+  const response = (await axios.get<ListStatusResponse>('opni-api/AlertConditions/list/withStatus')).data;
 
-  return (response.items || []).map(item => new Condition(item, vue, clusters));
+  return (Object.values(response.alertConditions) || []).map(conditionWithStatus => new Condition(conditionWithStatus, vue, clusters));
 }
 
 export async function cloneAlertCondition(condition: AlertCondition, clusterIds: string[]) {
