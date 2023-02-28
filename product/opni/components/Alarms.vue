@@ -1,7 +1,7 @@
 <script>
 import SortableTable from '@/components/SortableTable';
 import Loading from '@/components/Loading';
-import { getClusterStatus, getAlertConditions } from '@/product/opni/utils/requests/alerts';
+import { getClusterStatus, getAlertConditionsWithStatus } from '@/product/opni/utils/requests/alerts';
 import CloneToClustersDialog from './dialogs/CloneToClustersDialog';
 import { getClusters } from '~/product/opni/utils/requests/management';
 
@@ -90,18 +90,13 @@ export default {
 
         this.$set(this, 'clusters', clusters);
 
-        this.$set(this, 'conditions', await getAlertConditions(this, clusters));
-        await this.updateStatuses();
+        this.$set(this, 'conditions', await getAlertConditionsWithStatus(this, clusters));
       } finally {
         this.loading = false;
       }
     },
     async updateStatuses() {
-      const promises = this.conditions.map(c => c.updateStatus());
-
-      try {
-        await Promise.all(promises);
-      } catch (ex) {}
+      this.$set(this, 'conditions', await getAlertConditionsWithStatus(this, this.clusters));
     }
   },
 };
