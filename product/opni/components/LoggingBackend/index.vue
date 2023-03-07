@@ -38,7 +38,6 @@ export default {
       enabled:          false,
       loading:          true,
       config:           {
-        externalURL:   '',
         dataRetention: '7d',
 
         dataNodes: {
@@ -106,10 +105,6 @@ export default {
     },
 
     async save() {
-      if (this.config.externalURL === '') {
-        throw new Error('External URL is required');
-      }
-
       if (this.config.dataRetention === '') {
         throw new Error('Data Retention is required');
       }
@@ -213,10 +208,7 @@ export default {
   >
     <template #editing>
       <div class="row mb-20">
-        <div class="col span-6">
-          <LabeledInput v-model="config.externalURL" label="External URL" placeholder="e.g. example.com" :required="true" />
-        </div>
-        <div class="col span-6">
+        <div class="col span-12">
           <LabeledInput v-model="config.dataRetention" label="Data Retention" placeholder="e.g. 7d, 30d, 6m" :required="true" />
         </div>
       </div>
