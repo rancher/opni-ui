@@ -1,7 +1,7 @@
 <script>
 import Loading from '@/components/Loading';
 import dayjs from 'dayjs';
-import { getAlertConditions, getConditionTimeline, getClusterStatus } from '~/product/opni/utils/requests/alerts';
+import { getAlertConditionsWithStatus, getConditionTimeline, getClusterStatus } from '~/product/opni/utils/requests/alerts';
 import { getClusters } from '~/product/opni/utils/requests/management';
 
 export default {
@@ -58,7 +58,8 @@ export default {
 
       const now = dayjs();
       const clusters = await getClusters(this);
-      const [conditions, response] = await Promise.all([getAlertConditions(this, clusters), getConditionTimeline({ lookbackWindow: '24h' })]);
+      const [conditions, response] = await Promise.all([getAlertConditionsWithStatus(this, clusters), getConditionTimeline({ lookbackWindow: '24h' })]);
+
       const DEFAULT_CLUSTER_ID = 'default';
       const UPSTREAM_CLUSTER_ID = 'UPSTREAM_CLUSTER_ID';
 
