@@ -126,7 +126,9 @@ export async function getClusters(vue: any): Promise<Cluster[]> {
   const healthResponses = await Promise.allSettled(clustersResponse.map(clustersResponse => axios.get<HealthResponse>(`opni-api/management/clusters/${ clustersResponse.id }/health`)));
 
   const notConnected: HealthResponse = {
-    status: { connected: false },
+    status: {
+      connected: false, timestamp: '', sessionAttributes: []
+    },
     health: { ready: false, conditions: [] }
   };
 

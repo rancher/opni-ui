@@ -20,7 +20,9 @@ export interface HealthResponse {
     conditions: string[];
   },
   status: {
+    timestamp: string;
     connected: boolean;
+    sessionAttributes: string[];
   }
 }
 
@@ -113,6 +115,14 @@ export class Cluster extends Resource {
       state:   'success',
       message: 'Ready'
     };
+  }
+
+  get isLocal(): boolean {
+    return this.healthBase.status?.sessionAttributes?.includes('local');
+  }
+
+  get localIcon(): string {
+    return this.isLocal ? 'icon-checkmark text-success' : '';
   }
 
   get type(): string {

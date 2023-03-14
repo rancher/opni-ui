@@ -4138,6 +4138,7 @@ tableHeaders:
   lastSeen: Last Seen
   level: Level
   levels: Levels
+  local: Local
   loggingOutputProviders: Provider
   logs: Log Count
   machines: Machines
