@@ -74,7 +74,15 @@ export default {
               return uuidRegex.test(value) ? 'monospace' : '';
             }
           }
-        }
+        },
+        {
+          name:          'isLocal',
+          labelKey:      'tableHeaders.local',
+          sort:          ['isLocal'],
+          value:         'localIcon',
+          formatter:     'Icon',
+          width:     20
+        },
       ]
     };
   },
