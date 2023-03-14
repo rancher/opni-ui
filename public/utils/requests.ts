@@ -575,7 +575,7 @@ function getRancherBreakdownQuery(range: Range, clusterId: string) {
         "terms": { "field": "cluster_id", "size": 1000 },
         "aggs": {
           "pod_name": {
-            "terms": { "field": "kubernetes.pod_name.keyword", "size": 1000 },
+            "terms": { "field": "pod_name.keyword", "size": 1000 },
             "aggs": {
               "anomaly_level": { "terms": { "field": "anomaly_level" } }
             },
@@ -599,7 +599,7 @@ function getLonghornBreakdownQuery(range: Range, clusterId: string) {
         "terms": { "field": "cluster_id", "size": 1000 },
         "aggs": {
           "pod_name": {
-            "terms": { "field": "kubernetes.pod_name.keyword", "size": 1000 },
+            "terms": { "field": "pod_name.keyword", "size": 1000 },
             "aggs": {
               "anomaly_level": { "terms": { "field": "anomaly_level" } }
             },
@@ -651,7 +651,7 @@ function getRancherKeywordsBreakdownQuery(range: Range, clusterId: string, keywo
         "terms": { "field": "cluster_id", "size": 1000 },
         "aggs": {
           "pod_name": {
-            "terms": { "field": "kubernetes.pod_name.keyword", "size": 1000 },
+            "terms": { "field": "pod_name.keyword", "size": 1000 },
           }
         }
       }
@@ -677,7 +677,7 @@ function getLonghornKeywordsBreakdownQuery(range: Range, clusterId: string, keyw
         "terms": { "field": "cluster_id", "size": 1000 },
         "aggs": {
           "pod_name": {
-            "terms": { "field": "kubernetes.pod_name.keyword", "size": 1000 },
+            "terms": { "field": "pod_name.keyword", "size": 1000 },
           }
         }
       }
@@ -689,7 +689,7 @@ function getNamespaceBreakdownQuery(range: Range, clusterId: string) {
   return {
     "query": {
       "bool": {
-        "must": [...must(clusterId), { "regexp": { "kubernetes.namespace_name.keyword": ".+" } }, { "match": { "log_type": "workload" } }],
+        "must": [...must(clusterId), { "regexp": { "namespace_name.keyword": ".+" } }, { "match": { "log_type": "workload" } }],
         "filter": [{ "range": { "time": { "gte": range.start, "lte": range.end } } }],
       }
     },
@@ -698,7 +698,7 @@ function getNamespaceBreakdownQuery(range: Range, clusterId: string) {
         "terms": { "field": "cluster_id", "size": 1000 },
         "aggs": {
           "component_name": {
-            "terms": { "field": "kubernetes.namespace_name.keyword", "size": 1000 },
+            "terms": { "field": "namespace_name.keyword", "size": 1000 },
             "aggs": {
               "anomaly_level": { "terms": { "field": "anomaly_level" } }
             },
@@ -716,7 +716,7 @@ function getNamespaceKeywordsBreakdownQuery(range: Range, clusterId: string, key
         "must": [
           ...must(clusterId),
           ...mustKeywords(keywords),
-          { "regexp": { "kubernetes.namespace_name.keyword": ".+" } },
+          { "regexp": { "namespace_name.keyword": ".+" } },
           { "match": { "log_type": "workload" } }
         ],
         "filter": [{ "range": { "time": { "gte": range.start, "lte": range.end } } }],
@@ -726,7 +726,7 @@ function getNamespaceKeywordsBreakdownQuery(range: Range, clusterId: string, key
       "bucket": {
         "composite": {
           "size": 1000,
-          "sources": [{ "cluster_id": { "terms": { "field": "cluster_id" } } }, { "namespace_name": { "terms": { "field": "kubernetes.namespace_name.keyword" } } }],
+          "sources": [{ "cluster_id": { "terms": { "field": "cluster_id" } } }, { "namespace_name": { "terms": { "field": "namespace_name.keyword" } } }],
         },
       }
     }
@@ -739,7 +739,7 @@ function getPodBreakdownQuery(range: Range, clusterId: string) {
     "query": {
       "bool": {
         "filter": [{ "range": { "time": { "gte": range.start, "lte": range.end } } }],
-        "must": [...must(clusterId), { "regexp": { "kubernetes.pod_name.keyword": ".+" } }, { "match": { "log_type": "workload" } }],
+        "must": [...must(clusterId), { "regexp": { "pod_name.keyword": ".+" } }, { "match": { "log_type": "workload" } }],
       }
     },
     "aggs": {
@@ -747,7 +747,7 @@ function getPodBreakdownQuery(range: Range, clusterId: string) {
         "terms": { "field": "cluster_id", "size": 1000 },
         "aggs": {
           "component_name": {
-            "terms": { "field": "kubernetes.pod_name.keyword", "size": 1000 },
+            "terms": { "field": "pod_name.keyword", "size": 1000 },
             "aggs": {
               "anomaly_level": { "terms": { "field": "anomaly_level" } }
             },
@@ -766,7 +766,7 @@ function getPodKeywordsBreakdownQuery(range: Range, clusterId: string, keywords:
         "must": [
           ...must(clusterId),
           ...mustKeywords(keywords),
-          { "regexp": { "kubernetes.namespace_name.keyword": ".+" } },
+          { "regexp": { "namespace_name.keyword": ".+" } },
           { "match": { "log_type": "workload" } }
         ],
         "filter": [{ "range": { "time": { "gte": range.start, "lte": range.end } } }],
@@ -776,7 +776,7 @@ function getPodKeywordsBreakdownQuery(range: Range, clusterId: string, keywords:
       "bucket": {
         "composite": {
           "size": 1000,
-          "sources": [{ "cluster_id": { "terms": { "field": "cluster_id" } } }, { "namespace_name": { "terms": { "field": "kubernetes.namespace_name.keyword" } } }, { "pod_name": { "terms": { "field": "kubernetes.pod_name.keyword" } } }],
+          "sources": [{ "cluster_id": { "terms": { "field": "cluster_id" } } }, { "namespace_name": { "terms": { "field": "namespace_name.keyword" } } }, { "pod_name": { "terms": { "field": "pod_name.keyword" } } }],
         },
       }
     }
