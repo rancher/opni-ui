@@ -15,7 +15,7 @@ import { generateName } from '@/product/opni/utils/nameGenerator';
 const TOKEN_EXPIRATION_SECONDS = 3600;
 const NEW_TOKEN_INTERVAL_SECONDS = TOKEN_EXPIRATION_SECONDS - 100;
 
-const CLUSTER_COUNT_INTERVAL_SECONDS = 2;
+const CLUSTER_COUNT_INTERVAL_SECONDS = 10;
 
 export default {
   components: {
@@ -254,6 +254,11 @@ export default {
             <div class="mt-10">
               Gateway URL: <CopyCode class="ml-5">
                 {{ gatewayAddress }}
+              </CopyCode>
+            </div>
+            <div class="mt-10">
+              Friendly Name: <CopyCode class="ml-5">
+                {{ friendlyName }}
               </CopyCode>
             </div>
           </div>
