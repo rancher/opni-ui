@@ -89,7 +89,7 @@ export async function getK8sEvents(range: Range, clusterId: string, type?: Event
   return hits.map(h => ({
     cause: h._source['k8s.event.reason'],
     summary: h._source['Body.value'],
-    timestamp: moment(h._source.time).valueOf(),
+    timestamp: moment(Number.parseInt(`${h._source.time || 0}`)).valueOf(),
     type: h._source.SeverityText,
     source: `${h._source['k8s.object.kind']}: ${h._source['k8s.namespace.name']}/${h._source['k8s.event.name']}`
   }));

@@ -12,6 +12,7 @@ import {
 import { Settings } from '@elastic/charts';
 import { Granularity } from '../../utils/time';
 import Keywords from '../Keywords';
+import { CoreConsumer } from '../../utils/CoreContext';
 
 export interface Settings {
   range: {
@@ -113,35 +114,39 @@ export default class Selector extends Component<SelectorProps, SelectorState> {
     const moreFiltersButtonLabel = this.state.showMoreFilters ? 'Less Filters' : 'More Filters';
 
     return (
-      <div className="selector">
-        <EuiPanel>
-          <EuiFlexGroup direction="column">
-            <EuiFlexItem>
-              <EuiFlexGroup style={{ padding: '0 15px' }}>
+      <CoreConsumer>
+        {(core: any) => {
+          return <div className={['selector', core.isDarkMode ? 'dark' : null].filter(s => s).join(' ')}>
+            <EuiPanel>
+              <EuiFlexGroup direction="column">
                 <EuiFlexItem>
-                  <EuiFlexItem><EuiSelect options={clusterOptions} prepend="Cluster" value={cluster} onChange={this.onChange('cluster')} /></EuiFlexItem>
-                </EuiFlexItem>
-                <EuiFlexItem>
-                  <EuiFlexGroup justifyContent="flexEnd" className="right">
-                    <EuiFlexItem><EuiSelect className="period" options={GRANULARITY_OPTIONS} prepend="Period" value={granularity} onChange={this.onChange('granularity')} /></EuiFlexItem>
+                  <EuiFlexGroup style={{ padding: '0 15px' }}>
                     <EuiFlexItem>
-                    <EuiSuperDatePicker
-                      start={range.start}
-                      end={range.end}
-                      onTimeChange={onTimeChange}
-                    />
+                      <EuiFlexItem><EuiSelect options={clusterOptions} prepend="Cluster" value={cluster} onChange={this.onChange('cluster')} /></EuiFlexItem>
+                    </EuiFlexItem>
+                    <EuiFlexItem>
+                      <EuiFlexGroup justifyContent="flexEnd" className="right">
+                        <EuiFlexItem><EuiSelect className="period" options={GRANULARITY_OPTIONS} prepend="Period" value={granularity} onChange={this.onChange('granularity')} /></EuiFlexItem>
+                        <EuiFlexItem>
+                        <EuiSuperDatePicker
+                          start={range.start}
+                          end={range.end}
+                          onTimeChange={onTimeChange}
+                        />
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
                     </EuiFlexItem>
                   </EuiFlexGroup>
                 </EuiFlexItem>
+                {moreFilters}
+                <EuiFlexItem className="more-filters-button">
+                    <div className="handle" onClick={toggleMoreFilters}>{moreFiltersButtonLabel}</div>
+                </EuiFlexItem>
               </EuiFlexGroup>
-            </EuiFlexItem>
-            {moreFilters}
-            <EuiFlexItem className="more-filters-button">
-                <div className="handle" onClick={toggleMoreFilters}>{moreFiltersButtonLabel}</div>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </EuiPanel>
-      </div>
+            </EuiPanel>
+          </div>
+        }}
+      </CoreConsumer>
     );
   }
 }

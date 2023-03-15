@@ -1,4 +1,4 @@
-.events-table {
+.templates-table {
     .sample {
         font-size: 12px;
         font-style: italic;
@@ -8,7 +8,6 @@
     .euiTableRow.euiTableRow-isExpandedRow .euiTableRowCell,
     .euiTableRowCell {
         border: none;
-        background-color: #ffffff;
     }
 
     .euiTableRow:not(.euiTableRow-isExpandedRow) .euiTableCellContent {
