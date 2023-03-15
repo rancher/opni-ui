@@ -56,8 +56,6 @@ export default class EventsTable extends Component<TemplatesTableProps, Template
     const templates = (await templatesRequest)
       .map((template, i) => ({...template, id: i}));
 
-    console.log(templates.length, templates);
-
     this.setState({
       templates,
       pagination: {
@@ -139,7 +137,7 @@ export default class EventsTable extends Component<TemplatesTableProps, Template
     );
 
     return (
-      <div className="events-table" style={{ padding: '15px 15px', paddingTop: 0 }}>
+      <div className="templates-table" style={{ padding: '15px 15px', paddingTop: 0 }}>
           <EuiPanel>
             <Loading promise={this.state.templatesRequest}>
               <div>
