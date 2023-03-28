@@ -71,6 +71,17 @@ export default {
       try {
         this.loading = true;
 
+        if (window.location.search.includes('gpu=false')) {
+          this.$set(this, 'hasGpu', false);
+        } else if (window.location.search.includes('gpu=true')) {
+          this.$set(this, 'hasGpu', true);
+        }
+
+        if (!await isAiOpsEnabled()) {
+          return;
+        }
+        this.$set(this, 'isAiOpsEnabled', true);
+
         const loggingCluster = await getLoggingCluster();
 
         if (isEmpty(loggingCluster)) {
@@ -78,18 +89,7 @@ export default {
         }
         this.$set(this, 'isLoggingEnabled', true);
 
-        if (!await isAiOpsEnabled()) {
-          return;
-        }
-        this.$set(this, 'isAiOpsEnabled', true);
-
-        if (window.location.search.includes('gpu=false')) {
-          this.$set(this, 'hasGpu', false);
-        } else if (window.location.search.includes('gpu=true')) {
-          this.$set(this, 'hasGpu', true);
-        } else {
-          this.$set(this, 'hasGpu', await hasGpu());
-        }
+        this.$set(this, 'hasGpu', await hasGpu());
 
         const clusters = await getClusters();
 
@@ -291,6 +291,12 @@ export default {
       }
 
       return null;
+    },
+
+    showLinkToOpensearch() {
+      const params = this.lastParameters?.items || [];
+
+      return window.location.search.includes('link=true') || params.length > 0;
     }
   },
 
@@ -309,10 +315,17 @@ export default {
       <div class="title">
         <h1>Workload Insights</h1>
       </div>
+      <a v-if="showLinkToOpensearch" href="https://opni.io/installation/opni/aiops/#consuming-ai-insights-from-opni" target="_blank" class="btn role-primary">
+        Launch Workload Insights
+      </a>
     </header>
-    <DependencyWall v-if="!isLoggingEnabled" title="Workload Insights" dependency-name="Logging" route-name="logging-config" />
-    <DependencyWall v-else-if="!isAiOpsEnabled" title="Workload Insights" dependency-name="AIOps" route-name="ai-ops" />
+    <DependencyWall v-if="!isAiOpsEnabled" title="Workload Insights" dependency-name="Log Anomaly" route-name="log-anomaly" />
+    <DependencyWall v-else-if="!isLoggingEnabled" title="Workload Insights" dependency-name="Logging" route-name="logging-config" />
+
     <div v-else>
+      <Banner v-if="!hasGpu" color="warning" class="mt-0">
+        To update the watchlist a GPU must be present on the cluster. To find out how to setup a GPU on your cluster you can visit our <a href="https://opni.io/setup/gpu/" target="_blank">docs</a>.
+      </Banner>
       <Banner v-if="bannerMessage" :color="bannerColor" class="mt-0" v-html="bannerMessage" />
       <SortableTable
         ref="table"
@@ -367,6 +380,15 @@ export default {
 
 <style lang="scss" scoped>
 ::v-deep {
+
+  header {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   .primary {
     margin-bottom: 100px;
   }

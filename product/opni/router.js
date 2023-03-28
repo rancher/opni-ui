@@ -21,7 +21,8 @@ import Alarms from './pages/Alarms';
 import Alarm from './pages/Alarm';
 import AlertingOverview from './pages/AlertingOverview';
 import AlertingBackend from './pages/AlertingBackend';
-import AiOpsBackend from './pages/AiOpsBackend';
+import LogAnomalyBackend from './pages/LogAnomalyBackend';
+import PretrainedModels from './pages/PretrainedModels';
 
 Vue.use(Router);
 
@@ -36,14 +37,12 @@ export const NAVIGATION = {
       name:      'agents',
       path:      '/agents',
       labelKey:  'opni.nav.agents',
-      // icon:      'cluster-management',
       component: Clusters,
       routes:    [
         {
           name:      'agent-create',
           path:      '/create',
           labelKey:  'opni.nav.clusters',
-          // icon:      'globe',
           component: Cluster,
           display:   false
         },
@@ -53,7 +52,6 @@ export const NAVIGATION = {
       name:      'logging-config',
       path:      '/logging-config',
       labelKey:  'opni.nav.loggingConfig',
-      // icon:      'logging',
       component: LoggingBackend,
       display:   true
     },
@@ -61,14 +59,12 @@ export const NAVIGATION = {
       name:      'monitoring',
       path:      '/monitoring',
       labelKey:  'opni.nav.monitoring',
-      // icon:      'monitoring',
       component: MonitoringBackend,
       routes:    [
         {
           name:     'rbac',
           path:     '/rbac',
           labelKey: 'opni.nav.rbac',
-          // icon:     'folder',
           display:   true,
           redirect: { name: 'roles' },
           routes:   [
@@ -76,14 +72,12 @@ export const NAVIGATION = {
               name:      'roles',
               path:      '/roles',
               labelKey:  'opni.nav.roles',
-              // icon:      'show',
               component: Roles,
               routes:    [
                 {
                   name:      'role-create',
                   path:      '/create',
                   labelKey:  'opni.nav.roles',
-                  // icon:      'globe',
                   component: Role,
                   display:   false
                 },
@@ -93,14 +87,12 @@ export const NAVIGATION = {
               name:      'role-bindings',
               path:      '/role-bindings',
               labelKey:  'opni.nav.roleBindings',
-              // icon:      'user',
               component: RoleBindings,
               routes:    [
                 {
                   name:      'role-binding-create',
                   path:      '/create',
                   labelKey:  'opni.nav.roleBindings',
-                  // icon:      'globe',
                   component: RoleBinding,
                   display:   false
                 },
@@ -122,7 +114,6 @@ export const NAVIGATION = {
           name:      'alerting-overview',
           path:      '/overview',
           labelKey:  'opni.nav.alertingOverview',
-          // icon:      'alert',
           component: AlertingOverview,
           display:   true
         },
@@ -130,7 +121,6 @@ export const NAVIGATION = {
           name:      'endpoints',
           path:      '/endpoints',
           labelKey:  'opni.nav.endpoints',
-          // icon:      'alert',
           component: Endpoints,
           display:   true,
           routes:    [
@@ -138,7 +128,6 @@ export const NAVIGATION = {
               name:      'endpoint',
               path:      '/:id',
               labelKey:  'opni.nav.endpoints',
-              // icon:      'globe',
               component: Endpoint,
               display:   false
             },
@@ -146,7 +135,6 @@ export const NAVIGATION = {
               name:      'endpoint-create',
               path:      '/create',
               labelKey:  'opni.nav.endpoints',
-              // icon:      'globe',
               component: Endpoint,
               display:   false
             },
@@ -156,7 +144,6 @@ export const NAVIGATION = {
           name:      'alarms',
           path:      '/alarms',
           labelKey:  'opni.nav.alarms',
-          // icon:      'alert',
           component: Alarms,
           display:   true,
           routes:    [
@@ -164,7 +151,6 @@ export const NAVIGATION = {
               name:      'alarm',
               path:      '/:id',
               labelKey:  'opni.nav.alarms',
-              // icon:      'globe',
               component: Alarm,
               display:   false
             },
@@ -172,7 +158,6 @@ export const NAVIGATION = {
               name:      'alarm-create',
               path:      '/create',
               labelKey:  'opni.nav.alarms',
-              // icon:      'globe',
               component: Alarm,
               display:   false
             },
@@ -182,7 +167,6 @@ export const NAVIGATION = {
           name:      'slos',
           path:      '/slos',
           labelKey:  'opni.nav.slos',
-          // icon:      'alert',
           component: SLOs,
           display:   true,
           routes:    [
@@ -190,7 +174,6 @@ export const NAVIGATION = {
               name:      'slo',
               path:      '/:id',
               labelKey:  'opni.nav.slos',
-              // icon:      'globe',
               component: SLO,
               display:   false
             },
@@ -198,7 +181,6 @@ export const NAVIGATION = {
               name:      'slo-create',
               path:      '/create',
               labelKey:  'opni.nav.slos',
-              // icon:      'globe',
               component: SLO,
               display:   false
             },
@@ -210,23 +192,39 @@ export const NAVIGATION = {
       name:      'ai-ops',
       path:      '/ai-ops',
       labelKey:  'opni.nav.aiOps',
-      component: AiOpsBackend,
       display:   true,
+      redirect:  { name: 'log-anomaly' },
       routes:    [
         {
-          name:      'workload-model-config',
-          path:      '/workload-model-config',
-          labelKey:  'opni.nav.workloadModel',
-          component: WorkloadModelConfig,
-          display:   true
+          name:      'log-anomaly',
+          path:      '/log-anomaly',
+          labelKey:  'opni.nav.logAnomaly',
+          display:   true,
+          component: LogAnomalyBackend,
+          routes:    [
+            {
+              name:      'pretrained-models',
+              path:      '/pretrained-models',
+              labelKey:  'opni.nav.pretrainedModels',
+              display:   true,
+              component: PretrainedModels,
+            },
+            {
+              name:      'workload-model-config',
+              path:      '/workload-insights',
+              labelKey:  'opni.nav.workloadModel',
+              component: WorkloadModelConfig,
+              display:   true
+            },
+          ]
         },
+
       ]
     },
     {
       name:      'configuration',
       path:      '/configuration',
       labelKey:  'opni.nav.configuration',
-      icon:      'gear',
       component: Configuration,
       display:   true
     },

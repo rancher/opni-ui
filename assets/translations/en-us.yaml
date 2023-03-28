@@ -6167,9 +6167,11 @@ opni:
     roleBindings: Role Bindings
     tokens: Tokens
     slos: SLOs
+    logAnomaly: Log Anomaly
     loggingConfig: Logging
     monitoring: Monitoring
     management: Management
+    pretrainedModels: Pretrained Models
     workloadModel: Workload Insights
     endpoints: Endpoints
     alarms: Alarms
