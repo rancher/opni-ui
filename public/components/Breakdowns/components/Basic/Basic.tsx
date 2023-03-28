@@ -46,11 +46,19 @@ export function createColumns(type, range, showAnomaly, keywords) {
     return `${appPrefix}discover#/?${query}`;
   };
 
+  const getPercentage = (count, row) => {
+    const total = row.anomaly + row.normal;
+
+    return <span className="percent">
+      - ({`${((count * 100 / total) || 0).toFixed(1)}%`})
+    </span>;
+  };
+
   const anomaly = showAnomaly 
     ? [{
       field: 'anomaly',
       name: 'Anomaly',
-      render: (count, row) => <a href={getUrl(row, 'Anomaly')} target="_blank"><Bubble severity="anomaly">{formatShort(count)}</Bubble></a>
+      render: (count, row) => <a href={getUrl(row, 'Anomaly')} target="_blank"><Bubble severity="anomaly">{formatShort(count)}</Bubble> {getPercentage(count, row)}</a>
     }] 
     : [];
 
@@ -59,7 +67,7 @@ export function createColumns(type, range, showAnomaly, keywords) {
       field: 'keywords',
       name: 'Keywords',
       render: (count, row) => {
-        return <div className="keywords"><div><a href={getUrl(row, 'null')} target="_blank"><Bubble severity="suspicious">{formatShort(count)}</Bubble></a></div></div>;
+        return <div className="keywords"><div><a href={getUrl(row, 'null')} target="_blank"><Bubble severity="suspicious">{formatShort(count)}</Bubble> {getPercentage(count, row)}</a></div></div>;
       }
     }]
     : [];
@@ -75,7 +83,7 @@ export function createColumns(type, range, showAnomaly, keywords) {
       field: 'normal',
       name: 'Normal',
       render: (count, row) => {
-        return <div className="normal"><div><a href={getUrl(row, 'Normal')} target="_blank"><Bubble severity="normal">{formatShort(count)}</Bubble></a></div></div>;
+        return <div className="normal"><div><a href={getUrl(row, 'Normal')} target="_blank"><Bubble severity="normal">{formatShort(count)}</Bubble> {getPercentage(count, row)}</a></div></div>;
       }
     }
   ];
