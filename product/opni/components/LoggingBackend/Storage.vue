@@ -3,7 +3,7 @@ import UnitInput from '@/components/form/UnitInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import Checkbox from '@/components/form/Checkbox';
 import { get, set } from '@/utils/object';
-import { getStorageClasses } from '@/product/opni/utils/requests/logging';
+import { getStorageClasses } from '@/product/opni/utils/requests/loggingv2';
 
 export async function getStorageClassOptions() {
   const storageClasses = await getStorageClasses();
