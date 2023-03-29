@@ -11,7 +11,7 @@ import Pod from './components/Pod';
 import Namespace from './components/Namesapce';
 import Rancher from './components/Rancher';
 import Longhorn from './components/Longhorn';
-import { BasicBreakdown, getControlPlaneBreakdown, getLogTypes, getNamespaceBreakdown, getPodBreakdown, getRancherBreakdown, getLonghornBreakdown } from '../../utils/requests';
+import { BasicBreakdown, getControlPlaneBreakdown, getLogTypes, getNamespaceBreakdown, getPodBreakdown, getRancherBreakdown, getLonghornBreakdown, getClusterMetadataById } from '../../utils/requests';
 import Loading from '../Loading/Loading';
 import { Granularity, isSameRange, Range } from '../../utils/time';
 
@@ -70,11 +70,12 @@ export default class Breakdowns extends Component<BreakdownsProps, BreakdownStat
   }
 
   load = async () => {
-    const controlPlaneBreakdownRequest =  getControlPlaneBreakdown(this.props.range, this.props.clusterId, this.props.keywords);
-    const podBreakdownRequest =  getPodBreakdown(this.props.range, this.props.clusterId, this.props.keywords);
-    const namespaceBreakdownRequest =  getNamespaceBreakdown(this.props.range, this.props.clusterId, this.props.keywords);
-    const rancherBreakdownRequest = getRancherBreakdown(this.props.range, this.props.clusterId, this.props.keywords);
-    const longhornBreakdownRequest = getLonghornBreakdown(this.props.range, this.props.clusterId, this.props.keywords);
+    const clusterById = await getClusterMetadataById();
+    const controlPlaneBreakdownRequest =  getControlPlaneBreakdown(this.props.range, this.props.clusterId, this.props.keywords, clusterById);
+    const podBreakdownRequest =  getPodBreakdown(this.props.range, this.props.clusterId, this.props.keywords, clusterById);
+    const namespaceBreakdownRequest =  getNamespaceBreakdown(this.props.range, this.props.clusterId, this.props.keywords, clusterById);
+    const rancherBreakdownRequest = getRancherBreakdown(this.props.range, this.props.clusterId, this.props.keywords, clusterById);
+    const longhornBreakdownRequest = getLonghornBreakdown(this.props.range, this.props.clusterId, this.props.keywords, clusterById);
     const logTypesRequest = getLogTypes();
     
     this.setState({

@@ -113,7 +113,6 @@ export default class EventsTable extends Component<EventsTableProps, EventsTable
     const getPagedEvents = () => {
       const start = this.state.pagination.pageIndex * this.state.pagination.pageSize;
       const end = start + this.state.pagination.pageSize;
-      console.log(this.state.events.slice(this.state.pagination.pageIndex * this.state.pagination.pageSize, this.state.pagination.pageSize))
       return this.state.events.slice(start, end);
     };
 

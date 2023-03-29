@@ -10,6 +10,7 @@ import {
   EuiSuperDatePicker
 } from '@elastic/eui';
 import { Settings } from '@elastic/charts';
+import { ClusterMetadata } from '../../../utils/requests';
 
 export interface Settings {
   range: {
@@ -20,7 +21,7 @@ export interface Settings {
 }
 export interface SelectorProps {
   settings: Settings;
-  clusterIds: string[];
+  clusters: ClusterMetadata[];
   onChange: (Settings) => void;
   onRefresh: () => void;
 };
@@ -56,7 +57,7 @@ export default class Selector extends Component<SelectorProps> {
 
   render() {
     const { range, cluster } = this.props.settings;
-    const clusterOptions = [...CLUSTER_OPTIONS, ...this.props.clusterIds.map(id => ({ value: id, text: id}))];
+    const clusterOptions = [...CLUSTER_OPTIONS, ...this.props.clusters.map(c => ({ value: c.id, text: c.name}))];
     const onTimeChange = (newRange) => {
       this.onChange('range')({start: newRange.start, end: (newRange.end.includes('now') ? 'now' : newRange.end) });
       setTimeout(() => this.props.onRefresh());
