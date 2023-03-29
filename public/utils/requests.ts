@@ -36,7 +36,7 @@ export interface LogTemplate {
 }
 
 export interface BasicBreakdown {
-  clusterId: string;
+  clusterName: string;
   name: string;
   anomaly: number;
   suspicious: number;
@@ -59,6 +59,70 @@ export interface Log {
 
 export type LogType = 'workload' | 'controlplane' | 'rancher' | 'longhorn';
 export type EventType = 'Normal' | 'Warning';
+
+
+
+export interface ClusterMetadata {
+  id: string;
+  name: string;
+}
+
+export type ClusterMetadataById = { [id: string]: ClusterMetadata };
+
+export async function getClusterIds() {
+  try {
+    const results = await search({
+      "size": 0,
+      "aggs": {
+        "clusters": {
+          "terms": { "field": "cluster_id" }
+        }
+      }
+    });
+
+    return results.rawResponse.aggregations?.clusters.buckets.map(bucket => bucket.key) || [];
+  } catch (ex) {
+    return [];
+  }
+}
+
+export async function getClusterMetadata(): Promise<ClusterMetadata[]> {
+  try {
+    const results = await search({ size: 1000 }, 'opni-cluster-metadata');
+
+    const clusters = (results.rawResponse?.hits?.hits || []);
+
+    if (clusters.length > 0) {
+      return clusters
+        .map(hit => ({
+          id: hit._source.id,
+          name: hit._source.name || hit._source.id
+        }));
+    }
+
+    return (await getClusterIds()).map(id => ({
+      id,
+      name: id
+    }));
+  } catch (ex) {
+    return (await getClusterIds()).map(id => ({
+      id,
+      name: id
+    }));
+  }
+}
+
+export async function getClusterMetadataById(): Promise<ClusterMetadataById> {
+  const aggregation = {};
+
+  const clusters = await getClusterMetadata();
+  clusters.forEach(c => {
+    aggregation[c.id] = c;
+  });
+
+  return aggregation;
+}
+
 
 export async function getInsights(range: Range, granularity: Granularity, clusterId: string, keywords: string[], logType?: LogType): Promise<Insight[]> {
   const insightsPromise = search(getInsightsQuery(range, granularity, clusterId, logType));
@@ -107,20 +171,7 @@ export async function getControlPlaneInsights(range: Range, granularity: Granula
   return getInsights(range, granularity, clusterId, keywords, 'controlplane');
 }
 
-export async function getClusterIds() {
-  const results = await search({
-    "size": 0,
-    "aggs": {
-      "clusters": {
-        "terms": { "field": "cluster_id" }
-      }
-    }
-  });
-
-  return results.rawResponse.aggregations?.clusters.buckets.map(bucket => bucket.key) || [];
-}
-
-export async function getControlPlaneBreakdown(range: Range, clusterId: string, keywords: string[]): Promise<BasicBreakdown[]> {
+export async function getControlPlaneBreakdown(range: Range, clusterId: string, keywords: string[], clusterById: ClusterMetadataById): Promise<BasicBreakdown[]> {
   const breakdownPromise = search(getControlPlaneBreakdownQuery(range, clusterId));
   const keywordsBreakdownPromise = search(getControlPlaneKeywordsBreakdownQuery(range, clusterId, keywords));
   const clusters = (await breakdownPromise).rawResponse?.aggregations?.cluster_id?.buckets || [];
@@ -138,14 +189,14 @@ export async function getControlPlaneBreakdown(range: Range, clusterId: string, 
         ...extractCounts(bucket.anomaly_level.buckets),
         keywords: keywordsBucket?.doc_count || 0,
         name: bucket.key,
-        clusterId: cluster.key
+        clusterName: clusterById[cluster.key]?.name || cluster.key
       };
     });
   });
 
 }
 
-export async function getRancherBreakdown(range: Range, clusterId: string, keywords: string[]): Promise<BasicBreakdown[]> {
+export async function getRancherBreakdown(range: Range, clusterId: string, keywords: string[], clusterById: ClusterMetadataById): Promise<BasicBreakdown[]> {
   const breakdownPromise = search(getRancherBreakdownQuery(range, clusterId));
   const keywordsBreakdownPromise = search(getRancherKeywordsBreakdownQuery(range, clusterId, keywords));
   const clusters = (await breakdownPromise).rawResponse?.aggregations?.cluster_id?.buckets || [];
@@ -164,13 +215,13 @@ export async function getRancherBreakdown(range: Range, clusterId: string, keywo
         ...extractCounts(bucket.anomaly_level.buckets),
         keywords: keywordsBucket?.doc_count || 0,
         name: bucket.key,
-        clusterId: cluster.key
+        clusterName: clusterById[cluster.key]?.name || cluster.key
       };
     });
   });
 }
 
-export async function getLonghornBreakdown(range: Range, clusterId: string, keywords: string[]): Promise<BasicBreakdown[]> {
+export async function getLonghornBreakdown(range: Range, clusterId: string, keywords: string[], clusterById: ClusterMetadataById): Promise<BasicBreakdown[]> {
   const breakdownPromise = search(getLonghornBreakdownQuery(range, clusterId));
   const keywordsBreakdownPromise = search(getLonghornKeywordsBreakdownQuery(range, clusterId, keywords));
   const clusters = (await breakdownPromise).rawResponse?.aggregations?.cluster_id?.buckets || [];
@@ -188,13 +239,13 @@ export async function getLonghornBreakdown(range: Range, clusterId: string, keyw
         ...extractCounts(bucket.anomaly_level?.buckets),
         keywords: keywordsBucket?.doc_count || 0,
         name: bucket.key,
-        clusterId: cluster.key
+        clusterName: clusterById[cluster.key]?.name || cluster.key
       };
     });
   });
 }
 
-export async function getPodBreakdown(range: Range, clusterId: string, keywords: string[]): Promise<BasicBreakdown[]> {
+export async function getPodBreakdown(range: Range, clusterId: string, keywords: string[], clusterById: ClusterMetadataById): Promise<BasicBreakdown[]> {
   const breakdownPromise = search(getPodBreakdownQuery(range, clusterId));
   const keywordsBreakdownPromise = search(getPodKeywordsBreakdownQuery(range, clusterId, keywords));
   const response = await breakdownPromise;
@@ -220,7 +271,7 @@ export async function getPodBreakdown(range: Range, clusterId: string, keywords:
           ...extractCounts(bucket.anomaly_level.buckets),
           keywords: keywordsBucket?.doc_count || 0,
           name: bucket.key,
-          clusterId: cluster.key
+          clusterName: clusterById[cluster.key]?.name || cluster.key
         };
       });
   });
@@ -254,7 +305,6 @@ export async function getLogTemplates(range: Range, clusterId: string): Promise<
   });
 
   const dataWithCounts = allData.filter(d => d.count);
-  console.log('fffff', dataWithCounts, allData);
   return sortBy(dataWithCounts, 'count').reverse();
 }
 
@@ -274,7 +324,7 @@ export function getLogTypeQuery() {
   };
 }
 
-export async function getNamespaceBreakdown(range: Range, clusterId: string, keywords: string[]): Promise<BasicBreakdown[]> {
+export async function getNamespaceBreakdown(range: Range, clusterId: string, keywords: string[], clusterById: ClusterMetadataById): Promise<BasicBreakdown[]> {
   const breakdownPromise = search(getNamespaceBreakdownQuery(range, clusterId));
   const keywordsBreakdownPromise = search(getNamespaceKeywordsBreakdownQuery(range, clusterId, keywords));
   const response = await breakdownPromise;
@@ -299,7 +349,7 @@ export async function getNamespaceBreakdown(range: Range, clusterId: string, key
           ...extractCounts(bucket.anomaly_level.buckets),
           keywords: keywordsBucket?.doc_count || 0,
           name: bucket.key,
-          clusterId: cluster.key
+          clusterName: clusterById[cluster.key]?.name || cluster.key
         };
       });
   });

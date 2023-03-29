@@ -4,9 +4,8 @@ import Selector from '../../components/Selector';
 import Breakdowns from '../../components/Breakdowns';
 import { DEFAULT_SETTINGS, Settings } from '../../components/Selector/Selector';
 import { Range, Granularity } from '../../utils/time';
-import AnomalyChart from '../../components/AnomalyChart';
 import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
-import { getClusterIds, getInsights, getK8sEvents } from '../../utils/requests';
+import { ClusterMetadata, getClusterMetadata, getInsights, getK8sEvents } from '../../utils/requests';
 import dateMath from '@elastic/datemath';
 import Cookies from 'js-cookie';
 import PrimaryLayout from '../../components/Layout/PrimaryLayout';
@@ -14,8 +13,8 @@ import { Moment } from 'moment';
 
 interface MainState {
   settings: Settings,
-  clustersRequest: Promise<string[]>;
-  clusters: string[];
+  clustersRequest: Promise<ClusterMetadata[]>;
+  clusters: ClusterMetadata[];
   range: Range;
   granularity: Granularity,
   cluster: string;
@@ -69,7 +68,7 @@ class Main extends Component<any, MainState> {
   };
 
   load = async () => {
-    const clustersRequest = getClusterIds();
+    const clustersRequest = getClusterMetadata();
     this.setState({
       clustersRequest
     });
@@ -82,7 +81,7 @@ class Main extends Component<any, MainState> {
   render() {
     return (
       <PrimaryLayout loadingPromise={this.state.clustersRequest}>
-        <Selector settings={this.state.settings} onChange={this.onSettingsChange} clusterIds={this.state.clusters} onRefresh={this.onRefresh}/>
+        <Selector settings={this.state.settings} onChange={this.onSettingsChange} clusters={this.state.clusters} onRefresh={this.onRefresh}/>
         <EuiFlexGroup style={{ padding: '0 15px' }} className="selector">
           <EuiFlexItem><InsightsChart range={this.state.range} granularity={this.state.granularity} clusterId={this.state.cluster} insightsProvider={getInsights} eventsProvider={(range, clusterId) => getK8sEvents(range, clusterId, 'Warning')} keywords={this.state.keywords} showTitle={true} /></EuiFlexItem>
         </EuiFlexGroup>

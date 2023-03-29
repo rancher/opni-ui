@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import EventsFilter from '../../components/Filters/EventsFilter';
 import { DEFAULT_SETTINGS, Settings } from '../../components/Filters/EventsFilter';
 import { Range } from '../../utils/time';
-import { getClusterIds } from '../../utils/requests';
+import { ClusterMetadata, getClusterMetadata } from '../../utils/requests';
 import dateMath from '@elastic/datemath';
 import PrimaryLayout from '../../components/Layout/PrimaryLayout';
 import TemplatesTable from '../../components/TemplatesTable';
@@ -10,8 +10,8 @@ import { Moment } from 'moment';
 
 interface EventsState {
   settings: Settings,
-  clustersRequest: Promise<string[]>;
-  clusters: string[];
+  clustersRequest: Promise<ClusterMetadata[]>;
+  clusters: ClusterMetadata[];
   range: Range;
   cluster: string;
 };
@@ -53,7 +53,7 @@ export default class Events extends Component<any, EventsState> {
   };
 
   load = async () => {
-    const clustersRequest = getClusterIds();
+    const clustersRequest = getClusterMetadata();
     this.setState({
       clustersRequest
     });
@@ -66,7 +66,7 @@ export default class Events extends Component<any, EventsState> {
   render() {
     return (
       <PrimaryLayout loadingPromise={this.state.clustersRequest}>
-        <EventsFilter settings={this.state.settings} onChange={this.onSettingsChange} clusterIds={this.state.clusters} onRefresh={this.onRefresh}/>
+        <EventsFilter settings={this.state.settings} onChange={this.onSettingsChange} clusters={this.state.clusters} onRefresh={this.onRefresh}/>
         <TemplatesTable range={this.state.range} clusterId={this.state.cluster} />
       </PrimaryLayout>
     );
