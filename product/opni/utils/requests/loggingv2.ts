@@ -115,8 +115,8 @@ export async function doUpgrade() {
   return (await axios.post('opni-api/LoggingAdminV2/logging/upgrade/do')).data;
 }
 
-export async function getStorageClasses(): Promise<StorageClassResponse> {
-  return (await axios.get('opni-api/LoggingAdminV2/logging/storageclasses')).data;
+export async function getStorageClasses(): Promise<string[]> {
+  return (await axios.get('opni-api/LoggingAdminV2/logging/storageclasses')).data?.storageClasses || [];
 }
 
 export async function GetOpensearchStatus(): Promise <StatusResponse> {
