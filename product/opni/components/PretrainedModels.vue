@@ -2,7 +2,7 @@
 import Loading from '@/components/Loading';
 import AsyncButton from '@/components/AsyncButton';
 import Banner from '@/components/Banner';
-import { getAISettings, upgrade, isUpgradeAvailable, updateAISettings } from '@/product/opni/utils/requests/aiops';
+import { getAISettings, upgrade, isUpgradeAvailable, updateAISettings } from '@/product/opni/utils/requests/aiops/logging';
 import { exceptionToErrorsArray } from '@/utils/error';
 import isEmpty from 'lodash/isEmpty';
 import Checkbox from '@/components/form/Checkbox';
