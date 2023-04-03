@@ -212,7 +212,7 @@ export default {
     },
 
     completed() {
-      if (this.status?.statistics?.percentageCompleted >= 100) {
+      if (this.status?.statistics?.percentageCompleted >= 100 || this.status?.statistics?.stage === 'fetching data') {
         return '';
       }
 
@@ -240,6 +240,10 @@ export default {
     },
 
     bannerColor() {
+      if (this.status?.statistics.stage === 'training failed') {
+        return 'There was an error while updating the watchlist. You may try updating the watchlist again.';
+      }
+
       switch (this.status.status) {
       case 'training':
         return 'warning';
@@ -297,6 +301,10 @@ export default {
       const params = this.lastParameters?.items || [];
 
       return window.location.search.includes('link=true') || params.length > 0;
+    },
+
+    failedTraining() {
+      return this.status?.statistics.stage === 'training failed';
     }
   },
 
@@ -354,7 +362,7 @@ export default {
             <button class="btn role-secondary mr-10" @click="removeAll">
               Clear Watchlist
             </button>
-            <button v-tooltip="updateTooltip" class="btn role-primary" :disabled="!hasGpu || status.status === 'training' || !hasListChanged" @click="train">
+            <button v-tooltip="updateTooltip" class="btn role-primary" :disabled="!hasGpu || status.status === 'training' || (!hasListChanged && !failedTraining)" @click="train">
               Update Watchlist
             </button>
           </div>
