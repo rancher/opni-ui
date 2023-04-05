@@ -115,7 +115,7 @@ export default {
     </Banner>
     <div class="body">
       <div v-if="isAiOpsEnabled" class="enabled center">
-        <h4>Log Anomaly is already installed. No further configuration required.</h4>
+        <h4>Navigate to Pretrained Models and Workload Insights for further configuration.</h4>
       </div>
       <div v-else class="not-enabled">
         <h4>Log Anomaly is not currently enabled. Installing it will add additional resources on this cluster.</h4>
