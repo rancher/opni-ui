@@ -36,6 +36,7 @@ export interface LogTemplate {
 }
 
 export interface BasicBreakdown {
+  clusterId: string;
   clusterName: string;
   name: string;
   anomaly: number;
@@ -189,7 +190,8 @@ export async function getControlPlaneBreakdown(range: Range, clusterId: string, 
         ...extractCounts(bucket.anomaly_level.buckets),
         keywords: keywordsBucket?.doc_count || 0,
         name: bucket.key,
-        clusterName: clusterById[cluster.key]?.name || cluster.key
+        clusterName: clusterById[cluster.key]?.name || cluster.key,
+        clusterId: cluster.key
       };
     });
   });
@@ -215,7 +217,8 @@ export async function getRancherBreakdown(range: Range, clusterId: string, keywo
         ...extractCounts(bucket.anomaly_level.buckets),
         keywords: keywordsBucket?.doc_count || 0,
         name: bucket.key,
-        clusterName: clusterById[cluster.key]?.name || cluster.key
+        clusterName: clusterById[cluster.key]?.name || cluster.key,
+        clusterId: cluster.key
       };
     });
   });
@@ -239,7 +242,8 @@ export async function getLonghornBreakdown(range: Range, clusterId: string, keyw
         ...extractCounts(bucket.anomaly_level?.buckets),
         keywords: keywordsBucket?.doc_count || 0,
         name: bucket.key,
-        clusterName: clusterById[cluster.key]?.name || cluster.key
+        clusterName: clusterById[cluster.key]?.name || cluster.key,
+        clusterId: cluster.key
       };
     });
   });
@@ -271,7 +275,8 @@ export async function getPodBreakdown(range: Range, clusterId: string, keywords:
           ...extractCounts(bucket.anomaly_level.buckets),
           keywords: keywordsBucket?.doc_count || 0,
           name: bucket.key,
-          clusterName: clusterById[cluster.key]?.name || cluster.key
+          clusterName: clusterById[cluster.key]?.name || cluster.key,
+          clusterId: cluster.key
         };
       });
   });
@@ -349,7 +354,8 @@ export async function getNamespaceBreakdown(range: Range, clusterId: string, key
           ...extractCounts(bucket.anomaly_level.buckets),
           keywords: keywordsBucket?.doc_count || 0,
           name: bucket.key,
-          clusterName: clusterById[cluster.key]?.name || cluster.key
+          clusterName: clusterById[cluster.key]?.name || cluster.key,
+          clusterId: cluster.key
         };
       });
   });
