@@ -5,7 +5,7 @@ import Banner from '@/components/Banner';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import {
   getAISettings, getRuntimeClasses, upgrade, isUpgradeAvailable, updateAISettings, deleteAISettings
-} from '@/product/opni/utils/requests/aiops';
+} from '@/product/opni/utils/requests/aiops/logging';
 import { exceptionToErrorsArray } from '@/utils/error';
 import isEmpty from 'lodash/isEmpty';
 import Checkbox from '@/components/form/Checkbox';

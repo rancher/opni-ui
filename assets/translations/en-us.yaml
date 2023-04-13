@@ -4104,6 +4104,7 @@ tableHeaders:
   count: Count
   customVerbs: Custom Verbs
   dateRange: Date Range
+  delete: ""
   description: Description
   empty: ""
   expires: Expires
@@ -4119,6 +4120,7 @@ tableHeaders:
   expiration: Expiration
   flow: Flow
   gitRepos: Git Repos
+  grafana: Grafana
   host: |-
     {count, plural,
       one { Host }
@@ -4135,6 +4137,7 @@ tableHeaders:
   keys: Data
   labels: Labels
   lastUpdated: Last Updated
+  lastRun: Last Run
   lastSeen: Last Seen
   level: Level
   levels: Levels
@@ -4149,12 +4152,15 @@ tableHeaders:
   matchLabels: Match Labels
   maxKubernetesVersion: Max Kubernetes Version
   message: Message
+  metricCount: Metric Count
+  anomalousMetricCount: Anomalous Metric Count
   minKubernetesVersion: Min Kubernetes Version
   memory: Memory
   name: Name
   nameDisplay: Display Name
   nameUnlinked: Name
   namespace: Namespace
+  namespaces: Namespaces
   namespaceName: Name
   namespaceNameUnlinked: Name
   node: Node
@@ -6155,6 +6161,8 @@ opni:
           label: Match Labels
         matchExpressions:
           label: Match Expressions
+  namespaces:
+    noRowsKey: There are not any namespaces available for this cluster
   nav:
     aiOps: AIOps
     alertingBackend: Alerting
@@ -6176,8 +6184,10 @@ opni:
     endpoints: Endpoints
     alarms: Alarms
     alertingOverview: Overview
+    tasks: Jobs
+    metricAnomaly: Metric Anomaly
   workloadInsights:
-    noRowsKey: There are not any deployments accessible for this cluster
+    noRowsKey: There are not any deployments available for this cluster
   workloadVsControlPlaneChart:
     workload: Workload
     controlPlane: Control Plane

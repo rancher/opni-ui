@@ -17,7 +17,7 @@
 .initial-load-spinner {
   animation: initial-load-animate 1s infinite linear;
   box-sizing: border-box;
-  border: 2px solid #dcdee7;
+  border: 2px solid var(--primary);
   border-radius: 50%;
   border-top-color: #f4f5fa;
   display: inline-block;

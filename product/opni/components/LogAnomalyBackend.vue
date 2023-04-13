@@ -2,7 +2,7 @@
 import Loading from '@/components/Loading';
 import AsyncButton from '@/components/AsyncButton';
 import Banner from '@/components/Banner';
-import { getAISettings, upgrade, updateAISettings, deleteAISettings } from '@/product/opni/utils/requests/aiops';
+import { getAISettings, upgrade, updateAISettings, deleteAISettings } from '@/product/opni/utils/requests/aiops/logging';
 import { exceptionToErrorsArray } from '@/utils/error';
 import isEmpty from 'lodash/isEmpty';
 import { isEnabled as isAiOpsEnabled } from '@/product/opni/components/AiOpsBackend';

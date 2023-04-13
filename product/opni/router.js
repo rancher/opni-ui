@@ -24,6 +24,9 @@ import AlertingBackend from './pages/AlertingBackend';
 import LogAnomalyBackend from './pages/LogAnomalyBackend';
 import PretrainedModels from './pages/PretrainedModels';
 
+import Tasks from './pages/Tasks';
+import Task from './pages/Task';
+
 Vue.use(Router);
 
 export const NAVIGATION = {
@@ -218,7 +221,30 @@ export const NAVIGATION = {
             },
           ]
         },
-
+        {
+          name:      'metric-anomaly',
+          path:      '/metric-anomaly',
+          labelKey:  'opni.nav.metricAnomaly',
+          display:   true,
+          redirect:  { name: 'tasks' },
+          routes:    [
+            {
+              name:      'tasks',
+              path:      '/tasks',
+              labelKey:  'opni.nav.tasks',
+              display:   true,
+              component: Tasks,
+              routes:    [
+                {
+                  name:      'task-create',
+                  path:      '/create',
+                  component: Task,
+                  display:   false
+                },
+              ]
+            }
+          ]
+        },
       ]
     },
     {
