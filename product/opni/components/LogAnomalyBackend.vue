@@ -6,6 +6,7 @@ import { getAISettings, upgrade, updateAISettings, deleteAISettings } from '@/pr
 import { exceptionToErrorsArray } from '@/utils/error';
 import isEmpty from 'lodash/isEmpty';
 import { isEnabled as isAiOpsEnabled } from '@/product/opni/components/AiOpsBackend';
+import { getModelTrainingParameters } from '@/product/opni/utils/requests/workload';
 
 export async function isEnabled() {
   const config = await getAISettings();
@@ -49,13 +50,21 @@ export default {
 
     async enable(cb) {
       await this.save(cb);
+      this.$router.replace({ name: 'pretrained-models' });
     },
 
     async disable(buttonCallback) {
       try {
+        const params = await getModelTrainingParameters();
+
+        if (params.items.length > 0) {
+          throw new Error('You have to clear the Deployment Watchlist before disabling Log Anomaly.');
+        }
+
         await deleteAISettings();
         buttonCallback(true);
         this.$set(this, 'isAiOpsEnabled', false);
+        this.$router.replace({ name: 'ai-ops' });
       } catch (err) {
         buttonCallback(false);
         this.$set(this, 'error', exceptionToErrorsArray(err).join('; '));
@@ -73,7 +82,6 @@ export default {
 
         this.$set(this, 'error', '');
         buttonCallback(true);
-        this.$router.replace({ name: 'ai-ops' });
       } catch (err) {
         this.$set(this, 'error', exceptionToErrorsArray(err).join('; '));
         buttonCallback(false);
@@ -115,7 +123,7 @@ export default {
     </Banner>
     <div class="body">
       <div v-if="isAiOpsEnabled" class="enabled center">
-        <h4>Navigate to Pretrained Models and Workload Insights for further configuration.</h4>
+        <h4>Navigate to Pretrained Models and Deployment Watchlist for further configuration.</h4>
       </div>
       <div v-else class="not-enabled">
         <h4>Log Anomaly is not currently enabled. Installing it will add additional resources on this cluster.</h4>

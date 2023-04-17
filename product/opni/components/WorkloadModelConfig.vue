@@ -212,7 +212,7 @@ export default {
     },
 
     completed() {
-      if (this.status?.statistics?.percentageCompleted >= 100 || this.status?.statistics?.stage === 'fetching data') {
+      if (this.status?.statistics?.stage !== 'train' || this.status?.statistics?.percentageCompleted >= 100) {
         return '';
       }
 
@@ -240,15 +240,13 @@ export default {
     },
 
     bannerColor() {
-      if (this.status?.statistics.stage === 'training failed') {
-        return 'There was an error while updating the watchlist. You may try updating the watchlist again.';
-      }
-
       switch (this.status.status) {
       case 'training':
         return 'warning';
       case 'completed':
         return 'success';
+      case 'training failed':
+        return 'error';
       default:
         return 'info';
       }
@@ -261,8 +259,10 @@ export default {
         return `The deployment watchlist is being updated.${ this.completed() }`;
       case 'completed':
         return 'There are already deployments on the watchlist. You can update the watchlist if needed.';
-      case 'not started':
+      case 'no model trained':
         return 'You must add deployments to the watchlist before workload insights will be available.';
+      case 'training failed':
+        return 'A failure occured while updating the watchlist. You can try updating the watchlist again.';
       default:
         return '';
       }
@@ -321,14 +321,14 @@ export default {
   <div v-else>
     <header class="mb-0">
       <div class="title">
-        <h1>Workload Insights</h1>
+        <h1>Deployment Watchlist</h1>
       </div>
       <a v-if="showLinkToOpensearch" href="https://opni.io/installation/opni/aiops/#consuming-ai-insights-from-opni" target="_blank" class="btn role-primary">
-        Launch Workload Insights
+        Launch Deployment Insights
       </a>
     </header>
-    <DependencyWall v-if="!isAiOpsEnabled" title="Workload Insights" dependency-name="Log Anomaly" route-name="log-anomaly" />
-    <DependencyWall v-else-if="!isLoggingEnabled" title="Workload Insights" dependency-name="Logging" route-name="logging-config" />
+    <DependencyWall v-if="!isAiOpsEnabled" title="Deployment Watchlist" dependency-name="Log Anomaly" route-name="log-anomaly" />
+    <DependencyWall v-else-if="!isLoggingEnabled" title="Deployment Watchlist" dependency-name="Logging" route-name="logging-config" />
 
     <div v-else>
       <Banner v-if="!hasGpu" color="warning" class="mt-0">

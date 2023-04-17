@@ -10,13 +10,13 @@ export async function getDeployments(clusterId: string): Promise<Deployment[]> {
 }
 
 export interface ModelStatus {
-  status: 'not started' | 'training' | 'completed';
+  status: 'training' | 'completed' | 'training failed' | 'no model trained';
   statistics: {
     timeElapsed:string;
     percentageCompleted:string;
     remainingTime:string;
     currentEpoch:string;
-    stage:string;
+    stage: 'train' | 'fetching data';
   }
 }
 
