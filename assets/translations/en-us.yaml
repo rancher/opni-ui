@@ -6172,7 +6172,7 @@ opni:
     monitoring: Monitoring
     management: Management
     pretrainedModels: Pretrained Models
-    workloadModel: Workload Insights
+    workloadModel: Deployment Watchlist
     endpoints: Endpoints
     alarms: Alarms
     alertingOverview: Overview
