@@ -11,7 +11,8 @@ import { isEmpty, sortBy, sum } from 'lodash';
 import { getClusters } from '@/product/opni/utils/requests/management';
 import Banner from '@/components/Banner';
 import { getLoggingCluster } from '@/product/opni/utils/requests/logging';
-import { isEnabled as isAiOpsEnabled } from '@/product/opni/components/AiOpsBackend';
+import { isEnabled as isAiOpsEnabled } from '@/product/opni/components/LogAnomalyBackend';
+import { exceptionToErrorsArray } from '@/utils/error';
 
 export default {
   components: {
@@ -33,6 +34,7 @@ export default {
       deployments:          {},
       cluster:          '',
       clusters:         [],
+      error:            '',
       queue:            {},
       lastParameters:   {},
       status:           { statistics: {} },
@@ -127,10 +129,15 @@ export default {
     },
 
     async train() {
-      this.$set(this.status, 'status', 'training');
-      document.querySelector('main').scrollTop = 0;
-      await trainModel(this.workloadList);
-      this.$set(this, 'lastParameters', await getModelTrainingParameters());
+      try {
+        this.$set(this, 'error', '');
+        this.$set(this.status, 'status', 'training');
+        document.querySelector('main').scrollTop = 0;
+        await trainModel(this.workloadList);
+        this.$set(this, 'lastParameters', await getModelTrainingParameters());
+      } catch (err) {
+        this.$set(this, 'error', exceptionToErrorsArray(err).join('; '));
+      }
     },
 
     async loadSelection() {
@@ -181,12 +188,17 @@ export default {
     },
 
     async removeAll() {
-      this.$set(this, 'queue', {});
-      this.$set(this, 'lastParameters', {});
-      this.$refs.table.clearSelection();
-      this.$set(this.status, 'status', 'training');
-      document.querySelector('main').scrollTop = 0;
-      await trainModel(this.workloadList);
+      try {
+        this.$set(this, 'error', '');
+        this.$set(this, 'queue', {});
+        this.$set(this, 'lastParameters', {});
+        this.$refs.table.clearSelection();
+        this.$set(this.status, 'status', 'training');
+        document.querySelector('main').scrollTop = 0;
+        await trainModel(this.workloadList);
+      } catch (err) {
+        this.$set(this, 'error', exceptionToErrorsArray(err).join('; '));
+      }
     },
 
     getEta(secondsFromNow) {

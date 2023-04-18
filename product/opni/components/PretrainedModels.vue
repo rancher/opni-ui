@@ -4,18 +4,11 @@ import AsyncButton from '@/components/AsyncButton';
 import Banner from '@/components/Banner';
 import { getAISettings, upgrade, isUpgradeAvailable, updateAISettings } from '@/product/opni/utils/requests/aiops';
 import { exceptionToErrorsArray } from '@/utils/error';
-import isEmpty from 'lodash/isEmpty';
 import Checkbox from '@/components/form/Checkbox';
 import { capitalize } from 'lodash';
 import AiOpsPretrained from '@/product/opni/components/AiOpsPretrained';
 import DependencyWall from '@/product/opni/components/DependencyWall';
-import { isEnabled as isAiOpsEnabled } from '@/product/opni/components/AiOpsBackend';
-
-export async function isEnabled() {
-  const config = await getAISettings();
-
-  return !isEmpty(config);
-}
+import { isEnabled as isAiOpsEnabled } from '@/product/opni/components/LogAnomalyBackend';
 
 export default {
   components: {
@@ -56,7 +49,7 @@ export default {
 
   methods: {
     async load() {
-      if (!await isAiOpsEnabled()) {
+      if (!(await isAiOpsEnabled())) {
         return;
       }
       this.$set(this, 'isAiOpsEnabled', true);
@@ -72,12 +65,7 @@ export default {
       this.$set(this, 'advancedRancher', config.rancher || { replicas: 1 });
       this.$set(this, 'advancedLonghorn', config.longhorn || { replicas: 1 });
 
-      this.$set(this, 'enabled', await isEnabled());
       this.$set(this, 'isUpgradeAvailable', await isUpgradeAvailable());
-    },
-
-    enable() {
-      this.$set(this, 'enabled', true);
     },
 
     updatePretrainedBeforeSave(key) {
