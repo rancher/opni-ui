@@ -4,14 +4,12 @@ import AsyncButton from '@/components/AsyncButton';
 import Banner from '@/components/Banner';
 import { getAISettings, upgrade, updateAISettings, deleteAISettings } from '@/product/opni/utils/requests/aiops';
 import { exceptionToErrorsArray } from '@/utils/error';
-import isEmpty from 'lodash/isEmpty';
-import { isEnabled as isAiOpsEnabled } from '@/product/opni/components/AiOpsBackend';
 import { getModelTrainingParameters } from '@/product/opni/utils/requests/workload';
 
 export async function isEnabled() {
-  const config = await getAISettings();
+  const settings = await getAISettings();
 
-  return !isEmpty(config);
+  return settings !== null;
 }
 
 export default {
@@ -41,7 +39,7 @@ export default {
 
   methods: {
     async load() {
-      if (!await isAiOpsEnabled()) {
+      if (!(await isEnabled())) {
         return;
       }
 
@@ -73,11 +71,7 @@ export default {
 
     async save(buttonCallback) {
       try {
-        await updateAISettings({
-          controlplane: { },
-          rancher:      { },
-          longhorn:     { }
-        });
+        await updateAISettings();
         await this.load();
 
         this.$set(this, 'error', '');
