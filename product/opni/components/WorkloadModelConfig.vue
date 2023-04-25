@@ -10,7 +10,7 @@ import {
 import { isEmpty, sortBy, sum } from 'lodash';
 import { getClusters } from '@/product/opni/utils/requests/management';
 import Banner from '@/components/Banner';
-import { getLoggingCluster } from '@/product/opni/utils/requests/logging';
+import { getOpensearchCluster } from '@/product/opni/utils/requests/loggingv2';
 import { isEnabled as isAiOpsEnabled } from '@/product/opni/components/LogAnomalyBackend';
 import { exceptionToErrorsArray } from '@/utils/error';
 
@@ -84,7 +84,7 @@ export default {
         }
         this.$set(this, 'isAiOpsEnabled', true);
 
-        const loggingCluster = await getLoggingCluster();
+        const loggingCluster = await getOpensearchCluster();
 
         if (isEmpty(loggingCluster)) {
           return;

@@ -5,7 +5,7 @@ import { getClusterStats } from '@/product/opni/utils/requests';
 import CapabilityButton from '@/product/opni/components/CapabilityButton';
 import Loading from '@/components/Loading';
 import { getClusterStatus as getMonitoringBackendStatus } from '@/product/opni/utils/requests/monitoring';
-import { getLoggingCluster } from '@/product/opni/utils/requests/logging';
+import { getOpensearchCluster } from '@/product/opni/utils/requests/loggingv2';
 import { isEmpty } from 'lodash';
 import EditClusterDialog from './dialogs/EditClusterDialog';
 import CantDeleteClusterDialog from './dialogs/CantDeleteClusterDialog';
@@ -144,7 +144,7 @@ export default {
     },
     async loadStats() {
       try {
-        const [monitoringStatus, loggingStatus] = await Promise.all([getMonitoringBackendStatus(), getLoggingCluster()]);
+        const [monitoringStatus, loggingStatus] = await Promise.all([getMonitoringBackendStatus(), getOpensearchCluster()]);
 
         this.$set(this, 'isMonitoringBackendInstalled', monitoringStatus.state !== 'NotInstalled');
         this.$set(this, 'isLoggingBackendInstalled', !isEmpty(loggingStatus));
