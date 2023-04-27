@@ -154,6 +154,7 @@ export default {
             :val="option.value"
             :disabled="isDisabled"
             :mode="mode"
+            :tooltip="option.tooltip"
             v-on="$listeners"
           />
         </slot>
@@ -182,6 +183,10 @@ export default {
 
   .label{
     font-size: 14px !important;
+  }
+
+  .radio-container .labeling {
+    margin-right: 0;
   }
 }
 </style>

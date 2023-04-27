@@ -45,6 +45,11 @@ export default {
       type:    String,
       default: null
     },
+
+    tooltip: {
+      type:    String,
+      default: null
+    }
   },
 
   data() {
@@ -116,9 +121,9 @@ export default {
       <label
         v-if="label"
         :class="[ muteLabel ? 'text-muted' : '', 'radio-label', 'm-0']"
-        v-html="label"
       >
         <slot name="label">{{ label }}</slot>
+        <i v-if="tooltip" v-tooltip="tooltip" class="icon icon-info" />
       </label>
       <div v-if="descriptionKey || description" class="radio-button-outer-container-description">
         <t v-if="descriptionKey" :k="descriptionKey" />

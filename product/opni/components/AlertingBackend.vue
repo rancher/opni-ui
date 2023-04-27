@@ -1,9 +1,9 @@
 <script>
-import LabeledSelect from '@/components/form/LabeledSelect';
 import {
   getClusterConfiguration, configureCluster, getClusterStatus, installCluster, uninstallCluster
 } from '@/product/opni/utils/requests/alerts';
 import Backend from '@/product/opni/components/Backend';
+import RadioGroup from '@/components/form/RadioGroup';
 import { wait } from '~/utils/time';
 
 export async function isEnabled() {
@@ -15,7 +15,7 @@ export async function isEnabled() {
 export default {
   components: {
     Backend,
-    LabeledSelect,
+    RadioGroup,
   },
 
   async fetch() {
@@ -31,12 +31,14 @@ export default {
       statsInterval:              null,
       modes:                      [
         {
-          label: 'Standalone',
-          value: 1
+          label:   'Standalone',
+          value:   1,
+          tooltip: 'This will deploy a single AlertManager instance.'
         },
         {
-          label: 'Highly Available',
-          value: 3
+          label:   'Highly Available',
+          value:   3,
+          tooltip: 'This will deploy multiple instances of AlertManager in order to improve resilliency.'
         },
       ],
       status:     '',
@@ -144,7 +146,12 @@ export default {
     <template #editing>
       <div class="row mb-20">
         <div class="col span-12">
-          <LabeledSelect v-model="config.numReplicas" :options="modes" label="Mode" />
+          <RadioGroup
+            v-model="config.numReplicas"
+            name="mode"
+            label="Mode"
+            :options="modes"
+          />
         </div>
       </div>
     </template>
