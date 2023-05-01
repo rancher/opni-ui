@@ -1,4 +1,4 @@
-kind: pipeline
+dronekind: pipeline
 name: plugin-tag
 
 trigger:

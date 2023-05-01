@@ -1,17 +1,14 @@
-FROM node:12-alpine
 
-RUN mkdir /src
-WORKDIR /src
+FROM node:14
 
-RUN apk update && apk upgrade
+WORKDIR /app
 
-COPY package.json /src/
-COPY yarn.lock /src/
-RUN yarn --pure-lockfile install
+COPY package*.json /app
+COPY yarn.lock /app
+COPY . /app
 
-COPY . /src
+RUN yarn install
 RUN yarn build
 
 EXPOSE 80
-ENTRYPOINT ["yarn"]
-CMD ["start"]
+CMD [ "yarn", "start" ]

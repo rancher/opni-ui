@@ -9,6 +9,10 @@ node_modules/
 .next
 .nuxt
 dist
+dist-pkg
 .DS_Store
-utils/dynamic-importer.js
+dynamic-importer.js
 ksconfig.json
+nuxt.config.js
+shell/utils/dynamic-importer.js
+shell/assets/fonts
