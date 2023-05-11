@@ -45,6 +45,11 @@ export interface BasicBreakdown {
   keywords: number;
 }
 
+export interface DeploymentBreakdown extends BasicBreakdown {
+  namespace: string;
+  deployment: string;
+}
+
 export interface WorkloadBreakdown extends BasicBreakdown {
   namespace: string;
 }
@@ -253,6 +258,7 @@ export async function getPodBreakdown(range: Range, clusterId: string, keywords:
   const breakdownPromise = search(getPodBreakdownQuery(range, clusterId));
   const keywordsBreakdownPromise = search(getPodKeywordsBreakdownQuery(range, clusterId, keywords));
   const response = await breakdownPromise;
+
   if (response.rawResponse.hits.total === 0) {
     return [];
   }
@@ -279,6 +285,46 @@ export async function getPodBreakdown(range: Range, clusterId: string, keywords:
           clusterId: cluster.key
         };
       });
+  });
+}
+
+export async function getDeploymentBreakdown(range: Range, clusterId: string, keywords: string[], clusterById: ClusterMetadataById): Promise<DeploymentBreakdown[]> {
+  const breakdownPromise = search(getPodBreakdownQuery(range, clusterId));
+  const keywordsBreakdownPromise = search(getPodKeywordsBreakdownQuery(range, clusterId, keywords));
+  const response = await breakdownPromise;
+  console.log('rrr', response);
+  if (response.rawResponse.hits.total === 0) {
+    return [];
+  }
+  const clusters = response.rawResponse?.aggregations?.cluster_id?.buckets || [];
+  const keywordsClusters = (await keywordsBreakdownPromise).rawResponse?.aggregations?.cluster_id?.buckets || [];
+
+  return clusters.flatMap(cluster => {
+    const keywordsCluster = keywordsClusters.find(c => c.key === cluster.key) || {};
+
+    return cluster.namespace_name.buckets.flatMap(namespaceBucket => {
+      return namespaceBucket.deployment.buckets.flatMap(deploymentBucket => {
+        const buckets = deploymentBucket.component_name?.buckets || [];
+        const keywordsBuckets = keywordsCluster.component_name?.buckets || [];
+        return buckets
+          .filter((bucket) => {
+            console.log('ccccc', bucket.anomaly_level.buckets);
+            return bucket.anomaly_level.buckets.some(b => b.key === 'Anomaly' || b.key === 'Normal')
+          })
+          .map((bucket) => {
+            const keywordsBucket = keywordsBuckets.find(b => b.key === bucket.key);
+            return {
+              ...extractCounts(bucket.anomaly_level.buckets),
+              keywords: keywordsBucket?.doc_count || 0,
+              name: bucket.key,
+              namespace: namespaceBucket.key,
+              deployment: deploymentBucket.key,
+              clusterName: clusterById[cluster.key]?.name || cluster.key,
+              clusterId: cluster.key
+            };
+          });
+      });
+    });
   });
 }
 
@@ -802,11 +848,21 @@ function getPodBreakdownQuery(range: Range, clusterId: string) {
       "cluster_id": {
         "terms": { "field": "cluster_id", "size": 1000 },
         "aggs": {
-          "component_name": {
-            "terms": { "field": "pod_name.keyword", "size": 1000 },
+          "namespace_name": {
+            "terms": { "field": "namespace_name.keyword", "size": 1000 },
             "aggs": {
-              "anomaly_level": { "terms": { "field": "anomaly_level" } }
-            },
+              "deployment": {
+                "terms": { "field": "deployment.keyword", "size": 1000 },
+                "aggs": {
+                  "component_name": {
+                    "terms": { "field": "pod_name.keyword", "size": 1000 },
+                    "aggs": {
+                      "anomaly_level": { "terms": { "field": "anomaly_level" } }
+                    },
+                  }
+                }
+              }
+            }
           }
         }
       }

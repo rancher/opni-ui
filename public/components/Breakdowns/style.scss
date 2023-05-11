@@ -1,5 +1,14 @@
 .breakdowns {
     .loading {
         min-height: 300px;
+
+        & > div {
+            width: 100%;
+        }
+
+        .no-items {
+            font-size: 0.875rem;
+            text-align: center;
+        }
     }
 }
