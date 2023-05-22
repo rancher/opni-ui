@@ -23,10 +23,13 @@ export default {
 };
 </script>
 <template>
-  <EnabledDisabled v-model="value.enabled" disabled-message="The Dashboard is not currently enabled. Enabling it will install additional resources.">
+  <EnabledDisabled
+    v-model="value.enabled"
+    disabled-message="The Dashboard is not currently enabled. Enabling it will install additional resources."
+  >
     <div class="row border-bottom mb-10">
       <div class="col span-6">
-        <UnitInput v-model="value.replicas" label="Replicas" :suffix="false" />
+        <UnitInput v-model="value.replicas" label="Replicas" base-unit="" />
       </div>
     </div>
     <Resources v-model="value.resources" :use-resource-requirements="true" />

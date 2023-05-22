@@ -1,7 +1,7 @@
 <script>
 import SortableTable from '@shell/components/SortableTable';
 import Loading from '@shell/components/Loading';
-import { getClusterStatus, getAlertEndpoints } from '../utils/requests/alerts';
+import { InstallState, getClusterStatus, getAlertEndpoints } from '../utils/requests/alerts';
 
 export default {
   components: { Loading, SortableTable },
@@ -63,7 +63,7 @@ export default {
         this.loading = true;
 
         const status = (await getClusterStatus()).state;
-        const isAlertingEnabled = status === 'Installed';
+        const isAlertingEnabled = status === InstallState.Installed;
 
         this.$set(this, 'isAlertingEnabled', isAlertingEnabled);
 
@@ -101,7 +101,7 @@ export default {
     />
     <div v-else class="not-enabled">
       <h4>
-        Alerting must be enabled to use Endpoints. <n-link :to="{name: 'alerting-backend'}">
+        Alerting must be enabled to use Endpoints. <n-link :to="{name: 'alerting'}">
           Click here
         </n-link> to enable alerting.
       </h4>

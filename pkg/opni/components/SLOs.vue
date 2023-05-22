@@ -1,7 +1,7 @@
 <script>
 import SortableTable from '@shell/components/SortableTable';
 import Loading from '@shell/components/Loading';
-import { getClusterStatus } from '../utils/requests/alerts';
+import { InstallState, getClusterStatus } from '../utils/requests/alerts';
 import { getSLOs } from '../utils/requests/slo';
 import { getClusters } from '../utils/requests/management';
 import CloneToClustersDialog from './dialogs/CloneToClustersDialog';
@@ -79,7 +79,7 @@ export default {
       try {
         this.loading = true;
         const status = (await getClusterStatus()).state;
-        const isAlertingEnabled = status === 'Installed';
+        const isAlertingEnabled = status === InstallState.Installed;
 
         this.$set(this, 'isAlertingEnabled', isAlertingEnabled);
 
@@ -143,14 +143,14 @@ export default {
     </SortableTable>
     <div v-else-if="!isAlertingEnabled" class="not-enabled">
       <h4>
-        Alerting must be enabled to use SLOs. <n-link :to="{name: 'alerting-backend'}">
+        Alerting must be enabled to use SLOs. <n-link :to="{name: 'alerting'}">
           Click here
         </n-link> to enable alerting.
       </h4>
     </div>
     <div v-else class="not-enabled">
       <h4>
-        At least one cluster must have Monitoring installed to use SLOs. <n-link :to="{name: 'clusters'}">
+        At least one cluster must have Monitoring installed to use SLOs. <n-link :to="{name: 'monitoring'}">
           Click here
         </n-link> to enable Monitoring.
       </h4>

@@ -3,25 +3,25 @@ import LabeledSelect from '@shell/components/form/LabeledSelect';
 import Tab from '@shell/components/Tabbed/Tab';
 import Tabbed from '@shell/components/Tabbed';
 import { cloneDeep } from 'lodash';
-import { Banner } from '@components/Banner';
 import Backend from '../Backend';
 import CapabilityTable from '../CapabilityTable';
 import { getMetricCapabilities } from '../../utils/requests/capability';
 import { getClusterStats } from '../../utils/requests';
-import { configureCluster, uninstallCluster, getClusterStatus, getClusterConfig } from '../../utils/requests/monitoring';
+import {
+  StorageBackend, InstallState, DeploymentMode, configureCluster, uninstallCluster, getClusterStatus, getClusterConfig
+} from '../../utils/requests/monitoring';
 import Grafana from './Grafana';
 import Storage, { SECONDS_IN_DAY } from './Storage';
 
 export async function isEnabled() {
   const status = (await getClusterStatus()).state;
 
-  return status !== 'NotInstalled';
+  return status !== InstallState.NotInstalled;
 }
 
 export default {
   components: {
     Backend,
-    Banner,
     LabeledSelect,
     Grafana,
     CapabilityTable,
@@ -33,15 +33,18 @@ export default {
   async fetch() {
     try {
       const config = await getClusterConfig();
+
+      config.storage = config.storage || { backend: StorageBackend.S3 };
+      const backendField = StorageBackend[config.storage.backend].toLowerCase();
       const clone = cloneDeep(this.config);
 
-      this.$set(this.config, 'mode', config.mode || 0);
+      this.$set(this.config, 'mode', config.mode || DeploymentMode.HighlyAvailable);
       this.$set(this, 'config', { ...clone, ...config });
       this.$set(this.config, 'storage', { ...clone.storage, ...config.storage });
-      this.$set(this.config.storage, config.storage.backend, { ...clone.storage[config.storage.backend], ...config.storage[config.storage.backend] });
+      this.$set(this.config.storage, backendField, { ...clone.storage[backendField], ...config.storage[backendField] });
       this.$set(this.config.storage, 'backend', config.storage.backend);
-      this.$set(this.config, 'grafana', config.grafana || { enabled: false });
-    } catch (ex) {}
+      this.$set(this.config, 'grafana', config.grafana || { enabled: true });
+    } catch (ex) { }
   },
 
   data() {
@@ -49,21 +52,21 @@ export default {
       modes:                      [
         {
           label: 'Standalone',
-          value: 0
+          value: DeploymentMode.AllInOne
         },
         {
           label: 'Highly Available',
-          value: 1
+          value: DeploymentMode.HighlyAvailable
         },
       ],
       loading:                    false,
       dashboardEnabled:           false,
       capabilities:               [],
-      status:           '',
+      status:           InstallState.NotInstalled,
       config:           {
-        mode:    0,
+        mode:    DeploymentMode.HighlyAvailable,
         storage:       {
-          backend:         'filesystem',
+          backend:         StorageBackend.S3,
           retentionPeriod: `${ 30 * SECONDS_IN_DAY }s`,
           filesystem:       { directory: '' },
           s3:               {
@@ -92,7 +95,7 @@ export default {
           },
         },
         grafana: { enabled: true },
-      }
+      },
     };
   },
 
@@ -161,11 +164,7 @@ export default {
     },
 
     async save() {
-      if (this.config.storage.backend === '') {
-        throw new Error('Backend is required');
-      }
-
-      if (this.config.storage.backend === 's3') {
+      if (this.config.storage.backend === StorageBackend.S3) {
         if (this.config.storage.s3.endpoint === '') {
           throw new Error('Endpoint is required');
         }
@@ -188,10 +187,20 @@ export default {
 
       const copy = cloneDeep(this.config);
 
-      if (this.config.storage.backend === 's3') {
+      if (this.config.storage.backend !== StorageBackend.Filesystem) {
         delete copy.storage.filesystem;
-      } else {
+      }
+      if (this.config.storage.backend !== StorageBackend.S3) {
         delete copy.storage.s3;
+      }
+      if (this.config.storage.backend !== StorageBackend.GCS) {
+        delete copy.storage.gcs;
+      }
+      if (this.config.storage.backend !== StorageBackend.Azure) {
+        delete copy.storage.azure;
+      }
+      if (this.config.storage.backend !== StorageBackend.Swift) {
+        delete copy.storage.swift;
       }
 
       await configureCluster(copy);
@@ -199,11 +208,11 @@ export default {
 
     bannerMessage(status) {
       switch (status) {
-      case 'Updating':
+      case InstallState.Updating:
         return `Monitoring is currently updating on the cluster. You can't make changes right now.`;
-      case 'Uninstalling':
-        return `Monitoring is currently uninstalling from the cluster . You can't make changes right now.`;
-      case 'Installed':
+      case InstallState.Uninstalling:
+        return `Monitoring is currently uninstalling from the cluster. You can't make changes right now.`;
+      case InstallState.Installed:
         return `Monitoring is currently installed on the cluster.`;
       default:
         return `Monitoring is currently in an unknown state on the cluster. You can't make changes right now.`;
@@ -212,10 +221,10 @@ export default {
 
     bannerState(status) {
       switch (status) {
-      case 'Updating':
-      case 'Uninstalling':
+      case InstallState.Updating:
+      case InstallState.Uninstalling:
         return 'warning';
-      case 'Installed':
+      case InstallState.Installed:
         return `success`;
       default:
         return `error`;
@@ -234,7 +243,7 @@ export default {
       try {
         const status = (await getClusterStatus()).state;
 
-        if (status === 'NotInstalled') {
+        if (status === InstallState.NotInstalled) {
           return null;
         }
 
@@ -245,16 +254,8 @@ export default {
       } catch (ex) {
         return null;
       }
-    }
-  },
-  computed: {
-    localCapability() {
-      return this.capabilities.filter(c => c.isLocal)[0];
     },
-    showDegradedBanner() {
-      return this.localCapability && this.localCapability.isInstalled;
-    }
-  }
+  },
 };
 </script>
 <template>
@@ -282,9 +283,6 @@ export default {
       </Tabbed>
     </template>
     <template #details>
-      <Banner v-if="showDegradedBanner" color="warning" class="mt-0">
-        The local agent should have the capability installed. Without the capability the default Grafana dashboards will be degraded.
-      </Banner>
       <CapabilityTable :capability-provider="loadCapabilities" :header-provider="headerProvider" :update-status-provider="updateStatus" />
     </template>
   </Backend>

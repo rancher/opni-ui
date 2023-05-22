@@ -1,6 +1,7 @@
 import { deleteCluster, getCluster } from '../utils/requests/management';
 import { LABEL_KEYS, Status } from './shared';
 import { Resource } from './Resource';
+import { TaskState } from './Capability';
 
 export interface ClusterResponse {
   id: string;
@@ -26,7 +27,7 @@ export interface HealthResponse {
 }
 
 export interface ClustersResponse {
-    items: ClusterResponse[];
+  items: ClusterResponse[];
 }
 
 export interface ClusterStats {
@@ -59,7 +60,7 @@ export interface CapabilityStatusTransitionResponse {
 }
 
 export interface CapabilityStatusResponse {
-  state: string;
+  state: TaskState;
   progress: null;
   metadata: 'string';
   logs: CapabilityStatusLogResponse[];
@@ -95,7 +96,7 @@ export class Cluster extends Resource {
     this.capLogs = [];
   }
 
-  get status(): Status {
+  get status() {
     if (!this.healthBase.status.connected) {
       return {
         state:   'error',
@@ -105,8 +106,9 @@ export class Cluster extends Resource {
 
     if (!this.healthBase.health.ready) {
       return {
-        state:   'warning',
-        message: this.healthBase.health.conditions.join(', ')
+        state:        'warning',
+        shortMessage: 'Degraded',
+        message:      this.healthBase.health.conditions.join(', ')
       };
     }
 

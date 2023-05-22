@@ -1,8 +1,9 @@
 <script>
 import SortableTable from '@shell/components/SortableTable';
 import Loading from '@shell/components/Loading';
+import { Banner } from '@components/Banner';
 import { isEmpty } from 'lodash';
-import { getClusterStatus as getMonitoringBackendStatus } from '../utils/requests/monitoring';
+import { InstallState, getClusterStatus as getMonitoringBackendStatus } from '../utils/requests/monitoring';
 import { getOpensearchCluster } from '../utils/requests/loggingv2';
 import { getClusters } from '../utils/requests/management';
 import { getClusterStats } from '../utils/requests';
@@ -17,6 +18,7 @@ export default {
     EditClusterDialog,
     Loading,
     SortableTable,
+    Banner,
   },
   async fetch() {
     await this.load();
@@ -146,7 +148,7 @@ export default {
       try {
         const [monitoringStatus, loggingStatus] = await Promise.all([getMonitoringBackendStatus(), getOpensearchCluster()]);
 
-        this.$set(this, 'isMonitoringBackendInstalled', monitoringStatus.state !== 'NotInstalled');
+        this.$set(this, 'isMonitoringBackendInstalled', monitoringStatus.state !== InstallState.NotInstalled);
         this.$set(this, 'isLoggingBackendInstalled', !isEmpty(loggingStatus));
       } catch (ex) {
         this.$set(this, 'isMonitoringBackendInstalled', false);
@@ -203,6 +205,11 @@ export default {
         </td>
       </template>
       <template #sub-row="{row, fullColspan}">
+        <tr v-if="row.status.state === 'error' || row.status.state === 'warning'" class="sub-row">
+          <td :colspan="fullColspan">
+            <Banner class="sub-banner m-0" :label="row.status.message" :color="row.status.state" />
+          </td>
+        </tr>
         <tr v-if="row.displayLabels.length > 0" class="sub-row">
           <td :colspan="fullColspan" class="cluster-status">
             Labels:
