@@ -1,0 +1,28 @@
+.templates-table {
+    .sample {
+        font-size: 12px;
+        font-style: italic;
+        color: rgb(109, 109, 109);
+    }
+
+    .euiTableRow.euiTableRow-isExpandedRow .euiTableRowCell,
+    .euiTableRowCell {
+        border: none;
+    }
+
+    .euiTableRow:not(.euiTableRow-isExpandedRow) .euiTableCellContent {
+        padding-top: 8px;
+    }
+
+    .euiTableRow.euiTableRow-isExpandedRow {
+        border-bottom: 1px solid #d3dae6;
+
+        .euiTableCellContent {
+            padding-bottom: 8px;
+        }
+    }
+
+    .euiTableCellContent {
+        padding: 0;
+    }
+}

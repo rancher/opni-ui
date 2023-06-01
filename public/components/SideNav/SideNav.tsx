@@ -9,7 +9,6 @@ export default class SideNav extends Component {
         {(core: any) => {
           return <EuiSideNav
             className="side-nav"
-            heading="Opni"
             items={[
               {
                 name: 'Opni',
@@ -35,6 +34,13 @@ export default class SideNav extends Component {
                     href: `${core.http.basePath.basePath}/app/opni#/templates`,
                     icon: <EuiIcon type="documents" />,
                     isSelected: window.location.href.endsWith('opni#/templates')
+                  },
+                  {
+                    name: 'Clusters',
+                    id: htmlIdGenerator('clusters')(),
+                    href: `${core.http.basePath.basePath}/app/opni#/clusters`,
+                    icon: <EuiIcon type="heatmap" />,
+                    isSelected: window.location.href.endsWith('opni#/clusters')
                   }
                 ],
               },

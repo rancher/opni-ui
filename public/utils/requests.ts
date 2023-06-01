@@ -28,6 +28,14 @@ export interface K8SEvent {
   timestamp: number;
 }
 
+export interface Cluster {
+  name: string;
+  id: string;
+  anomaly: number;
+  normal: number;
+  raw: number;
+}
+
 export interface LogTemplate {
   template: string;
   templateId: number;
@@ -127,6 +135,37 @@ export async function getClusterMetadataById(): Promise<ClusterMetadataById> {
   });
 
   return aggregation;
+}
+
+export async function getClusters(range: Range): Promise<Cluster[]> {
+  const [clustersResponse, clusterMetadataResponse] = await Promise.all([search(getClusterQuery(range)), getClusterMetadataById()]);
+
+  const partialResult = clustersResponse.rawResponse.aggregations?.clusters.buckets.map(bucket => {
+    const id = bucket.key;
+    const metadata = clusterMetadataResponse[id];
+    if (metadata) {
+      delete clusterMetadataResponse[id];
+    }
+    console.log(bucket.anomaly_level?.buckets);
+    return {
+      id,
+      name: metadata?.name || 'Unknown',
+      anomaly: bucket.anomaly_level?.buckets?.find(b => b.key === 'Anomaly')?.doc_count || 0,
+      normal: bucket.anomaly_level?.buckets?.find(b => b.key === 'Normal')?.doc_count || 0,
+      raw: bucket.anomaly_level?.buckets?.find(b => b.key === '')?.doc_count || 0
+    }
+  }) || [];
+
+
+  partialResult.push(...Object.entries(clusterMetadataResponse).map(([id, metadata]) => ({
+    id,
+    name: metadata.name,
+    anomaly: 0,
+    normal: 0,
+    raw: 0
+  })));
+
+  return partialResult;
 }
 
 
@@ -308,7 +347,6 @@ export async function getDeploymentBreakdown(range: Range, clusterId: string, ke
         const keywordsBuckets = keywordsCluster.component_name?.buckets || [];
         return buckets
           .filter((bucket) => {
-            console.log('ccccc', bucket.anomaly_level.buckets);
             return bucket.anomaly_level.buckets.some(b => b.key === 'Anomaly' || b.key === 'Normal')
           })
           .map((bucket) => {
@@ -905,4 +943,22 @@ async function randomDelay() {
   const ms = 500 + (Math.random() * 2000);
 
   return delay(ms);
+}
+
+function getClusterQuery(range: Range) {
+  return {
+    "query": {
+      "bool": {
+        "filter": [{ "range": { "time": { "gte": range.start, "lte": range.end } } }],
+      }
+    },
+    "aggs": {
+      "clusters": {
+        "terms": { "field": "cluster_id", "size": 1000 },
+        "aggs": {
+          "anomaly_level": { "terms": { "field": "anomaly_level" } }
+        },
+      }
+    },
+  }
 }

@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import EventsFilter from '../../components/Filters/EventsFilter';
-import { DEFAULT_SETTINGS, Settings } from '../../components/Filters/EventsFilter';
+import RangeFilter, { DEFAULT_SETTINGS, Settings } from '../../components/Filters/RangeFilter';
+
 import { Range } from '../../utils/time';
 import { ClusterMetadata, getClusterMetadata } from '../../utils/requests';
 import dateMath from '@elastic/datemath';
 import PrimaryLayout from '../../components/Layout/PrimaryLayout';
-import TemplatesTable from '../../components/Tables/TemplatesTable';
+import ClustersTable from '../../components/Tables/ClustersTable';
 import { Moment } from 'moment';
 
 interface EventsState {
@@ -13,7 +13,6 @@ interface EventsState {
   clustersRequest: Promise<ClusterMetadata[]>;
   clusters: ClusterMetadata[];
   range: Range;
-  cluster: string;
 };
 
 export default class Events extends Component<any, EventsState> {
@@ -25,8 +24,6 @@ export default class Events extends Component<any, EventsState> {
       clustersRequest: new Promise(() => {}),
       clusters: [],
       range: this.getAbsoluteRange(DEFAULT_SETTINGS.range),
-      cluster:  DEFAULT_SETTINGS.cluster,
-
     };
   }
 
@@ -47,8 +44,7 @@ export default class Events extends Component<any, EventsState> {
 
   onRefresh = () => {
     this.setState({ 
-      range: this.getAbsoluteRange(this.state.settings.range),
-      cluster: this.state.settings.cluster
+      range: this.getAbsoluteRange(this.state.settings.range)
     });
   };
 
@@ -66,8 +62,8 @@ export default class Events extends Component<any, EventsState> {
   render() {
     return (
       <PrimaryLayout loadingPromise={this.state.clustersRequest}>
-        <EventsFilter settings={this.state.settings} onChange={this.onSettingsChange} clusters={this.state.clusters} onRefresh={this.onRefresh}/>
-        <TemplatesTable range={this.state.range} clusterId={this.state.cluster} />
+        <RangeFilter settings={this.state.settings} onChange={this.onSettingsChange} onRefresh={this.onRefresh}/>
+        <ClustersTable range={this.state.range} />
       </PrimaryLayout>
     );
   }

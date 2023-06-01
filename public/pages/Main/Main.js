@@ -7,6 +7,7 @@ import ClusterConfig from '../ClusterConfig';
 import Insights from '../Insights';
 import Events from '../Events';
 import Templates from '../Templates';
+import Clusters from '../Clusters';
 
 class Main extends Component {
   render() {
@@ -32,6 +33,12 @@ class Main extends Component {
                   path="/templates"
                   render={(props) => (
                     <Templates />
+                  )}
+                />
+                <Route
+                  path="/clusters"
+                  render={(props) => (
+                    <Clusters />
                   )}
                 />
                 <Route

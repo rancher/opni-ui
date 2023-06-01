@@ -5,7 +5,7 @@ import { Range } from '../../utils/time';
 import { ClusterMetadata, getClusterMetadata } from '../../utils/requests';
 import dateMath from '@elastic/datemath';
 import PrimaryLayout from '../../components/Layout/PrimaryLayout';
-import EventsTable from '../../components/EventsTable/EventsTable';
+import EventsTable from '../../components/Tables/EventsTable/EventsTable';
 import { Moment } from 'moment';
 
 interface EventsState {
