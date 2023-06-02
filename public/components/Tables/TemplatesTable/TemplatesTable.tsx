@@ -10,9 +10,9 @@ import {
   EuiHorizontalRule
 } from '@elastic/eui';
 
-import Loading from '../Loading';
-import { getK8sEvents, K8SEvent } from '../../utils/requests';
-import { isSameRange, Range } from '../../utils/time';
+import Loading from '../../Loading';
+import { getK8sEvents, K8SEvent } from '../../../utils/requests';
+import { isSameRange, Range } from '../../../utils/time';
 import moment from 'moment';
 import { Pagination } from '@elastic/eui/src/components/basic_table/pagination_bar';
 
@@ -72,33 +72,22 @@ export default class EventsTable extends Component<EventsTableProps, EventsTable
   render() {
     const columns = [
       {
-        field: 'type',
-        width: '30px',
-        render: (value) => <EuiToolTip position="top" content={value}><span className={`circle ${value}`}>&nbsp;</span></EuiToolTip>
+        field: 'name',
+        name: 'Name',
       },
       {
-        field: 'cause',
-        name: 'Cause',
-        width: '195px'
+        field: 'id',
+        name: 'Id',
       },
       {
-        field: 'timestamp',
-        name: 'Time',
-        width: '200px',
-        render: (value) => moment(value).format('MM-DD-YY HH:MM:SS.SSS')
+        field: 'anomaly',
+        name: 'Anomaly'
       },
       {
-        field: 'source',
-        name: 'Source',
-        width: '300px'
-      },
-      {
-        field: 'summary',
-        name: 'Summary',
-      }      
+        field: 'normal',
+        name: 'Normal'
+      },   
     ];
-
-
 
     const onChange = (ev) => {
       this.setState({
@@ -133,7 +122,7 @@ export default class EventsTable extends Component<EventsTableProps, EventsTable
         : (
           <React.Fragment>
             <EuiText size="xs">
-              Showing {resultsCount} <strong>Events</strong>
+              Showing {resultsCount} <strong>Clusters</strong>
             </EuiText>
             <EuiSpacer size="s" />
           </React.Fragment>

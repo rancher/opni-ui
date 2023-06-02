@@ -1,0 +1,20 @@
+.range-filter {
+    padding: 15px;
+    padding-top: 0;
+
+    &>.euiPanel {
+        padding: 12px 0;
+    }
+
+    .right {
+        min-width: 540px;
+    }
+
+    .period {
+        min-width: 100px;
+    }
+
+    .euiSuperDatePicker__flexWrapper {
+        width: 100%;
+    }
+}

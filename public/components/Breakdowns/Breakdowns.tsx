@@ -7,11 +7,11 @@ import {
 } from '@elastic/eui';
 
 import ControlPlane from './components/ControlPlane';
-import Pod from './components/Pod';
+import Deployment from './components/Deployment';
 import Namespace from './components/Namesapce';
 import Rancher from './components/Rancher';
 import Longhorn from './components/Longhorn';
-import { BasicBreakdown, getControlPlaneBreakdown, getLogTypes, getNamespaceBreakdown, getPodBreakdown, getRancherBreakdown, getLonghornBreakdown, getClusterMetadataById } from '../../utils/requests';
+import { BasicBreakdown, getControlPlaneBreakdown, getLogTypes, getNamespaceBreakdown, getRancherBreakdown, getLonghornBreakdown, getClusterMetadataById, DeploymentBreakdown, getDeploymentBreakdown } from '../../utils/requests';
 import Loading from '../Loading/Loading';
 import { Granularity, isSameRange, Range } from '../../utils/time';
 
@@ -24,12 +24,12 @@ export interface BreakdownsProps {
 
 export interface BreakdownState {
   controlPlaneBreakdownRequest: Promise<BasicBreakdown[]>;
-  podBreakdownRequest: Promise<BasicBreakdown[]>;
+  deploymentBreakdownRequest: Promise<DeploymentBreakdown[]>;
   namespaceBreakdownRequest: Promise<BasicBreakdown[]>;
   rancherBreakdownRequest: Promise<BasicBreakdown[]>;
   longhornBreakdownRequest: Promise<BasicBreakdown[]>;
   controlPlaneBreakdown: BasicBreakdown[];
-  podBreakdown: BasicBreakdown[];
+  deploymentBreakdown: DeploymentBreakdown[];
   namespaceBreakdown: BasicBreakdown[];
   rancherBreakdown: BasicBreakdown[];
   longhornBreakdown: BasicBreakdown[];
@@ -45,8 +45,8 @@ export default class Breakdowns extends Component<BreakdownsProps, BreakdownStat
     this.state = {
       controlPlaneBreakdownRequest: new Promise<BasicBreakdown[]>(() => {}),
       controlPlaneBreakdown: [],
-      podBreakdownRequest: new Promise<BasicBreakdown[]>(() => {}),
-      podBreakdown: [],
+      deploymentBreakdownRequest: new Promise<DeploymentBreakdown[]>(() => {}),
+      deploymentBreakdown: [],
       namespaceBreakdownRequest: new Promise<BasicBreakdown[]>(() => {}),
       namespaceBreakdown: [],
       rancherBreakdownRequest: new Promise<BasicBreakdown[]>(() => {}),
@@ -72,7 +72,7 @@ export default class Breakdowns extends Component<BreakdownsProps, BreakdownStat
   load = async () => {
     const clusterById = await getClusterMetadataById();
     const controlPlaneBreakdownRequest =  getControlPlaneBreakdown(this.props.range, this.props.clusterId, this.props.keywords, clusterById);
-    const podBreakdownRequest =  getPodBreakdown(this.props.range, this.props.clusterId, this.props.keywords, clusterById);
+    const deploymentBreakdownRequest =  getDeploymentBreakdown(this.props.range, this.props.clusterId, this.props.keywords, clusterById);
     const namespaceBreakdownRequest =  getNamespaceBreakdown(this.props.range, this.props.clusterId, this.props.keywords, clusterById);
     const rancherBreakdownRequest = getRancherBreakdown(this.props.range, this.props.clusterId, this.props.keywords, clusterById);
     const longhornBreakdownRequest = getLonghornBreakdown(this.props.range, this.props.clusterId, this.props.keywords, clusterById);
@@ -80,17 +80,17 @@ export default class Breakdowns extends Component<BreakdownsProps, BreakdownStat
     
     this.setState({
       controlPlaneBreakdownRequest,
-      podBreakdownRequest,
+      deploymentBreakdownRequest: deploymentBreakdownRequest,
       namespaceBreakdownRequest,
       rancherBreakdownRequest,
       longhornBreakdownRequest,
-      allRequests: Promise.all([controlPlaneBreakdownRequest, podBreakdownRequest, namespaceBreakdownRequest, rancherBreakdownRequest, longhornBreakdownRequest, getLogTypes])
+      allRequests: Promise.all([controlPlaneBreakdownRequest, deploymentBreakdownRequest, namespaceBreakdownRequest, rancherBreakdownRequest, longhornBreakdownRequest, getLogTypes])
     });
 
     const logTypes = await logTypesRequest;
     this.setState({
       controlPlaneBreakdown: await controlPlaneBreakdownRequest,
-      podBreakdown: await podBreakdownRequest,
+      deploymentBreakdown: await deploymentBreakdownRequest,
       namespaceBreakdown: await namespaceBreakdownRequest,
       rancherBreakdown: await rancherBreakdownRequest,
       longhornBreakdown: await longhornBreakdownRequest,
@@ -108,12 +108,12 @@ export default class Breakdowns extends Component<BreakdownsProps, BreakdownStat
       },
       {
         id: 'pod',
-        name: 'Workload Pod',
-        content: <Pod breakdown={this.state.podBreakdown} range={this.props.range} clusterId={this.props.clusterId} keywords={this.props.keywords} />
+        name: 'Deployments',
+        content: <Deployment breakdown={this.state.deploymentBreakdown} range={this.props.range} clusterId={this.props.clusterId} keywords={this.props.keywords} />
       },
       {
         id: 'namespace',
-        name: 'Workload Namespace',
+        name: 'Namespaces',
         content: <Namespace breakdown={this.state.namespaceBreakdown} range={this.props.range} clusterId={this.props.clusterId} keywords={this.props.keywords} />
       }
     ];

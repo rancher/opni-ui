@@ -28,6 +28,14 @@ export interface K8SEvent {
   timestamp: number;
 }
 
+export interface Cluster {
+  name: string;
+  id: string;
+  anomaly: number;
+  normal: number;
+  raw: number;
+}
+
 export interface LogTemplate {
   template: string;
   templateId: number;
@@ -43,6 +51,11 @@ export interface BasicBreakdown {
   suspicious: number;
   normal: number;
   keywords: number;
+}
+
+export interface DeploymentBreakdown extends BasicBreakdown {
+  namespace: string;
+  deployment: string;
 }
 
 export interface WorkloadBreakdown extends BasicBreakdown {
@@ -122,6 +135,37 @@ export async function getClusterMetadataById(): Promise<ClusterMetadataById> {
   });
 
   return aggregation;
+}
+
+export async function getClusters(range: Range): Promise<Cluster[]> {
+  const [clustersResponse, clusterMetadataResponse] = await Promise.all([search(getClusterQuery(range)), getClusterMetadataById()]);
+
+  const partialResult = clustersResponse.rawResponse.aggregations?.clusters.buckets.map(bucket => {
+    const id = bucket.key;
+    const metadata = clusterMetadataResponse[id];
+    if (metadata) {
+      delete clusterMetadataResponse[id];
+    }
+    console.log(bucket.anomaly_level?.buckets);
+    return {
+      id,
+      name: metadata?.name || 'Unknown',
+      anomaly: bucket.anomaly_level?.buckets?.find(b => b.key === 'Anomaly')?.doc_count || 0,
+      normal: bucket.anomaly_level?.buckets?.find(b => b.key === 'Normal')?.doc_count || 0,
+      raw: bucket.anomaly_level?.buckets?.find(b => b.key === '')?.doc_count || 0
+    }
+  }) || [];
+
+
+  partialResult.push(...Object.entries(clusterMetadataResponse).map(([id, metadata]) => ({
+    id,
+    name: metadata.name,
+    anomaly: 0,
+    normal: 0,
+    raw: 0
+  })));
+
+  return partialResult;
 }
 
 
@@ -253,6 +297,7 @@ export async function getPodBreakdown(range: Range, clusterId: string, keywords:
   const breakdownPromise = search(getPodBreakdownQuery(range, clusterId));
   const keywordsBreakdownPromise = search(getPodKeywordsBreakdownQuery(range, clusterId, keywords));
   const response = await breakdownPromise;
+
   if (response.rawResponse.hits.total === 0) {
     return [];
   }
@@ -279,6 +324,45 @@ export async function getPodBreakdown(range: Range, clusterId: string, keywords:
           clusterId: cluster.key
         };
       });
+  });
+}
+
+export async function getDeploymentBreakdown(range: Range, clusterId: string, keywords: string[], clusterById: ClusterMetadataById): Promise<DeploymentBreakdown[]> {
+  const breakdownPromise = search(getPodBreakdownQuery(range, clusterId));
+  const keywordsBreakdownPromise = search(getPodKeywordsBreakdownQuery(range, clusterId, keywords));
+  const response = await breakdownPromise;
+  console.log('rrr', response);
+  if (response.rawResponse.hits.total === 0) {
+    return [];
+  }
+  const clusters = response.rawResponse?.aggregations?.cluster_id?.buckets || [];
+  const keywordsClusters = (await keywordsBreakdownPromise).rawResponse?.aggregations?.cluster_id?.buckets || [];
+
+  return clusters.flatMap(cluster => {
+    const keywordsCluster = keywordsClusters.find(c => c.key === cluster.key) || {};
+
+    return cluster.namespace_name.buckets.flatMap(namespaceBucket => {
+      return namespaceBucket.deployment.buckets.flatMap(deploymentBucket => {
+        const buckets = deploymentBucket.component_name?.buckets || [];
+        const keywordsBuckets = keywordsCluster.component_name?.buckets || [];
+        return buckets
+          .filter((bucket) => {
+            return bucket.anomaly_level.buckets.some(b => b.key === 'Anomaly' || b.key === 'Normal')
+          })
+          .map((bucket) => {
+            const keywordsBucket = keywordsBuckets.find(b => b.key === bucket.key);
+            return {
+              ...extractCounts(bucket.anomaly_level.buckets),
+              keywords: keywordsBucket?.doc_count || 0,
+              name: bucket.key,
+              namespace: namespaceBucket.key,
+              deployment: deploymentBucket.key,
+              clusterName: clusterById[cluster.key]?.name || cluster.key,
+              clusterId: cluster.key
+            };
+          });
+      });
+    });
   });
 }
 
@@ -802,11 +886,21 @@ function getPodBreakdownQuery(range: Range, clusterId: string) {
       "cluster_id": {
         "terms": { "field": "cluster_id", "size": 1000 },
         "aggs": {
-          "component_name": {
-            "terms": { "field": "pod_name.keyword", "size": 1000 },
+          "namespace_name": {
+            "terms": { "field": "namespace_name.keyword", "size": 1000 },
             "aggs": {
-              "anomaly_level": { "terms": { "field": "anomaly_level" } }
-            },
+              "deployment": {
+                "terms": { "field": "deployment.keyword", "size": 1000 },
+                "aggs": {
+                  "component_name": {
+                    "terms": { "field": "pod_name.keyword", "size": 1000 },
+                    "aggs": {
+                      "anomaly_level": { "terms": { "field": "anomaly_level" } }
+                    },
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -849,4 +943,22 @@ async function randomDelay() {
   const ms = 500 + (Math.random() * 2000);
 
   return delay(ms);
+}
+
+function getClusterQuery(range: Range) {
+  return {
+    "query": {
+      "bool": {
+        "filter": [{ "range": { "time": { "gte": range.start, "lte": range.end } } }],
+      }
+    },
+    "aggs": {
+      "clusters": {
+        "terms": { "field": "cluster_id", "size": 1000 },
+        "aggs": {
+          "anomaly_level": { "terms": { "field": "anomaly_level" } }
+        },
+      }
+    },
+  }
 }

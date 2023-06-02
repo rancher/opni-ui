@@ -1,0 +1,130 @@
+.deployment-breakdown {
+    padding: 15px;
+
+    .cluster {
+        $size: 15px;
+        margin-bottom: $size;
+        padding-bottom: $size;
+
+        border-bottom: 1px solid #d3dae6; 
+    }
+
+    .bubble {
+        cursor: pointer;
+    }
+
+    a {
+        color: #000;
+    }
+
+    div.normal {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100px;
+
+        div {
+            white-space: nowrap;
+        }
+    }
+
+    .percent {
+        font-size: 11px;
+        display: inline-block;
+        position: relative;
+        top: -1px;
+    }
+
+    .euiTableRow:last-of-type .euiTableRowCell {
+        border-bottom: none;
+    }
+
+    .group {
+        $tabColor: #FFF;
+
+        background-color: #d3dae6;
+        position: relative;
+        height: 46px;
+
+        &::before {
+            height: 20px;
+            content: "";
+            display: block;
+        }
+
+        td:first-child {
+            height: 40px;
+            line-height: 40px;
+            padding: 0;
+            padding-bottom: 5px;
+            border-radius: 4px 4px 0 0;
+            border: none;
+            background-color: $tabColor;
+            position: absolute;
+            bottom: -1px;
+            display: inline-block;
+            z-index: 10;
+            min-width: 72px;
+            font-weight: bold;
+
+            .euiTableCellContent {
+                margin-top: -8px;
+                font-size: 12px;
+            }
+
+            &::after {
+                height: 40px;
+                width: 70px;
+                border-radius: 5px 5px 0 0;
+                border: none;
+                background-color: $tabColor;
+                content: "";
+                position: absolute;
+                right: -15px;
+                top: 0;
+                transform: skewX(40deg);
+                z-index: -1;
+            }
+        }
+
+        td:not(:first-child)>* {
+            visibility: hidden;
+        }
+    }
+
+    .euiTableRow-isExpandedRow > .euiTableRowCell {
+        $backgorund: #d3dae6;
+        background-color: $backgorund;
+
+        & > .euiTableCellContent {
+            padding: 0;
+    
+            thead {
+                display: none;
+            }
+    
+            tr {
+                background-color: $backgorund;
+            }
+        }
+    }
+
+    .show-pods {
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 4px;
+        transition: transform 250ms ease-in-out,background-color 250ms ease-in-out;
+
+        &:focus {
+            outline: 1px solid transparent;
+        }
+
+        &:hover {
+            background-color: rgba(0, 119, 204, 0.1);
+            transform: translateY(-1px);
+        }
+    }
+}
