@@ -109,8 +109,8 @@ export async function getClusterMetadata(): Promise<ClusterMetadata[]> {
     if (clusters.length > 0) {
       return clusters
         .map(hit => ({
-          id: hit._source.id,
-          name: hit._source.name || hit._source.id
+          id: hit._id,
+          name: hit._source.name || hit._id
         }));
     }
 
