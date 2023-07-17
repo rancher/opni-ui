@@ -1,7 +1,7 @@
 {
   "id": "opniDashboardsPlugin",
   "version": "{VERSION}",
-  "opensearchDashboardsVersion": "2.4.0",
+  "opensearchDashboardsVersion": "2.8.0",
   "configPath": ["opni_dashboards"],
   "requiredPlugins": [],
   "server": false,
